@@ -11,12 +11,12 @@
     height: 150%;
 }
 
-@media screen and (max-width: 767px) {
+/* @media screen and (max-width: 767px) {
     .container {
         width: 125%;
         height: 200%;
     }
-}
+} */
 
 .container canvas {
     pointer-events: none;
