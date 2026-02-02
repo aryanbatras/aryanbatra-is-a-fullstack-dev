@@ -1,11 +1,13 @@
 import styles from "../../styles/components/animation/AnimatedText.module.css";
 import { useRef, useEffect, useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 interface AnimatedTextProps {
   content: string[];
 }
 
 export default function AnimatedText({ content }: AnimatedTextProps) {
+  const { theme } = useTheme();
   const wordIndex = useRef(0);
   const arrayIndex = useRef(0);
   const directionRef = useRef(0);
@@ -41,7 +43,7 @@ export default function AnimatedText({ content }: AnimatedTextProps) {
     }
   }, [animatedTextArray]);
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}>
       {animatedTextArray.map((item, index) => (
         <span key={index}>{item}</span>
       ))}
