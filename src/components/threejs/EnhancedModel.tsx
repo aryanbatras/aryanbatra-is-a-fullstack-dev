@@ -41,7 +41,7 @@ export default function EnhancedModel({
       const driftZ = Math.sin(time * 0.6 + 2) * driftIntensity * 0.67
       
       const baseX = width < 768 ? 0.45 : width < 1280 ? 0.95 : 0.90
-      const baseY = width < 768 ? 0.52 : width < 1280 ? 0.25 : -0.05
+      const baseY = width < 768 ? 0.45 : width < 1280 ? 0.25 : -0.05
       const baseZ = width < 768 ? -1.70 : width < 1280 ? -3.35 : -2.05
       
       modelRef.current.position.x = baseX + driftX + position[0]
@@ -59,7 +59,7 @@ export default function EnhancedModel({
       modelRef.current.rotation.z = rotZ + rotation[2]
     } else if (modelRef.current) {
       const baseX = width < 768 ? 0.45 : width < 1280 ? 0.95 : 0.90
-      const baseY = width < 768 ? 0.52 : width < 1280 ? 0.25 : -0.05
+      const baseY = width < 768 ? 0.52 : width < 1280 ? 0.25 : 0.15
       const baseZ = width < 768 ? -1.70 : width < 1280 ? -3.35 : -2.05
       
       modelRef.current.position.x = baseX + position[0]

@@ -22,7 +22,8 @@ export default function CameraController() {
         const touch = event.touches[0];
         setMousePos({
           x: (touch.clientX / window.innerWidth) * 2 - 1,
-          y: -(touch.clientY / window.innerHeight) * 2 + 1
+          // y: -(touch.clientY / window.innerHeight) * 2 + 1
+          y: 0
         });
       }
     };

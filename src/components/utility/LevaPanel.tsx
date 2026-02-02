@@ -77,9 +77,10 @@ export default function LevaPanel() {
             theme={theme === "dark" ? darkTheme : lightTheme}
             hidden={visible ? false : true}
             titleBar={{
+              title: "3D Scene Settings",
               drag: false,
               filter: false,
-              position: { x: -20, y: 40 },
+              position: { x: 0, y: 40 },
             }}
             
             collapsed={true}
