@@ -71,7 +71,16 @@ export default function EnhancedModelContainer() {
         shadows
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.55, 0], fov: 35 }}
-        style={{ pointerEvents: "none" }}
+        style={{ 
+          pointerEvents: "none",
+          width: "100%",
+          height: "100%",
+          display: "block"
+        }}
+        gl={{
+          preserveDrawingBuffer: true,
+          antialias: true
+        }}
       >
         <CameraController />
         <Suspense
