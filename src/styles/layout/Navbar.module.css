@@ -5,7 +5,10 @@
   justify-content: space-between;
   align-items: center;
   position: sticky;
+  width: 95vw;
+  height: 4vh;
   top: 0;
+  /* background: red; */
   z-index: 1001;
   &.dark {
     background: black;
