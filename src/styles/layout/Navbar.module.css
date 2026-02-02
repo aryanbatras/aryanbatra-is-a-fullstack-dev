@@ -1,12 +1,10 @@
 .navbar {
   background: transparent;
-  padding: 0.25rem 1rem;
+  /* padding: 0.05rem 0rem; */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
-  width: 95vw;
-  height: 4vh;
   top: 0;
   /* background: red; */
   z-index: 1001;
@@ -19,6 +17,7 @@
 .header {
   display: flex;
   align-items: center;
+  padding-left: 10px;
   gap: 1rem;
 }
 
