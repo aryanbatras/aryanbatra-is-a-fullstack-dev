@@ -1,0 +1,161 @@
+.terminal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1d1d1d;
+  color: #ffffff;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 16px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  user-select: none;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+}
+
+.button:hover {
+  opacity: 0.8;
+}
+
+.button.red {
+  background: #ff5f56;
+}
+
+.button.yellow {
+  background: #ffbd2e;
+}
+
+.button.green {
+  background: #27c93f;
+}
+
+.title {
+  color: #cccccc;
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #1d1d1d;
+  scrollbar-width: thin;
+  scrollbar-color: #404040 #1d1d1d;
+}
+
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #1d1d1d;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.text {
+  color: #ffffff;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.login {
+  color: #888888;
+  font-style: italic;
+}
+
+.command {
+  color: #4ade80;
+  font-weight: 500;
+}
+
+.npm {
+  color: #fbbf24;
+  font-weight: 500;
+}
+
+.nextjs {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.local {
+  color: #60a5fa;
+}
+
+.ready {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.tech {
+  color: #a78bfa;
+  font-weight: 500;
+}
+
+.feature {
+  color: #f472b6;
+  font-weight: 500;
+}
+
+.success {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.cursor {
+  animation: blink 1s infinite;
+  display: inline-block;
+  color: #ffffff;
+  font-weight: 400;
+}
+
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}

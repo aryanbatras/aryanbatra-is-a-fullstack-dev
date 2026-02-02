@@ -1,0 +1,6 @@
+.icon {
+  transform: translateY(2.5px);
+  &:hover {
+    opacity: 0.5;
+  }
+}

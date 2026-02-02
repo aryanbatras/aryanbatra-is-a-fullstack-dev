@@ -1,0 +1,19 @@
+.container {
+  width: 100vw;
+  height: 350vh;
+  &.dark {
+    background: black;
+  }
+}
+
+.content {
+  position: relative;
+  display: flex;
+  padding: 3.5rem 0rem;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  height: 50vh;
+  width: 100vw;
+  background: transparent;
+}

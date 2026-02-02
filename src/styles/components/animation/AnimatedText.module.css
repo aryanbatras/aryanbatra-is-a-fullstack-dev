@@ -1,0 +1,72 @@
+.container {
+  display: flex;
+  gap: 0.1rem;
+  color: black;
+  font-size: 3.5rem;
+  padding: 2rem;
+  line-height: 1;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 4px;
+    background: red;
+    transform: translateX(300%);
+    transition: all 0.6s ease-in-out;
+  }
+  &:hover::after {
+    width: 100%;
+    opacity: 0.5;
+    transform: translateX(0%);
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .container {
+    font-size: 2rem;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    font-size: 3.5rem;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1247px) {
+  .container {
+    font-size: 5rem;
+  }
+}
+
+@media screen and (min-width: 1248px) {
+  .container {
+    font-size: 5.5rem;
+  }
+}
+
+.caret {
+  opacity: 0;
+  width: 4px;
+  height: 1em;
+  background: black;
+  transform: translateY(2px);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
