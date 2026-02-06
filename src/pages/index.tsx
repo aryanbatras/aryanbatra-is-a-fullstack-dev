@@ -28,7 +28,7 @@ export default function Home() {
   const [showHome, setShowHome] = useState(false);
   console.log("Home");
   useEffect(() => {
-    const timer = setTimeout(() => setShowHome(true), 8000);
+    const timer = setTimeout(() => setShowHome(true), 80);
     return () => clearTimeout(timer);
   }, []);
 

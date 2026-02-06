@@ -8,7 +8,7 @@ interface PanelContextType {
 const PanelContext = createContext<PanelContextType | undefined>(undefined);
 
 export function PanelProvider({ children }: { children: ReactNode }) {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   return (
     <PanelContext.Provider value={{ visible, setVisible }}>
