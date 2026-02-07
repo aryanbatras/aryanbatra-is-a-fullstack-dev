@@ -1,6 +1,6 @@
 import styles from "@/styles/pages/index.module.css";
-import { useTheme } from "@/context/ThemeContext";
 import One from "@/components/homepage/segments/one";
+import { useTheme } from "@/context/ThemeContext";
 export default function Home() {
   const { theme } = useTheme();
   return (
