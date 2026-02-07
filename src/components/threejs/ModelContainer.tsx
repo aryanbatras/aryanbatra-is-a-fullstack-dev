@@ -1,15 +1,15 @@
 import { Canvas } from "@react-three/fiber";
 import { Environment, Html } from "@react-three/drei";
 import { Selection } from "@react-three/postprocessing";
-import EnhancedModel from "./EnhancedModel";
+import Model from "./Model";
 import OrbitingBalls from "./OrbitingBalls";
-import EnhancedEffects from "./EnhancedEffects";
+import Effects from "./Effects";
 import styles from "../../styles/components/threejs/Model.module.css";
 import { Suspense } from "react";
-import CameraController from "./CameraController";
+import Camera from "./Camera";
 import { useControls } from "leva";
 
-export default function EnhancedModelContainer() {
+export default function ModelContainer() {
   const {
     scale,
     autoRotate,
@@ -55,11 +55,11 @@ export default function EnhancedModelContainer() {
         "white",
       ],
     },
-    scale: { value: 2.5, min: 0.5, max: 5, step: 0.1 },
+    scale: { value: 2.5, min: 0.5, max: 5, step: 0.01 },
     ballCount: { value: 8, min: 1, max: 20, step: 1 },
-    ballSize: { value: 0.175, min: 0.05, max: 0.5, step: 0.01 },
-    ballSpeed: { value: 0.01, min: 0.001, max: 0.05, step: 0.001 },
-    glowIntensity: { value: 0.2, min: 0, max: 2, step: 0.1 },
+    ballSize: { value: 0.175, min: 0.05, max: 0.5, step: 0.001 },
+    ballSpeed: { value: 0.01, min: 0.001, max: 0.05, step: 0.0001 },
+    glowIntensity: { value: 0.2, min: 0, max: 2, step: 0.01 },
     discoMode: false,
     bloomEffect: false,
     autoRotate: false,
@@ -82,7 +82,7 @@ export default function EnhancedModelContainer() {
           antialias: true
         }}
       >
-        <CameraController />
+        <Camera />
         <Suspense
           fallback={
             <Html center>
@@ -93,29 +93,27 @@ export default function EnhancedModelContainer() {
           }
         >
           <Environment preset={environment as any} />
-          <EnhancedModel
-            animationEnabled={true}
+          <Model
             floatIntensity={0.02}
             rotationSpeed={0.4}
             driftIntensity={0.015}
             scale={scale}
-            wireframe={false}
             autoRotate={autoRotate}
             position={[0, 0, 0]}
             rotation={[0, 0, 0]}
           />
 
           <Selection>
-            <EnhancedEffects
+            <Effects
               bloomEnabled={bloomEffect}
-              bloomIntensity={bloomEffect ? 3 : 0.5}
+              bloomIntensity={bloomEffect ? 10 : 0.5}
               bloomLuminanceThreshold={0.2}
               bloomRadius={0.1}
-              depthOfFieldEnabled={false}
+              depthOfFieldEnabled={true}
               depthOfFieldFocusDistance={0.1}
               depthOfFieldFocalLength={0.02}
               depthOfFieldBokehScale={0.75}
-              vignetteEnabled={false}
+              vignetteEnabled={true}
               vignetteOffset={0.5}
               vignetteDarkness={0.75}
               chromaticAberrationEnabled={bloomEffect}

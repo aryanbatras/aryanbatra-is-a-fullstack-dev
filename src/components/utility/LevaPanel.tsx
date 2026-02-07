@@ -1,14 +1,10 @@
 import { Leva } from "leva";
 import { useTheme } from "../../context/ThemeContext";
 import { usePanelVisible } from "../../context/PanelContext";
-import useScreenWidth from "../../hooks/useScreenWidth";
 
 export default function LevaPanel() {
   const { theme } = useTheme();
   const { visible } = usePanelVisible();
-  const { width } = useScreenWidth();
-  const isLargeScreen = width > 768;
-
   const lightTheme = {
     colors: {
       elevation1: "#ffffff",
@@ -23,18 +19,18 @@ export default function LevaPanel() {
       vivid1: "#000000",
     },
     radii: {
-      xs: isLargeScreen ? "4px" : "2px",
-      sm: isLargeScreen ? "4px" : "2px",
-      lg: isLargeScreen ? "4px" : "2px",
+      xs: "2px",
+      sm: "2px",
+      lg: "2px",
     },
     space: {
-      sm: isLargeScreen ? "0px" : "0px",
-      md: isLargeScreen ? "40px" : "40px",
-      rowGap: isLargeScreen ? "34px" : "12px",
-      colGap: isLargeScreen ? "112px" : "12px",
+      sm: "0px",
+      md: "40px",
+      rowGap: "34px",
+      colGap: "12px",
     },
     fontSizes: {
-      root: isLargeScreen ? "16px" : "16px",
+      root: "14px",
     },
   };
 
@@ -52,25 +48,25 @@ export default function LevaPanel() {
       vivid1: "#bb2222",
     },
     radii: {
-      xs: isLargeScreen ? "4px" : "2px",
-      sm: isLargeScreen ? "4px" : "2px",
-      lg: isLargeScreen ? "4px" : "2px",
+      xs: "2px",
+      sm: "2px",
+      lg: "2px",
     },
     space: {
-      sm: isLargeScreen ? "0px" : "0px",
-      md: isLargeScreen ? "40px" : "40px",
-      rowGap: isLargeScreen ? "34px" : "12px",
-      colGap: isLargeScreen ? "112px" : "12px",
+      sm: "0px",
+      md: "40px",
+      rowGap: "34px",
+      colGap: "12px",
     },
     fontSizes: {
-      root: isLargeScreen ? "16px" : "16px",
+      root: "14px",
     },
   };
 
   return (
     <div
       style={{
-        position: "fixed",
+        position: "relative",
         zIndex: 1002,
         display: visible ? "block" : "none",
       }}
@@ -81,7 +77,7 @@ export default function LevaPanel() {
         titleBar={{
           drag: false,
           filter: false,
-          position: { x: -25, y: -20 },
+          position: { x: -25, y: -50 },
         }}
         
         collapsed={false}

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 
 
-export default function CameraController() {
+export default function Camera() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { width } = useScreenWidth();
   const isMobile = width < 768;

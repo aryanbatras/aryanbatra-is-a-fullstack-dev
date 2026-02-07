@@ -1,36 +1,22 @@
 import { EffectComposer, Bloom, DepthOfField, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { EffectsProps } from "../../types";
+import { EFFECTS_DEFAULTS } from "../../constants";
 
-interface EnhancedEffectsProps {
-  bloomEnabled: boolean
-  bloomIntensity: number
-  bloomLuminanceThreshold: number
-  bloomRadius: number
-  depthOfFieldEnabled: boolean
-  depthOfFieldFocusDistance: number
-  depthOfFieldFocalLength: number
-  depthOfFieldBokehScale: number
-  vignetteEnabled: boolean
-  vignetteOffset: number
-  vignetteDarkness: number
-  chromaticAberrationEnabled: boolean
-  chromaticAberrationOffset: [number, number]
-}
-
-export default function EnhancedEffects({
-  bloomEnabled,
-  bloomIntensity,
-  bloomLuminanceThreshold,
-  bloomRadius,
-  depthOfFieldEnabled,
-  depthOfFieldFocusDistance,
-  depthOfFieldFocalLength,
-  depthOfFieldBokehScale,
-  vignetteEnabled,
-  vignetteOffset,
-  vignetteDarkness,
-  chromaticAberrationEnabled,
-  chromaticAberrationOffset
-}: EnhancedEffectsProps) {
+export default function Effects({
+  bloomEnabled = EFFECTS_DEFAULTS.bloomIntensity > 0,
+  bloomIntensity = EFFECTS_DEFAULTS.bloomIntensity,
+  bloomLuminanceThreshold = EFFECTS_DEFAULTS.bloomLuminanceThreshold,
+  bloomRadius = EFFECTS_DEFAULTS.bloomRadius,
+  depthOfFieldEnabled = true,
+  depthOfFieldFocusDistance = EFFECTS_DEFAULTS.depthOfFieldFocusDistance,
+  depthOfFieldFocalLength = EFFECTS_DEFAULTS.depthOfFieldFocalLength,
+  depthOfFieldBokehScale = EFFECTS_DEFAULTS.depthOfFieldBokehScale,
+  vignetteEnabled = true,
+  vignetteOffset = EFFECTS_DEFAULTS.vignetteOffset,
+  vignetteDarkness = EFFECTS_DEFAULTS.vignetteDarkness,
+  chromaticAberrationEnabled = false,
+  chromaticAberrationOffset = EFFECTS_DEFAULTS.chromaticAberrationOffset
+}: EffectsProps) {
   const effects = [];
   
   if (bloomEnabled) {
