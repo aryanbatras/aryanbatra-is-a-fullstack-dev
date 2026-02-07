@@ -9,7 +9,8 @@ import Effects from "./Effects";
 import Camera from "./Camera";
 import OrbitingBalls from "./OrbitingBalls";
 import { BallShape, ColorPreset } from "@/types";
-
+import { XR, createXRStore } from "@react-three/xr";
+export const store = createXRStore()
 export default function ModelContainer() {
   const {
     scale,
@@ -72,68 +73,70 @@ export default function ModelContainer() {
         shadows
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.55, 0], fov: 35 }}
-        style={{ 
+        style={{
           pointerEvents: "none",
           width: "100%",
           height: "100%",
-          display: "block"
+          display: "block",
         }}
         gl={{
           preserveDrawingBuffer: true,
-          antialias: true
+          antialias: true,
         }}
       >
-        <Camera />
-        <Suspense
-          fallback={
-            <Html center>
-              <div style={{ color: "white", fontSize: "14px" }}>
-                Loading model...
-              </div>
-            </Html>
-          }
-        >
-          <Environment preset={environment as any} />
-          <Model
-            floatIntensity={0.02}
-            rotationSpeed={0.4}
-            driftIntensity={0.015}
-            scale={scale}
-            autoRotate={autoRotate}
-            position={[0, 0, 0]}
-            rotation={[0, 0, 0]}
-          />
-
-          <Selection>
-            <Effects
-              bloomEnabled={bloomEffect}
-              bloomIntensity={bloomEffect ? 10 : 0.5}
-              bloomLuminanceThreshold={0.2}
-              bloomRadius={0.1}
-              depthOfFieldEnabled={true}
-              depthOfFieldFocusDistance={0.1}
-              depthOfFieldFocalLength={0.02}
-              depthOfFieldBokehScale={0.75}
-              vignetteEnabled={true}
-              vignetteOffset={0.5}
-              vignetteDarkness={0.75}
-              chromaticAberrationEnabled={bloomEffect}
-              chromaticAberrationOffset={[0, 0.001, 0.002]}
+        <XR store={store}>
+          <Camera />
+          <Suspense
+            fallback={
+              <Html center>
+                <div style={{ color: "white", fontSize: "14px" }}>
+                  Loading model...
+                </div>
+              </Html>
+            }
+          >
+            <Environment preset={environment as any} />
+            <Model
+              floatIntensity={0.02}
+              rotationSpeed={0.4}
+              driftIntensity={0.015}
+              scale={scale}
+              autoRotate={autoRotate}
+              position={[0, 0, 0]}
+              rotation={[0, 0, 0]}
             />
 
-            <OrbitingBalls
-              centerPosition={[0.9, 0.5, -1.2]}
-              radius={1.8}
-              ballCount={ballCount}
-              ballSize={ballSize}
-              orbitSpeed={ballSpeed}
-              colorChangeMode={discoMode}
-              ballShape={ballShape as BallShape}
-              glowIntensity={glowIntensity}
-              colorPreset={colorPreset as ColorPreset}
-            />
-          </Selection>
-        </Suspense>
+            <Selection>
+              <Effects
+                bloomEnabled={bloomEffect}
+                bloomIntensity={bloomEffect ? 10 : 0.5}
+                bloomLuminanceThreshold={0.2}
+                bloomRadius={0.1}
+                depthOfFieldEnabled={true}
+                depthOfFieldFocusDistance={0.1}
+                depthOfFieldFocalLength={0.02}
+                depthOfFieldBokehScale={0.75}
+                vignetteEnabled={true}
+                vignetteOffset={0.5}
+                vignetteDarkness={0.75}
+                chromaticAberrationEnabled={bloomEffect}
+                chromaticAberrationOffset={[0, 0.001, 0.002]}
+              />
+
+              <OrbitingBalls
+                centerPosition={[0.9, 0.5, -1.2]}
+                radius={1.8}
+                ballCount={ballCount}
+                ballSize={ballSize}
+                orbitSpeed={ballSpeed}
+                colorChangeMode={discoMode}
+                ballShape={ballShape as BallShape}
+                glowIntensity={glowIntensity}
+                colorPreset={colorPreset as ColorPreset}
+              />
+            </Selection>
+          </Suspense>
+        </XR>
       </Canvas>
     </div>
   );
