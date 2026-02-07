@@ -1,13 +1,14 @@
+import styles from "@/styles/components/threejs/Model.module.css";
 import { Canvas } from "@react-three/fiber";
 import { Environment, Html } from "@react-three/drei";
 import { Selection } from "@react-three/postprocessing";
-import Model from "./Model";
-import OrbitingBalls from "./OrbitingBalls";
-import Effects from "./Effects";
-import styles from "../../styles/components/threejs/Model.module.css";
-import { Suspense } from "react";
-import Camera from "./Camera";
 import { useControls } from "leva";
+import { Suspense } from "react";
+import Model from "./Model";
+import Effects from "./Effects";
+import Camera from "./Camera";
+import OrbitingBalls from "./OrbitingBalls";
+import { BallShape, ColorPreset } from "@/types";
 
 export default function ModelContainer() {
   const {
@@ -117,7 +118,7 @@ export default function ModelContainer() {
               vignetteOffset={0.5}
               vignetteDarkness={0.75}
               chromaticAberrationEnabled={bloomEffect}
-              chromaticAberrationOffset={[0.001, 0.002]}
+              chromaticAberrationOffset={[0, 0.001, 0.002]}
             />
 
             <OrbitingBalls
@@ -127,9 +128,9 @@ export default function ModelContainer() {
               ballSize={ballSize}
               orbitSpeed={ballSpeed}
               colorChangeMode={discoMode}
-              ballShape={ballShape}
+              ballShape={ballShape as BallShape}
               glowIntensity={glowIntensity}
-              colorPreset={colorPreset}
+              colorPreset={colorPreset as ColorPreset}
             />
           </Selection>
         </Suspense>

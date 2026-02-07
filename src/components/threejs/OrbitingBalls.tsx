@@ -1,8 +1,8 @@
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { OrbitingBallsProps, TechIcon } from "../../types";
+import { OrbitingBallsProps, TechIcon, BallShape, ColorPreset } from "@/types";
 import { Group, Mesh, Object3D, CanvasTexture, Color } from "three";
-import { TECH_ICONS, COLOR_PRESETS, ANIMATION_DEFAULTS } from "../../constants";
+import { TECH_ICONS, COLOR_PRESETS, ANIMATION_DEFAULTS} from "@/constants";
 
 function createIconTexture(icon: TechIcon) {
   
@@ -59,9 +59,9 @@ function TechBall({ position, index, ballSize, colorChangeMode, ballShape, glowI
   index: number; 
   ballSize: number; 
   colorChangeMode?: boolean;
-  ballShape?: string;
+  ballShape?: BallShape;
   glowIntensity?: number;
-  colorPreset?: string;
+  colorPreset?: ColorPreset;
 }) {
   const meshRef = useRef<Mesh>(null);
   
@@ -133,9 +133,9 @@ export default function OrbitingBalls({
   ballSize, 
   orbitSpeed = ANIMATION_DEFAULTS.orbitSpeed,
   colorChangeMode,
-  ballShape = 'sphere',
+  ballShape = 'sphere' as BallShape,
   glowIntensity = ANIMATION_DEFAULTS.glowIntensity,
-  colorPreset = 'blue'
+  colorPreset = 'blue' as ColorPreset
 }: OrbitingBallsProps) {
   const groupRef = useRef<Group>(null);
 

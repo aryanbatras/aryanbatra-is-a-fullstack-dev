@@ -1,6 +1,6 @@
 import { EffectComposer, Bloom, DepthOfField, Vignette, ChromaticAberration } from "@react-three/postprocessing";
-import { EffectsProps } from "../../types";
-import { EFFECTS_DEFAULTS } from "../../constants";
+import { EffectsProps } from "@/types";
+import { EFFECTS_DEFAULTS } from "@/constants";
 
 export default function Effects({
   bloomEnabled = EFFECTS_DEFAULTS.bloomIntensity > 0,

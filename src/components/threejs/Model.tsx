@@ -1,9 +1,9 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import useScreenWidth from "../../hooks/useScreenWidth";
-import { ModelProps } from "../../types";
-import { MODEL_PATH, RESPONSIVE_POSITIONS, BREAKPOINTS } from "../../constants";
+import useScreenWidth from "@/hooks/useScreenWidth";
+import { ModelProps } from "@/types";
+import { MODEL_PATH, RESPONSIVE_POSITIONS, BREAKPOINTS } from "@/constants";
 
 export default function Model({
   floatIntensity,

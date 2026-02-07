@@ -1,6 +1,6 @@
-import styles from "../../styles/components/animation/AnimatedText.module.css";
+import styles from "@/styles/components/animation/AnimatedText.module.css";
+import { useTheme } from "@/context/ThemeContext";
 import { useRef, useEffect, useState } from "react";
-import { useTheme } from "../../context/ThemeContext";
 
 interface AnimatedTextProps {
   content: string[];

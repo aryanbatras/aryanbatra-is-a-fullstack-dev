@@ -1,9 +1,6 @@
-import styles from "../styles/pages/index.module.css";
-import AnimatedText from "../components/animations/AnimatedText";
-import { useTheme } from "../context/ThemeContext";
-import ModelContainer from "../components/threejs/ModelContainer";
-import LevaPanel from "../components/utility/LevaPanel";
-
+import styles from "@/styles/pages/index.module.css";
+import { useTheme } from "@/context/ThemeContext";
+import One from "@/components/homepage/segments/one";
 export default function Home() {
   const { theme } = useTheme();
   return (
@@ -12,11 +9,7 @@ export default function Home() {
             ${theme === "dark" && styles.dark}`}
     >
       <div className={styles.content}>
-        <LevaPanel />
-        <AnimatedText
-          content={["Frontend Engineer", "Systems Engineer", "Architect"]}
-        />
-        <ModelContainer />
+        <One />
       </div>
       <div className={styles.content}></div>
       <div className={styles.content}></div>

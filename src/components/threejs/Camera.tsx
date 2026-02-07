@@ -1,7 +1,6 @@
-import { useState } from "react";
-import useScreenWidth from "../../hooks/useScreenWidth";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import useScreenWidth from "@/hooks/useScreenWidth";
 
 
 export default function Camera() {
