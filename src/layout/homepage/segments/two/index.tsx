@@ -1,5 +1,4 @@
 import Projects from "@/components/projects";
-import { store } from "@/components/threejs/ModelContainer";
 export default function Two() {
   return <>
   {/* <Projects/> */}
@@ -13,7 +12,7 @@ export default function Two() {
     fontSize: '16px',
     margin: '10px 10px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
-  }} onClick={() => store.enterVR()}>Enter VR</button>
+  }} onClick={() => console.log("Enter Camera")}>Enter Camera</button>
   <button style={{
     backgroundColor: 'green',
     color: 'white',
@@ -24,6 +23,6 @@ export default function Two() {
     fontSize: '16px',
     margin: '10px 10px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
-  }} onClick={() => store.enterAR()}>Enter AR</button>
+  }} onClick={() => console.log("Disable Camera")}>Disable Camera</button>
   </>;
 }

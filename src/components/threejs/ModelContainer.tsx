@@ -9,8 +9,6 @@ import Effects from "./Effects";
 import Camera from "./Camera";
 import OrbitingBalls from "./OrbitingBalls";
 import { BallShape, ColorPreset } from "@/types";
-import { XR, createXRStore } from "@react-three/xr";
-export const store = createXRStore()
 export default function ModelContainer() {
   const {
     scale,
@@ -84,7 +82,6 @@ export default function ModelContainer() {
           antialias: true,
         }}
       >
-        <XR store={store}>
           <Camera />
           <Suspense
             fallback={
@@ -136,7 +133,6 @@ export default function ModelContainer() {
               />
             </Selection>
           </Suspense>
-        </XR>
       </Canvas>
     </div>
   );
