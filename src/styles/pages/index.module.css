@@ -15,13 +15,13 @@
   flex-direction: column;
   justify-content: start;
   align-items: start;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   min-width: 100%;
   background: transparent;
 
   &:nth-child(2) {
-    background: greenyellow;
+    background: rgb(0, 0, 0);
   }
 
 }
