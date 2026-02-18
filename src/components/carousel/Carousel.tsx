@@ -7,52 +7,52 @@ import ProjectPopup from "../projects/ProjectPopup";
 export default function Carousel() {
   const { theme } = useTheme();
   const [translateX, setTranslateX] = useState(0);
-  const [webpReady, setWebpReady] = useState(false);
+  // const [webpReady, setWebpReady] = useState(false);
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
 
   const handleTranslateX = (newX: number) => {
     setTranslateX(newX);
   };
 
-  useEffect(() => {
-    const preloadWebp = () => {
-      const webpImages = [
-        "/videos/js-homepage.webp",
-        "/videos/signal-ui.webp", 
-        "/videos/study-stream.webp",
-        "/videos/dsa-in-3d.webp"
-      ];
+  // useEffect(() => {
+  //   const preloadWebp = () => {
+  //     const webpImages = [
+  //       "/videos/js-homepage.webp",
+  //       "/videos/signal-ui.webp", 
+  //       "/videos/study-stream.webp",
+  //       "/videos/dsa-in-3d.webp"
+  //     ];
       
-      let loadedCount = 0;
-      const totalImages = webpImages.length;
+  //     let loadedCount = 0;
+  //     const totalImages = webpImages.length;
       
-      webpImages.forEach((src) => {
-        const img = new Image();
-        img.onload = () => {
-          loadedCount++;
-          if (loadedCount === totalImages) {
-            setWebpReady(true);
-          }
-        };
-        img.onerror = () => {
-          loadedCount++;
-          if (loadedCount === totalImages) {
-            setWebpReady(true);
-          }
-        };
-        img.src = src;
-      });
-    };
+  //     webpImages.forEach((src) => {
+  //       const img = new Image();
+  //       img.onload = () => {
+  //         loadedCount++;
+  //         if (loadedCount === totalImages) {
+  //           setWebpReady(true);
+  //         }
+  //       };
+  //       img.onerror = () => {
+  //         loadedCount++;
+  //         if (loadedCount === totalImages) {
+  //           setWebpReady(true);
+  //         }
+  //       };
+  //       img.src = src;
+  //     });
+  //   };
 
-    if (document.readyState === "complete") {
-      setTimeout(preloadWebp, 500);
-    } else {
-      window.addEventListener("load", () => {
-        setTimeout(preloadWebp, 500);
-      });
-      return () => window.removeEventListener("load", preloadWebp);
-    }
-  }, []);
+  //   if (document.readyState === "complete") {
+  //     setTimeout(preloadWebp, 500);
+  //   } else {
+  //     window.addEventListener("load", () => {
+  //       setTimeout(preloadWebp, 500);
+  //     });
+  //     return () => window.removeEventListener("load", preloadWebp);
+  //   }
+  // }, []);
   return (
     <>
       <h2 className={`${styles.title} ${theme === "dark" ? styles.dark : ""}`}>Projects</h2>
@@ -73,12 +73,12 @@ export default function Carousel() {
             project.id === "java-3d-engine" ? "/images/java-3d-engine.jpg" :
             null;
           
-          const webpImage = 
-            project.id === "signal-ui" ? "/videos/signal-ui.webp" :
-            project.id === "js-homepage" ? "/videos/js-homepage.webp" :
-            project.id === "studystream" ? "/videos/study-stream.webp" :
-            project.id === "dsa-in-3d" ? "/videos/dsa-in-3d.webp" :
-            null;
+          // const webpImage = 
+          //   project.id === "signal-ui" ? "/videos/signal-ui.webp" :
+          //   project.id === "js-homepage" ? "/videos/js-homepage.webp" :
+          //   project.id === "studystream" ? "/videos/study-stream.webp" :
+          //   project.id === "dsa-in-3d" ? "/videos/dsa-in-3d.webp" :
+          //   null;
 
           return (
             <div
@@ -88,7 +88,7 @@ export default function Carousel() {
               style={{
                 cursor: "pointer",
                 '--static-image': staticImage ? `url(${staticImage})` : 'transparent',
-                '--webp-image': webpImage && webpReady ? `url(${webpImage})` : 'none',
+                // '--webp-image': webpImage && webpReady ? `url(${webpImage})` : 'none',
               } as React.CSSProperties}
               onMouseEnter={(e) => {
                 e.currentTarget.style.width = "40rem";

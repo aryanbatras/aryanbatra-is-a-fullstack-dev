@@ -66,9 +66,9 @@ export const profile: Profile = {
   about: `I am a Backend & Systems Engineer passionate about building scalable architectures, automation-driven systems, and developer-focused learning ecosystems. I enjoy thinking in systems — designing software that is resilient, efficient, and built to scale.
 
 I believe strong systems thinking, clear abstractions, and continuous learning are the foundations of great engineering. I am always exploring deeper layers — from distributed systems to automation to education at scale.`,
-  email: 'aryanbatra@example.com',
+  email: 'batraaryan03@gmail.com',
   location: 'India',
-  website: 'https://aryanbatra.dev',
+  website: 'https://aryanbatra.is-a.dev',
   linkedin: 'https://linkedin.com/in/aryanbatra',
   github: 'https://github.com/aryanbatras',
   skills: [
