@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: transparent;
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -12,7 +12,7 @@
   z-index: 1000;
   padding: 2rem;
   opacity: 0;
-  animation: fadeInSlideUp 0.5s ease forwards;
+  animation: fadeInSlideUp 0.2s ease forwards;
   transform: scale(0.25) translateY(200px);
   /* transition: all 2s ease; */
   
