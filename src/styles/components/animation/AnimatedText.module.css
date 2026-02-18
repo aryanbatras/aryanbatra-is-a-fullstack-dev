@@ -8,7 +8,7 @@
   position: relative;
   z-index: 10;
   background: transparent;
-  &::after {
+  /* &::after {
     content: '';
     position: absolute;
     left: 0;
@@ -23,7 +23,7 @@
     width: 100%;
     opacity: 0.5;
     transform: translateX(0%);
-  }
+  } */
 }
 
 .dark {

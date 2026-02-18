@@ -1,15 +1,14 @@
-import About from "@/components/portfolio/About";
-import Experience from "@/components/portfolio/Experience";
-import Projects from "@/components/portfolio/Projects";
-import Skills from "@/components/portfolio/Skills";
+import { useTheme } from "@/context/ThemeContext";
+import Carousel from "@/components/carousel/Carousel";
+import { AnimatedTestimonials } from "@/components/testimonials/AnimatedTestimonials";
+import { testimonials } from "@/data/testimonials";
 
 export default function Two() {
+ const { theme } = useTheme();
   return (
     <>
-      <About />
-      <Experience />
-      <Projects />
-      <Skills />
+      <Carousel />
+      <AnimatedTestimonials testimonials={testimonials} autoplay={false} />
     </>
   );
 }

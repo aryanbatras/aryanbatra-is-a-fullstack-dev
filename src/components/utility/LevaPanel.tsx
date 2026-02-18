@@ -77,7 +77,7 @@ export default function LevaPanel() {
         titleBar={{
           drag: false,
           filter: false,
-          position: { x: -25, y: -50 },
+          position: { x: -25, y: 0 },
         }}
         
         collapsed={false}

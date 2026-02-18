@@ -66,7 +66,7 @@ export default function ModelContainer() {
   });
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-section="threejs">
       <Canvas
         shadows
         dpr={[1, 1.5]}
