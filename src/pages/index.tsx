@@ -45,7 +45,6 @@ export default function Home() {
       <div className={styles.content}>
         <Contact />
       </div>
-      {/* <div className={styles.content}></div> */}
     </div>
   );
 }
