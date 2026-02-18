@@ -8,8 +8,8 @@ export default function LevaPanel() {
   const lightTheme = {
     colors: {
       elevation1: "#ffffff",
-      elevation2: "#fefefe",
-      elevation3: "#f7f7f7",
+      elevation2: "#ffffff",
+      elevation3: "#ffffff",
       accent1: "#dc2626",
       accent2: "#ef4444",
       accent3: "#f87171",
@@ -36,9 +36,9 @@ export default function LevaPanel() {
 
   const darkTheme = {
     colors: {
-      elevation1: "#0a0a0a",
-      elevation2: "#1a1a1a",
-      elevation3: "#2a2a2a",
+      elevation1: "#000000",
+      elevation2: "#000000",
+      elevation3: "#000000",
       accent1: "#cc3333",
       accent2: "#dd4444",
       accent3: "#ee5555",
@@ -68,7 +68,9 @@ export default function LevaPanel() {
       style={{
         position: "relative",
         zIndex: 1002,
-        display: visible ? "block" : "none",
+        display: visible ? "flex" : "none",
+        justifyContent: "center",
+        width: "100%",
       }}
     >
       <Leva
@@ -77,7 +79,7 @@ export default function LevaPanel() {
         titleBar={{
           drag: false,
           filter: false,
-          position: { x: -25, y: 0 },
+          position: { x: 0, y: 0 },
         }}
         
         collapsed={false}

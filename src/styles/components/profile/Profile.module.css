@@ -4,6 +4,9 @@
   padding: 2rem;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .profile.light {
@@ -466,6 +469,8 @@
 @media (max-width: 768px) {
   .profile {
     padding: 1rem;
+    max-width: 100%;
+    width: 100%;
   }
 
   .name {
@@ -513,9 +518,34 @@
   .languageList {
     grid-template-columns: 1fr;
   }
+
+  .timelineItem,
+  .skillCategory,
+  .certificationCard {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .contactItem {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .technologies,
+  .skillItems,
+  .certSkills {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 @media (max-width: 480px) {
+  .profile {
+    padding: 0.75rem;
+    max-width: 100%;
+    width: 100%;
+  }
+
   .name {
     font-size: 1.75rem;
   }

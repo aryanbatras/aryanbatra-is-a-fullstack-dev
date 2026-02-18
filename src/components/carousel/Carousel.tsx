@@ -7,62 +7,164 @@ import ProjectPopup from "../projects/ProjectPopup";
 export default function Carousel() {
   const { theme } = useTheme();
   const [translateX, setTranslateX] = useState(0);
-  // const [webpReady, setWebpReady] = useState(false);
+  const [webpReady, setWebpReady] = useState(false);
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [currentTranslateX, setCurrentTranslateX] = useState(0);
+  const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleTranslateX = (newX: number) => {
     setTranslateX(newX);
   };
 
-  // useEffect(() => {
-  //   const preloadWebp = () => {
-  //     const webpImages = [
-  //       "/videos/js-homepage.webp",
-  //       "/videos/signal-ui.webp", 
-  //       "/videos/study-stream.webp",
-  //       "/videos/dsa-in-3d.webp"
-  //     ];
-      
-  //     let loadedCount = 0;
-  //     const totalImages = webpImages.length;
-      
-  //     webpImages.forEach((src) => {
-  //       const img = new Image();
-  //       img.onload = () => {
-  //         loadedCount++;
-  //         if (loadedCount === totalImages) {
-  //           setWebpReady(true);
-  //         }
-  //       };
-  //       img.onerror = () => {
-  //         loadedCount++;
-  //         if (loadedCount === totalImages) {
-  //           setWebpReady(true);
-  //         }
-  //       };
-  //       img.src = src;
-  //     });
-  //   };
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStartX(e.clientX - currentTranslateX);
+    if (containerRef.current) {
+      containerRef.current.style.transition = 'none';
+    }
+  };
 
-  //   if (document.readyState === "complete") {
-  //     setTimeout(preloadWebp, 500);
-  //   } else {
-  //     window.addEventListener("load", () => {
-  //       setTimeout(preloadWebp, 500);
-  //     });
-  //     return () => window.removeEventListener("load", preloadWebp);
-  //   }
-  // }, []);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const newTranslateX = e.clientX - dragStartX;
+    setCurrentTranslateX(newTranslateX);
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${newTranslateX}px)`;
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setTranslateX(currentTranslateX);
+      if (containerRef.current) {
+        containerRef.current.style.transition = 'transform 0.5s ease';
+      }
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStartX(touch.clientX - currentTranslateX);
+    if (containerRef.current) {
+      containerRef.current.style.transition = 'none';
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const newTranslateX = touch.clientX - dragStartX;
+    setCurrentTranslateX(newTranslateX);
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${newTranslateX}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setTranslateX(currentTranslateX);
+      if (containerRef.current) {
+        containerRef.current.style.transition = 'transform 0.5s ease';
+      }
+    }
+  };
+
+  const handleProjectMouseEnter = (projectId: string, e: React.MouseEvent) => {
+    setHoveredProjectId(projectId);
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      const relativeX = rect.left - containerRect.left;
+      const progress = relativeX / containerRect.width;
+      const width = isDragging ? 15 + (progress * 15) : 30;
+      target.style.width = `${width}rem`;
+    }
+  };
+
+  const handleProjectMouseMove = (e: React.MouseEvent) => {
+    if (!hoveredProjectId) return;
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      const relativeX = rect.left - containerRect.left;
+      const progress = relativeX / containerRect.width;
+      const width = isDragging ? 15 + (progress * 15) : 30;
+      target.style.width = `${width}rem`;
+    }
+  };
+
+  const handleProjectMouseLeave = (e: React.MouseEvent) => {
+    setHoveredProjectId(null);
+    (e.currentTarget as HTMLElement).style.width = "15rem";
+  };
+
+  useEffect(() => {
+    const preloadWebp = () => {
+      const webpImages = [
+        "/videos/js-homepage.webp",
+        "/videos/signal-ui.webp", 
+        "/videos/study-stream.webp",
+        "/videos/dsa-in-3d.webp"
+      ];
+      
+      let loadedCount = 0;
+      const totalImages = webpImages.length;
+      
+      webpImages.forEach((src) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setWebpReady(true);
+          }
+        };
+        img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setWebpReady(true);
+          }
+        };
+        img.src = src;
+      });
+    };
+
+    if (document.readyState === "complete") {
+      setTimeout(preloadWebp, 500);
+    } else {
+      window.addEventListener("load", () => {
+        setTimeout(preloadWebp, 500);
+      });
+      return () => window.removeEventListener("load", preloadWebp);
+    }
+  }, []);
   return (
     <>
       <h2 className={`${styles.title} ${theme === "dark" ? styles.dark : ""}`}>Projects</h2>
       <div
+        ref={containerRef}
         data-section="projects"
         className={styles.container}
         style={{
           transform: `translateX(${translateX}px)`,
           transition: `transform 0.5s ease`,
         }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {projects.map((project, index) => {
           const staticImage = 
@@ -73,12 +175,12 @@ export default function Carousel() {
             project.id === "java-3d-engine" ? "/images/java-3d-engine.jpg" :
             null;
           
-          // const webpImage = 
-          //   project.id === "signal-ui" ? "/videos/signal-ui.webp" :
-          //   project.id === "js-homepage" ? "/videos/js-homepage.webp" :
-          //   project.id === "studystream" ? "/videos/study-stream.webp" :
-          //   project.id === "dsa-in-3d" ? "/videos/dsa-in-3d.webp" :
-          //   null;
+          const webpImage = 
+            project.id === "signal-ui" ? "/videos/signal-ui.webp" :
+            project.id === "js-homepage" ? "/videos/js-homepage.webp" :
+            project.id === "studystream" ? "/videos/study-stream.webp" :
+            project.id === "dsa-in-3d" ? "/videos/dsa-in-3d.webp" :
+            null;
 
           return (
             <div
@@ -86,24 +188,13 @@ export default function Carousel() {
               className={`${styles.carousel} ${project.id === "js-homepage" ? styles.jsHomepage : ""}`}
               onClick={() => setSelectedProject(project)}
               style={{
-                cursor: "pointer",
+                cursor: isDragging ? "grabbing" : "pointer",
                 '--static-image': staticImage ? `url(${staticImage})` : 'transparent',
-                // '--webp-image': webpImage && webpReady ? `url(${webpImage})` : 'none',
+                '--webp-image': webpImage && webpReady ? `url(${webpImage})` : 'none',
               } as React.CSSProperties}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.width = "40rem";
-                const afterElement = (e.currentTarget as HTMLElement).querySelector('::after');
-                if (afterElement) {
-                  (afterElement as HTMLElement).style.opacity = '1';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.width = "20rem";
-                const afterElement = (e.currentTarget as HTMLElement).querySelector('::after');
-                if (afterElement) {
-                  (afterElement as HTMLElement).style.opacity = '0';
-                }
-              }}
+              onMouseEnter={(e) => handleProjectMouseEnter(project.id, e)}
+              onMouseMove={handleProjectMouseMove}
+              onMouseLeave={handleProjectMouseLeave}
             >
             <div className={styles.content}>
               <div className={styles.links}>

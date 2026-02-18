@@ -26,7 +26,7 @@
 }
 
 .container {
-  min-height: 60vh;
+  min-height: 80vh;
   min-width: 100vw;
   background: transparent;
   /* overflow-x: auto;
@@ -42,7 +42,7 @@
 }
 
 .carousel {
-  width: 20rem;
+  width: 15rem;
   min-height: 20rem;
   background: transparent;
   user-select: none;

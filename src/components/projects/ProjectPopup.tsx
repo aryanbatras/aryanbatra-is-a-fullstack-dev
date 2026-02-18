@@ -15,11 +15,11 @@ export default function ProjectPopup({ project, onClose }: ProjectPopupProps) {
 
   return (
     <div 
-      className={`${styles.overlay} ${theme === "dark" ? styles.dark : ""}`}
+      className={`${styles.overlay} ${theme === "dark" ? styles.dark : styles.light}`}
       onClick={onClose}
     >
       <div 
-        className={`${styles.popup} ${theme === "dark" ? styles.dark : ""}`}
+        className={`${styles.popup} ${theme === "dark" ? styles.dark : styles.light}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button 

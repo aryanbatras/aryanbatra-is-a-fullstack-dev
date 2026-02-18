@@ -1,7 +1,8 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitingBallsProps, TechIcon, BallShape, ColorPreset } from "@/types";
-import { Group, Mesh, Object3D, CanvasTexture, Color } from "three";
+import { Group, Mesh, Object3D, CanvasTexture, Color, Vector3 } from "three";
+import { Html } from "@react-three/drei";
 import { TECH_ICONS, COLOR_PRESETS, ANIMATION_DEFAULTS} from "@/constants";
 
 function createIconTexture(icon: TechIcon) {
@@ -54,7 +55,17 @@ function createIconTexture(icon: TechIcon) {
   return new CanvasTexture(canvas);
 }
 
-function TechBall({ position, index, ballSize, colorChangeMode, ballShape, glowIntensity, colorPreset }: { 
+function TechBall({ 
+  position, 
+  index, 
+  ballSize, 
+  colorChangeMode, 
+  ballShape, 
+  glowIntensity, 
+  colorPreset,
+  onHover,
+  isHovered
+}: { 
   position: any; 
   index: number; 
   ballSize: number; 
@@ -62,6 +73,8 @@ function TechBall({ position, index, ballSize, colorChangeMode, ballShape, glowI
   ballShape?: BallShape;
   glowIntensity?: number;
   colorPreset?: ColorPreset;
+  onHover?: (hovered: boolean, techName: string) => void;
+  isHovered?: boolean;
 }) {
   const meshRef = useRef<Mesh>(null);
   
@@ -81,6 +94,11 @@ function TechBall({ position, index, ballSize, colorChangeMode, ballShape, glowI
     if (meshRef.current) {
       meshRef.current.rotation.x = state.clock.elapsedTime * 0.5 + index * 0.1;
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.3 + index * 0.2;
+      
+      // Simple hover effect - scale up slightly
+      const targetScale = isHovered ? 1.2 : 1.0;
+      meshRef.current.scale.lerp(new Vector3(targetScale, targetScale, targetScale), 0.1);
+      
       if (colorChangeMode && meshRef.current.material) {
         const material = meshRef.current.material as any;
         if (colorPreset && colorPreset !== 'blue') {
@@ -115,7 +133,12 @@ function TechBall({ position, index, ballSize, colorChangeMode, ballShape, glowI
   };
  
   return (
-    <mesh ref={meshRef} position={position}>
+    <mesh 
+      ref={meshRef} 
+      position={position}
+      onPointerEnter={() => onHover?.(true, icon.name)}
+      onPointerLeave={() => onHover?.(false, icon.name)}
+    >
       {getGeometry()}
       <meshStandardMaterial 
         map={texture}
@@ -135,9 +158,20 @@ export default function OrbitingBalls({
   colorChangeMode,
   ballShape = 'sphere' as BallShape,
   glowIntensity = ANIMATION_DEFAULTS.glowIntensity,
-  colorPreset = 'blue' as ColorPreset
+  colorPreset = 'blue' as ColorPreset,
+  modelPosition
 }: OrbitingBallsProps) {
   const groupRef = useRef<Group>(null);
+  const [modelBounds, setModelBounds] = useState({ center: new Vector3(0, 0, 0), radius: 0.8 });
+  const [hoveredBall, setHoveredBall] = useState<number | null>(null);
+  const [hoveredTech, setHoveredTech] = useState<string>('');
+
+  // Update model bounds when position changes
+  useMemo(() => {
+    if (modelPosition) {
+      setModelBounds({ center: modelPosition.clone(), radius: 0.8 });
+    }
+  }, [modelPosition]);
 
   const ballPositions = useMemo(() => {
     const positions = [];
@@ -154,19 +188,87 @@ export default function OrbitingBalls({
     return positions;
   }, [ballCount, radius]);
 
+  const checkBallCollision = (pos1: Vector3, pos2: Vector3, size: number) => {
+    const distance = pos1.distanceTo(pos2);
+    return distance < (size * 2);
+  };
+
+  const checkModelCollision = (ballPos: Vector3) => {
+    const distance = ballPos.distanceTo(modelBounds.center);
+    return distance < (modelBounds.radius + ballSize);
+  };
+
+  const resolveBallCollision = (pos1: Vector3, pos2: Vector3, size: number) => {
+    const direction = new Vector3().subVectors(pos1, pos2).normalize();
+    const minDistance = size * 2;
+    const currentDistance = pos1.distanceTo(pos2);
+    const overlap = minDistance - currentDistance;
+    
+    if (overlap > 0) {
+      const separation = direction.multiplyScalar(overlap * 0.5);
+      pos1.add(separation);
+      pos2.sub(separation);
+    }
+  };
+
+  const resolveModelCollision = (ballPos: Vector3) => {
+    const direction = new Vector3().subVectors(ballPos, modelBounds.center).normalize();
+    const minDistance = modelBounds.radius + ballSize;
+    const currentDistance = ballPos.distanceTo(modelBounds.center);
+    const overlap = minDistance - currentDistance;
+    
+    if (overlap > 0) {
+      ballPos.add(direction.multiplyScalar(overlap));
+    }
+  };
+
   useFrame((state) => {
     if (groupRef.current) {
       const time = state.clock.elapsedTime * orbitSpeed;
+      const ballObjects = groupRef.current.children;
       
-      groupRef.current.children.forEach((ball: Object3D, index: number) => {
+      // Update positions
+      ballObjects.forEach((ball: Object3D, index: number) => {
         const ballData = ballPositions[index];
         const angle = time + ballData.phase;
         
-        // Stable orbital motion - no group rotation drift
-        ball.position.x = centerPosition[0] + Math.cos(angle) * ballData.x;
-        ball.position.z = centerPosition[2] + Math.sin(angle) * ballData.z;
-        ball.position.y = centerPosition[1] + ballData.y + Math.sin(time * 0.3 + index) * 0.15;
+        // Calculate intended position
+        const intendedPos = new Vector3(
+          centerPosition[0] + Math.cos(angle) * ballData.x,
+          centerPosition[1] + ballData.y + Math.sin(time * 0.3 + index) * 0.15,
+          centerPosition[2] + Math.sin(angle) * ballData.z
+        );
+        
+        // Prevent balls from getting too close to camera (camera is at z=0)
+        const minZDistance = 0.5; // Minimum distance from camera
+        if (Math.abs(intendedPos.z) < minZDistance) {
+          intendedPos.z = intendedPos.z < 0 ? -minZDistance : minZDistance;
+        }
+        
+        // Check model collision
+        if (checkModelCollision(intendedPos)) {
+          resolveModelCollision(intendedPos);
+        }
+        
+        ball.position.copy(intendedPos);
       });
+      
+      // Check ball-to-ball collisions
+      for (let i = 0; i < ballObjects.length; i++) {
+        for (let j = i + 1; j < ballObjects.length; j++) {
+          if (checkBallCollision(
+            ballObjects[i].position, 
+            ballObjects[j].position, 
+            ballSize
+          )) {
+            resolveBallCollision(
+              ballObjects[i].position,
+              ballObjects[j].position,
+              ballSize
+            );
+          }
+        }
+      }
     }
   });
 
@@ -182,8 +284,34 @@ export default function OrbitingBalls({
           ballShape={ballShape}
           glowIntensity={glowIntensity}
           colorPreset={colorPreset}
+          onHover={(hovered, techName) => {
+            setHoveredBall(hovered ? index : null);
+            setHoveredTech(hovered ? techName : '');
+          }}
+          isHovered={hoveredBall === index}
         />
       ))}
+      
+      {/* Simple Tech Name Display */}
+      {hoveredTech && (
+        <Html position={[0, 2, 0]} center>
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            pointerEvents: 'none',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{hoveredTech}</div>
+            <div style={{ fontSize: '12px', opacity: 0.8 }}>Click to learn more</div>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

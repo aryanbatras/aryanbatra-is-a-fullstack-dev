@@ -53,6 +53,16 @@ export default function Navbar() {
           >
             _articles
           </li>
+          <li
+            onClick={() => {
+              handleChangeState("_contact");
+              const contactSection = document.querySelector('[data-section="contact"]');
+              contactSection?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`${styles.item} ${active === "_contact" ? styles.item__active : ""}`}
+          >
+            _contact
+          </li>
         </ul>
         <div className={styles.theme} onClick={(e) => {
             e.stopPropagation();
@@ -81,6 +91,11 @@ export default function Navbar() {
             projectsSection?.scrollIntoView({ behavior: 'smooth' });
           }}>_projects</li>
           <li onClick={() => handleChangeState("_articles")}>_articles</li>
+          <li onClick={() => {
+            handleChangeState("_contact");
+            const contactSection = document.querySelector('[data-section="contact"]');
+            contactSection?.scrollIntoView({ behavior: 'smooth' });
+          }}>_contact</li>
         </ul>
       </div>
 

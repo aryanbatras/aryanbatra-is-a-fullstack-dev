@@ -11,34 +11,31 @@ export default function TerminalLoader() {
   const router = useRouter();
 
   const commands = [
-    'Last login: ' + new Date().toLocaleString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    }),
+    'Aryans-MacBook-Pro:$ next start',
     '',
-    'Aryans-MacBook-Pro:aryanbatra$' , 
+    'Server: 64.29.17.195:3000',
+    'Production: aryanbatra-is-a-fullstack-dev.vercel.app',
     '',
-    'next dev',
-    '  ▲ Next.js 16.1.6',
-    '  - Local:        http://localhost:3000',
-    '  - Environments: .env.local',
+    'Next.js 16.1.6 server started',
+    'Route: / -> index.js',
+    'GET / 200',
+    'GET /api/profile 200',
+    'GET /api/projects 200',
+    'POST /api/analytics 201',
     '',
-    '  ✓ Ready in 1.8s',
+    'React 19.2.3',
+    'Three.js 0.182.0',
+    'React Three Fiber 9.5.0',
+    'React Three Drei 10.7.7',
+    'React Three PostProcessing 3.0.4',
+    'Framer Motion 12.34.1',
+    'PostProcessing 6.38.2',
+    'Tailwind CSS 4',
+    'TypeScript 5',
     '',
-    '  ⚡ React 19.2.3 initialized',
-    '  ⚡ TypeScript 5.x configured',
-    '  ⚡ Tailwind CSS 4.x loaded',
-    '  ⚡ Three.js 0.182.0 ready',
-    '  ⚡ R3F 9.5.0 ecosystem loaded',
-    '  ⚡ PostProcessing 6.38.2 effects ready',
-    '',
-    '  Development server running at full speed',
-    '  GPU acceleration enabled',
-    '  React Compiler 1.0.0 optimizing',
-    ''
+    'Optimizing',
+    'Deploying',
+    '...',
   ];
 
   useEffect(() => {
@@ -48,7 +45,7 @@ export default function TerminalLoader() {
         setIsTyping(true);
         setCurrentLine('');
         
-        const baseSpeed = command.includes('⚡') || command.includes('🚀') || command.includes('🎨') || command.includes('⚛️') ? 8 : 12;
+        const baseSpeed = 8;
         
         for (let j = 0; j <= command.length; j++) {
           await new Promise(resolve => setTimeout(resolve, baseSpeed + Math.random() * 8));
@@ -60,11 +57,9 @@ export default function TerminalLoader() {
         setIsTyping(false);
         
         // Minimal professional delays
-        let delay = 80 + Math.random() * 40;
-        if (command.includes('Ready in')) delay = 150;
-        if (command.includes('⚡')) delay = 50;
-        if (command.includes('Portfolio ready')) delay = 200;
-        if (command === '') delay = 30;
+        let delay = 25 + Math.random() * 15;
+        if (command.includes('GET') || command.includes('POST')) delay = 35;
+        if (command === '') delay = 8;
         if (i < commands.length - 1) {
           await new Promise(resolve => setTimeout(resolve, delay));
         }
@@ -101,10 +96,6 @@ export default function TerminalLoader() {
   const getLineClass = (line: string) => {
     if (line.includes('Last login')) return styles.login;
     if (line.includes('Aryans-MacBook-Pro')) return styles.command;
-    if (line.includes('▲ Next.js')) return styles.nextjs;
-    if (line.includes('Local:')) return styles.local;
-    if (line.includes('✓ Ready')) return styles.ready;
-    if (line.includes('⚡')) return styles.tech;
 
     return styles.text;
   };
@@ -117,7 +108,7 @@ export default function TerminalLoader() {
           <span className={styles.button + ' ' + styles.yellow}></span>
           <span className={styles.button + ' ' + styles.green}></span>
         </div>
-        <div className={styles.title}>Aryans-MacBook-Pro — aryan — zsh</div>
+        <div className={styles.title}>Aryans-MacBook-Pro — aryanbatra — zsh</div>
       </div>
       <div className={styles.content} ref={terminalRef}>
         {lines.map((line, index) => (

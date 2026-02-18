@@ -3,13 +3,16 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, Html } from "@react-three/drei";
 import { Selection } from "@react-three/postprocessing";
 import { useControls } from "leva";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Model from "./Model";
 import Effects from "./Effects";
 import Camera from "./Camera";
 import OrbitingBalls from "./OrbitingBalls";
 import { BallShape, ColorPreset } from "@/types";
+import { Vector3 } from "three";
 export default function ModelContainer() {
+  const [modelPosition, setModelPosition] = useState(new Vector3(0, 0, 0));
+  
   const {
     scale,
     autoRotate,
@@ -55,10 +58,10 @@ export default function ModelContainer() {
         "white",
       ],
     },
-    scale: { value: 2.5, min: 0.5, max: 5, step: 0.01 },
-    ballCount: { value: 8, min: 1, max: 20, step: 1 },
-    ballSize: { value: 0.175, min: 0.05, max: 0.5, step: 0.001 },
-    ballSpeed: { value: 0.01, min: 0.001, max: 0.05, step: 0.0001 },
+    scale: { value: 1.5, min: 0.5, max: 5, step: 0.01 },
+    ballCount: { value: 30, min: 1, max: 100, step: 1 },
+    ballSize: { value: 0.10, min: 0.01, max: 1, step: 0.01 },
+    ballSpeed: { value: 0.10, min: 0.01, max: 0.5, step: 0.01 },
     glowIntensity: { value: 0.2, min: 0, max: 2, step: 0.01 },
     discoMode: false,
     bloomEffect: false,
@@ -70,7 +73,12 @@ export default function ModelContainer() {
       <Canvas
         shadows
         dpr={[1, 1.5]}
-        camera={{ position: [0, 0.55, 0], fov: 35 }}
+        camera={{ 
+          position: [0, 0.55, 0], 
+          fov: 35,
+          near: 0.1,
+          far: 100
+        }}
         style={{
           pointerEvents: "none",
           width: "100%",
@@ -101,6 +109,7 @@ export default function ModelContainer() {
               autoRotate={autoRotate}
               position={[0, 0, 0]}
               rotation={[0, 0, 0]}
+              onPositionUpdate={setModelPosition}
             />
 
             <Selection>
@@ -121,8 +130,8 @@ export default function ModelContainer() {
               />
 
               <OrbitingBalls
-                centerPosition={[0.9, 0.5, -1.2]}
-                radius={1.8}
+                centerPosition={[0, 0, 0]}
+                radius={1.2}
                 ballCount={ballCount}
                 ballSize={ballSize}
                 orbitSpeed={ballSpeed}
@@ -130,6 +139,7 @@ export default function ModelContainer() {
                 ballShape={ballShape as BallShape}
                 glowIntensity={glowIntensity}
                 colorPreset={colorPreset as ColorPreset}
+                modelPosition={modelPosition}
               />
             </Selection>
           </Suspense>

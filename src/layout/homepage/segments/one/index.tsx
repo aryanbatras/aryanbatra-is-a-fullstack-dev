@@ -6,7 +6,14 @@ export default function One() {
     <>
       <LevaPanel />
       <AnimatedText
-        content={["Frontend Engineer", "Systems Engineer", "Architect"]}
+        content={[
+          "Full-Stack Developer", 
+          "Creative Engineer", 
+          "3D Graphics Enthusiast",
+          "Open Source Contributor",
+          "Problem Solver",
+          "Innovation Architect"
+        ]}
       />
       <ModelContainer />
     </>

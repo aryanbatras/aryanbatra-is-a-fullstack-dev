@@ -1,5 +1,7 @@
 .container {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 0.1rem;
   color: black;
   font-size: 3.5rem;
@@ -8,6 +10,8 @@
   position: relative;
   z-index: 10;
   background: transparent;
+  width: 100%;
+  text-align: center;
   /* &::after {
     content: '';
     position: absolute;

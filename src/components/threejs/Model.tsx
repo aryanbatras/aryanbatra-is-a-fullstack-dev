@@ -1,10 +1,12 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, forwardRef } from "react";
 import useScreenWidth from "@/hooks/useScreenWidth";
 import { ModelProps } from "@/types";
 import { MODEL_PATH, RESPONSIVE_POSITIONS, BREAKPOINTS } from "@/constants";
-export default function Model({
+import { Vector3 } from "three";
+
+const Model = forwardRef<any, ModelProps>(({
   floatIntensity,
   rotationSpeed,
   driftIntensity,
@@ -12,9 +14,11 @@ export default function Model({
   autoRotate,
   position,
   rotation,
-}: ModelProps) {
+  onPositionUpdate,
+}, ref) => {
   const { nodes, materials } = useGLTF(MODEL_PATH);
-  const modelRef = useRef<any>(null);
+  const internalRef = useRef<any>(null);
+  const modelRef = (ref as any) || internalRef;
   const { width } = useScreenWidth();
 
   const responsiveScale =
@@ -58,6 +62,10 @@ export default function Model({
       modelRef.current.rotation.y =
         responsiveConfig.finalRotY + rotY + rotation[1] + autoRotateY;
       modelRef.current.rotation.z = rotZ + rotation[2];
+
+      if (onPositionUpdate) {
+        onPositionUpdate(modelRef.current.position.clone());
+      }
     }
   });
 
@@ -70,4 +78,8 @@ export default function Model({
       material={materials["tripo_mat_2fb7c4c2-690b-405f-aee7-5223c78cc147"]}
     />
   );
-}
+});
+
+Model.displayName = 'Model';
+
+export default Model;

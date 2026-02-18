@@ -1,3 +1,5 @@
+import { Vector3 as ThreeVector3 } from "three";
+
 export type Vector3 = [number, number, number];
 
 export interface TechIcon {
@@ -45,6 +47,7 @@ export interface ModelProps {
   autoRotate: boolean;
   position: Vector3;
   rotation: Vector3;
+  onPositionUpdate?: (position: ThreeVector3) => void;
 }
 
 export interface EffectsProps {
@@ -73,4 +76,5 @@ export interface OrbitingBallsProps {
   ballShape?: BallShape;
   glowIntensity?: number;
   colorPreset?: ColorPreset;
+  modelPosition?: ThreeVector3;
 }

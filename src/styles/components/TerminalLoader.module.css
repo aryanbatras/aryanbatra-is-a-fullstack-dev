@@ -4,11 +4,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #1d1d1d;
+  background: #000000;
   color: #ffffff;
   font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.6;
   display: flex;
   flex-direction: column;
   z-index: 9999;
@@ -17,9 +17,9 @@
 .header {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background: #2d2d2d;
-  border-bottom: 1px solid #404040;
+  padding: 10px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333333;
   user-select: none;
 }
 
@@ -30,18 +30,20 @@
 }
 
 .button {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  transition: opacity 0.2s ease;
+  transition: all 0.15s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button:hover {
   opacity: 0.8;
+  transform: scale(1.1);
 }
 
 .button.red {
-  background: #ff5f56;
+  background: #ff5f57;
 }
 
 .button.yellow {
@@ -49,24 +51,25 @@
 }
 
 .button.green {
-  background: #27c93f;
+  background: #28ca42;
 }
 
 .title {
   color: #cccccc;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   flex: 1;
   text-align: center;
+  letter-spacing: 0.02em;
 }
 
 .content {
   flex: 1;
-  padding: 16px;
+  padding: 20px;
   overflow-y: auto;
-  background: #1d1d1d;
+  background: #000000;
   scrollbar-width: thin;
-  scrollbar-color: #404040 #1d1d1d;
+  scrollbar-color: #333333 #000000;
 }
 
 .content::-webkit-scrollbar {
@@ -74,30 +77,31 @@
 }
 
 .content::-webkit-scrollbar-track {
-  background: #1d1d1d;
+  background: #000000;
 }
 
 .content::-webkit-scrollbar-thumb {
-  background: #404040;
-  border-radius: 4px;
+  background: #333333;
+  border-radius: 3px;
 }
 
 .content::-webkit-scrollbar-thumb:hover {
-  background: #555555;
+  background: #444444;
 }
 
 .line {
   display: flex;
   align-items: center;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
   white-space: pre-wrap;
   word-break: break-all;
+  min-height: 18px;
 }
 
 .text {
   color: #ffffff;
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .login {
@@ -106,49 +110,19 @@
 }
 
 .command {
-  color: #4ade80;
-  font-weight: 500;
-}
-
-.npm {
-  color: #fbbf24;
-  font-weight: 500;
-}
-
-.nextjs {
   color: #ffffff;
-  font-weight: 600;
-}
-
-.local {
-  color: #60a5fa;
-}
-
-.ready {
-  color: #4ade80;
-  font-weight: 600;
-}
-
-.tech {
-  color: #a78bfa;
-  font-weight: 500;
-}
-
-.feature {
-  color: #f472b6;
-  font-weight: 500;
-}
-
-.success {
-  color: #34d399;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .cursor {
-  animation: blink 1s infinite;
+  animation: blink 1.2s infinite;
   display: inline-block;
   color: #ffffff;
   font-weight: 400;
+  background: #ffffff;
+  width: 8px;
+  height: 16px;
+  margin-left: 2px;
 }
 
 @keyframes blink {
@@ -158,4 +132,20 @@
   50%, 100% {
     opacity: 0;
   }
+}
+
+/* macOS terminal window controls hover effects */
+.button.red:hover {
+  background: #ff3b30;
+  box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
+}
+
+.button.yellow:hover {
+  background: #ff9500;
+  box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+}
+
+.button.green:hover {
+  background: #30d158;
+  box-shadow: 0 0 8px rgba(48, 209, 88, 0.5);
 }

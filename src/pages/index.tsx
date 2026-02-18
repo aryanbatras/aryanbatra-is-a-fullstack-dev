@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/pages/index.module.css";
 import { useTheme } from "@/context/ThemeContext";
 import { One, Two } from "@/layout/homepage";
+import Contact from "@/components/contact/Contact";
 import TerminalLoader from "@/components/loader/TerminalLoader";
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       setLoading(false);
-    }, 10000);
+    }, 5000);
 
     return () => {
       if (timeoutRef.current) {
@@ -41,8 +42,10 @@ export default function Home() {
       <div className={`${styles.content} ${theme === "dark" ? styles.dark : ""}`}>
         <Two />
       </div>
-      <div className={styles.content}></div>
-      <div className={styles.content}></div>
+      <div className={styles.content}>
+        <Contact />
+      </div>
+      {/* <div className={styles.content}></div> */}
     </div>
   );
 }
