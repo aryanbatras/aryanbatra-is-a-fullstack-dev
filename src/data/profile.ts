@@ -61,11 +61,11 @@ export interface Certification {
 
 export const profile: Profile = {
   name: 'Aryan Batra',
-  title: 'Backend & Systems Engineer',
-  tagline: '🚀 Backend & Systems Engineer | Scalable Architectures | Automation-Driven Systems',
-  about: `I am a Backend & Systems Engineer passionate about building scalable architectures, automation-driven systems, and developer-focused learning ecosystems. I enjoy thinking in systems — designing software that is resilient, efficient, and built to scale.
+  title: 'Software Engineer',
+  tagline: 'Software Engineer | Full-Stack Development | Clean Code Solutions',
+  about: `I am a Software Engineer passionate about building clean, scalable solutions and full-stack applications. I enjoy creating software that is efficient, maintainable, and designed to solve real-world problems.
 
-I believe strong systems thinking, clear abstractions, and continuous learning are the foundations of great engineering. I am always exploring deeper layers — from distributed systems to automation to education at scale.`,
+I believe in writing clean code, continuous learning, and building robust applications. I am always exploring new technologies — from frontend frameworks to backend systems to modern development practices.`,
   email: 'batraaryan03@gmail.com',
   location: 'India',
   website: 'https://aryanbatra.is-a.dev',

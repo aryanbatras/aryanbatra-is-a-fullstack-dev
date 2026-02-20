@@ -1,21 +1,19 @@
-import LevaPanel from "@/components/utility/LevaPanel";
 import AnimatedText from "@/components/animations/AnimatedText";
-import ModelContainer from "@/components/threejs/ModelContainer";
 export default function One() {
   return (
     <>
-      <LevaPanel />
       <AnimatedText
         content={[
+          "Software Engineer", 
           "Full-Stack Developer", 
-          "Creative Engineer", 
+          "Creative Engineer",
           "3D Graphics Enthusiast",
-          "Open Source Contributor",
+          "Clean Code Advocate",
           "Problem Solver",
+          "Open Source Contributor",
           "Innovation Architect"
         ]}
       />
-      <ModelContainer />
     </>
   );
 }

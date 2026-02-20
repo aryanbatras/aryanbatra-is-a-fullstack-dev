@@ -1,0 +1,11 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.container.dark {
+  background: #000000;
+}

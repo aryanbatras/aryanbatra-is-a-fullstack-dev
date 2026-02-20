@@ -18,6 +18,9 @@ export default function Profile() {
   return (
     <div className={`${styles.profile} ${styles[theme]}`}>
       <div className={styles.header}>
+        <div className={styles.profileImage}>
+          <img src="/images/aryan.jpeg" alt="Aryan Batra" className={styles.image} />
+        </div>
         <div className={styles.basicInfo}>
           <h1 className={styles.name}>{profile.name}</h1>
           <h2 className={styles.title}>{profile.title}</h2>

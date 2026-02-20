@@ -5,14 +5,14 @@
   gap: 0.1rem;
   color: black;
   font-size: 3.5rem;
-  padding: 2rem;
+  padding-top: 6rem;
   line-height: 1;
   position: relative;
   z-index: 10;
   background: transparent;
   width: 100%;
   text-align: center;
-  /* &::after {
+  &::after {
     content: '';
     position: absolute;
     left: 0;
@@ -20,14 +20,14 @@
     width: 0;
     height: 4px;
     background: red;
-    transform: translateX(300%);
-    transition: all 2.6s ease;
+    transform: translateX(100%);
+    transition: all 1.5s ease;
   }
   &:hover::after {
     width: 100%;
-    opacity: 0.5;
-    transform: translateX(0%);
-  } */
+    /* opacity: 0.5; */
+    /* transform: translateX(0%); */
+  }
 }
 
 .dark {
