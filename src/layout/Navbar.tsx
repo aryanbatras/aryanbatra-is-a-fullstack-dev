@@ -61,13 +61,6 @@ export default function Navbar() {
           <div className={styles.theme}>
             <ToggleTheme />
           </div>
-          <button
-            onClick={() => handleChangeState("_aryan")}
-            className={styles.nameButton}
-            aria-label="Go to home"
-          >
-            Aryan Batra
-          </button>
         </div>
         <ul className={styles.list}>
           <li
