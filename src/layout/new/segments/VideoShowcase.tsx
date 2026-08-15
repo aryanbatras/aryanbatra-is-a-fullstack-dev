@@ -10,12 +10,14 @@ interface VideoShowcaseProps {
   /** Per-chapter durations within this film (drives the overlay timing). */
   durations: number[];
   totalDuration: number;
-  /** Pin length in viewport-heights (e.g. 10 → +=1000%). */
+  /** Pin length in viewport-heights (e.g. 20 → +=2000%). */
   pinViewports?: number;
   /** Seconds the film position lags the scroll (lower = less lag). */
   scrub?: number;
-  /** Browser fullscreen toggle — act one only. */
+  /** Browser fullscreen toggle. */
   showFullscreen?: boolean;
+  /** Fired once at the rock bottom of the film — the desktop boots then. */
+  onComplete?: () => void;
   /** Chapter overlay blocks, each carrying data-chapter="i". */
   children?: ReactNode;
 }
@@ -28,25 +30,29 @@ interface VideoShowcaseProps {
  * all-intra film, so scrubbing is frame-accurate.
  *
  * Overlay blocks (children with data-chapter) animate on the SAME scrubbed
- * timeline, so they stay in lockstep with the frame under them:
- *  - chapter 0: the name fades in whole (simple, no character splitting),
- *    then the role + sub fade in beneath it.
- *  - chapter 1: the experience stacks in one line at a time — each new role
- *    appears below while the one above slides away, in its own position.
+ * timeline, so they stay in lockstep with the frame under them. Today there
+ * is exactly one block: the GTA-style name, anchored bottom-centre, rising
+ * from below the frame during chapter one and leaving before chapter two.
+ *
+ * The end of the film IS the finished desktop. As progress enters the final
+ * frames the film zooms into that desktop and fades to black; at rock bottom
+ * `onComplete` fires so the OS can boot straight over the black.
  */
 export default function VideoShowcase({
   video,
   poster,
   durations,
   totalDuration,
-  pinViewports = 10,
+  pinViewports = 20,
   scrub = 3.8,
   showFullscreen = false,
+  onComplete,
   children,
 }: VideoShowcaseProps) {
   const { videoRef, seekTo, ready } = useScrubVideo(totalDuration);
   const sectionRef = useRef<HTMLElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const completedRef = useRef(false);
   const smootherReady = useScrollSmootherReady();
 
   useEffect(() => {
@@ -80,6 +86,12 @@ export default function VideoShowcase({
         };
       };
 
+      // Where the film stops being a film: the final ~6% of the pin IS the
+      // desktop zoom. These are progress values, not seconds.
+      const ZOOM_START = 0.94;
+      const FADE_START = 0.955;
+      const FADE_END = 0.995;
+
       const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -89,8 +101,14 @@ export default function VideoShowcase({
           scrub,
           anticipatePin: 1,
           onUpdate: (self) => {
-            // The whole pin is the film (no end-zoom anymore).
             seekTo(self.progress * totalDuration);
+            // Rock bottom — the desktop boots the instant the zoom blacks out.
+            if (self.progress >= FADE_END && !completedRef.current) {
+              completedRef.current = true;
+              onComplete?.();
+            } else if (self.progress < 0.9) {
+              completedRef.current = false;
+            }
           },
         },
       });
@@ -103,78 +121,53 @@ export default function VideoShowcase({
         0,
       );
 
-      const show = (el: HTMLElement | null, w: { fadeIn: number; inEnd: number }) => {
-        if (!el) return;
-        timeline.fromTo(
-          el,
-          { opacity: 0, y: 26 },
-          { opacity: 1, y: 0, ease: "none", duration: w.inEnd - w.fadeIn },
-          w.fadeIn,
-        );
-      };
-      const hide = (el: HTMLElement | null, w: { outStart: number; fadeOut: number }) => {
-        if (!el) return;
-        timeline.to(
-          el,
-          { opacity: 0, y: -20, ease: "none", duration: w.fadeOut - w.outStart },
-          w.outStart,
-        );
-      };
+      // Desktop hand-off: the last frames of video 004 are the finished
+      // desktop — zoom straight into it, then fade to black so the OS boot
+      // appears out of nothing.
+      timeline.fromTo(
+        videoRef.current,
+        { scale: 1, opacity: 1 },
+        {
+          scale: 2.4,
+          opacity: 0,
+          ease: "none",
+          duration: 1 - ZOOM_START,
+        },
+        ZOOM_START,
+      );
+      timeline.to(
+        videoRef.current,
+        { opacity: 0, ease: "none", duration: FADE_END - FADE_START },
+        FADE_START,
+      );
 
-      // Chapter overlays — each enters with its chapter, leaves before the next.
+      // Overlays — each enters with its chapter, leaves before the next.
       const blocks = overlayRef.current?.querySelectorAll<HTMLElement>("[data-chapter]") ?? [];
       blocks.forEach((el, i) => {
         const w = fadeWindow(i);
-        show(el, w);
-        hide(el, w);
-
         if (i === 0) {
-          // Identity — the name reveals whole (a simple fade + rise, no
-          // character splitting), then the role chip and sub fade in beneath.
-          const name = el.querySelector<HTMLElement>("[data-split='name']");
-          if (name) {
-            timeline.fromTo(
-              name,
-              { autoAlpha: 0, y: 30 },
-              { autoAlpha: 1, y: 0, ease: "none", duration: 0.14 },
-              w.fadeIn + 0.02,
-            );
-          }
-          const role = el.querySelector<HTMLElement>("[data-split='role']");
-          const sub = el.querySelector<HTMLElement>("[data-split='sub']");
+          // The name — rises from below the bottom edge, GTA style.
+          const riseFrom = window.innerHeight * 0.42;
           timeline.fromTo(
-            role,
-            { autoAlpha: 0, y: 14 },
-            { autoAlpha: 1, y: 0, ease: "none", duration: 0.06 },
-            0.28,
+            el,
+            { autoAlpha: 0, y: riseFrom },
+            { autoAlpha: 1, y: 0, ease: "none", duration: w.inEnd - w.fadeIn },
+            w.fadeIn,
           );
-          timeline.fromTo(
-            sub,
-            { autoAlpha: 0, y: 14 },
-            { autoAlpha: 1, y: 0, ease: "none", duration: 0.06 },
-            0.35,
+          timeline.to(
+            el,
+            { autoAlpha: 0, y: -window.innerHeight * 0.12, ease: "none", duration: w.fadeOut - w.outStart },
+            w.outStart,
           );
         } else {
-          // Experience — each role appears below the previous one, which
-          // slides away above it, one at a time, in its own position.
-          const items = el.querySelectorAll<HTMLElement>("[data-exp]");
-          if (items.length) {
-            const span = (w.outStart - w.fadeIn - 0.05) / items.length;
-            items.forEach((item, k) => {
-              const start = w.fadeIn + k * span;
-              timeline.fromTo(
-                item,
-                { autoAlpha: 0, y: 34 },
-                { autoAlpha: 1, y: 0, ease: "power1.out", duration: span * 0.45 },
-                start,
-              );
-              timeline.to(
-                item,
-                { autoAlpha: 0, y: -26, ease: "power1.in", duration: span * 0.32 },
-                start + span * 0.6,
-              );
-            });
-          }
+          // Future chapters (no text today) — simple fade to keep the rhythm.
+          timeline.fromTo(
+            el,
+            { autoAlpha: 0 },
+            { autoAlpha: 1, duration: 0.05 },
+            w.fadeIn,
+          );
+          timeline.to(el, { autoAlpha: 0, duration: 0.05 }, w.outStart);
         }
       });
 
@@ -185,7 +178,7 @@ export default function VideoShowcase({
       cancelled = true;
       trigger?.kill();
     };
-  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub]);
+  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, onComplete, videoRef]);
 
   return (
     <section ref={sectionRef} className={styles.section}>
@@ -211,8 +204,7 @@ export default function VideoShowcase({
       </div>
 
       {/* Fullscreen toggle — small borderless icon, isolated in its own
-          component so toggling state never re-renders (and un-splits) the
-          chapter text. */}
+          component so toggling state never re-renders the chapter text. */}
       {showFullscreen && <FullscreenButton />}
     </section>
   );

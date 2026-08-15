@@ -1,4 +1,5 @@
 import { GeistSans } from "geist/font/sans";
+import "@fontsource-variable/saira/wdth.css";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ThemeProvider } from "../context/ThemeContext";
