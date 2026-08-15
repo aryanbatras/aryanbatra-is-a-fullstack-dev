@@ -14,6 +14,8 @@ interface VideoShowcaseProps {
   pinViewports?: number;
   /** Seconds the film position lags the scroll (lower = less lag). */
   scrub?: number;
+  /** Fraction (0..1) of chapter one where the greeting starts fading out. */
+  chapter0FadeOut?: number;
   /** Browser fullscreen toggle. */
   showFullscreen?: boolean;
   /** Fired once at the rock bottom of the film — the desktop boots then. */
@@ -50,6 +52,7 @@ export default function VideoShowcase({
   totalDuration,
   pinViewports = 20,
   scrub = 3.8,
+  chapter0FadeOut = 0.55,
   showFullscreen = false,
   onComplete,
   onProgress,
@@ -85,6 +88,9 @@ export default function VideoShowcase({
         const end = bounds[i + 1] ?? 1;
         const span = end - start;
         return {
+          start,
+          end,
+          span,
           fadeIn: start + span * 0.04,
           inEnd: start + span * 0.22,
           outStart: end - span * 0.16,
@@ -155,12 +161,14 @@ export default function VideoShowcase({
         if (i === 0) {
           // The name — appears in place (no rise, no fade) as soon as chapter
           // one starts; the FoldText character unfold IS the entrance. It
-          // leaves before chapter two with a simple fade.
+          // fades out where chapter0FadeOut says (fraction of chapter one).
+          const fadeStart = w.start + w.span * chapter0FadeOut;
+          const fadeDuration = Math.max(0.005, w.span * 0.06);
           timeline.set(el, { autoAlpha: 1 }, w.fadeIn);
           timeline.to(
             el,
-            { autoAlpha: 0, ease: "none", duration: w.fadeOut - w.outStart },
-            w.outStart,
+            { autoAlpha: 0, ease: "none", duration: fadeDuration },
+            fadeStart,
           );
         } else {
           // Future chapters (no text today) — simple fade to keep the rhythm.
@@ -181,7 +189,7 @@ export default function VideoShowcase({
       cancelled = true;
       trigger?.kill();
     };
-  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, onComplete, onProgress, videoRef]);
+  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, chapter0FadeOut, onComplete, onProgress, videoRef]);
 
   return (
     <section ref={sectionRef} className={styles.section}>

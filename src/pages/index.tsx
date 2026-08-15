@@ -12,8 +12,8 @@ import styles from "@/styles/pages/new.module.css";
 /** The fold starts ~10% into chapter one (the first film) and completes by
     ~32% of it — the "Hi, I'm Aryan" text unfolds as the user scrolls that
     window of the pin. Live-tunable from the Leva panel (nav settings icon). */
-const FOLD_WINDOW_START = 0.00;
-const FOLD_WINDOW_END = 0.25;
+const FOLD_WINDOW_START = 0.05;
+const FOLD_WINDOW_END = 0.55;
 
 /**
  * The home page IS the machine: the film plays (greeting only, no other
@@ -27,7 +27,7 @@ export default function Home() {
   const open = useCallback(() => setDesktopOpen(true), []);
   const foldRef = useRef<FoldTextHandle>(null);
 
-  const { foldWindowStart, foldWindowEnd, duration, stagger, fontSize } = useControls({
+  const { foldWindowStart, foldWindowEnd, duration, stagger, fontSize, fadeOut } = useControls({
     foldWindowStart: {
       value: FOLD_WINDOW_START,
       min: 0,
@@ -42,9 +42,16 @@ export default function Home() {
       step: 0.01,
       label: "fold window end",
     },
-    duration: { value: 5, min: 1, max: 8, step: 0.25, label: "unfold duration" },
+    duration: { value: 5, min: 1, max: 15, step: 0.25, label: "unfold duration" },
     stagger: { value: 1, min: 0.25, max: 3, step: 0.15, label: "unfold stagger" },
-    fontSize: { value: 118, min: 60, max: 180, step: 2, label: "text size (desktop px)" },
+    fontSize: { value: 120, min: 60, max: 180, step: 5, label: "text size (desktop px)" },
+    fadeOut: {
+      value: 0.45,
+      min: 0.1,
+      max: 1,
+      step: 0.01,
+      label: "text fade-out (ch1)",
+    },
   });
 
   /** Mirror the fold window into a ref so the pin timeline is never rebuilt
@@ -89,6 +96,7 @@ export default function Home() {
               showFullscreen
               onComplete={open}
               onProgress={onProgress}
+              chapter0FadeOut={fadeOut}
             >
               <div data-chapter={0} className={`${showreel.block} ${showreel.ch1}`}>
                 <FoldText
