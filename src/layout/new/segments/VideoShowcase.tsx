@@ -18,6 +18,8 @@ interface VideoShowcaseProps {
   showFullscreen?: boolean;
   /** Fired once at the rock bottom of the film — the desktop boots then. */
   onComplete?: () => void;
+  /** Fired on every scrub update with the section's progress (0..1). */
+  onProgress?: (progress: number) => void;
   /** Chapter overlay blocks, each carrying data-chapter="i". */
   children?: ReactNode;
 }
@@ -31,8 +33,11 @@ interface VideoShowcaseProps {
  *
  * Overlay blocks (children with data-chapter) animate on the SAME scrubbed
  * timeline, so they stay in lockstep with the frame under them. Today there
- * is exactly one block: the GTA-style name, anchored bottom-centre, rising
- * from below the frame during chapter one and leaving before chapter two.
+ * is exactly one block: the greeting — Vercel-style wordmark typography
+ * (FoldText), anchored bottom-centre, rising from below the frame during
+ * chapter one and leaving before chapter two. Its unfold is scrubbed to the
+ * scroll through onProgress, opening character by character across the first
+ * half of chapter one.
  *
  * The end of the film IS the finished desktop. As progress enters the final
  * frames the film zooms into that desktop and fades to black; at rock bottom
@@ -47,6 +52,7 @@ export default function VideoShowcase({
   scrub = 3.8,
   showFullscreen = false,
   onComplete,
+  onProgress,
   children,
 }: VideoShowcaseProps) {
   const { videoRef, seekTo, ready } = useScrubVideo(totalDuration);
@@ -102,6 +108,7 @@ export default function VideoShowcase({
           anticipatePin: 1,
           onUpdate: (self) => {
             seekTo(self.progress * totalDuration);
+            onProgress?.(self.progress);
             // Rock bottom — the desktop boots the instant the zoom blacks out.
             if (self.progress >= FADE_END && !completedRef.current) {
               completedRef.current = true;
@@ -146,7 +153,7 @@ export default function VideoShowcase({
       blocks.forEach((el, i) => {
         const w = fadeWindow(i);
         if (i === 0) {
-          // The name — rises from below the bottom edge, GTA style.
+          // The name — rises from below the bottom edge as it folds open.
           const riseFrom = window.innerHeight * 0.42;
           timeline.fromTo(
             el,
@@ -178,7 +185,7 @@ export default function VideoShowcase({
       cancelled = true;
       trigger?.kill();
     };
-  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, onComplete, videoRef]);
+  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, onComplete, onProgress, videoRef]);
 
   return (
     <section ref={sectionRef} className={styles.section}>

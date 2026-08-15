@@ -76,50 +76,14 @@
   will-change: transform, opacity;
 }
 
-/* Chapter 1 — the GTA-style name, anchored bottom centre. The title rises
-   from below the bottom edge and leaves before chapter two. */
+/* Chapter 1 — the greeting, anchored bottom centre, just a little above the
+   bottom edge. The text itself is rendered by the FoldText component (Vercel
+   style — Geist, extra bold) and unfolds character by character, scrubbed to
+   the first half of chapter one. */
 .ch1 {
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 7.5%;
-}
-
-/* ---- GTA wordmark ----
-   White extra-bold letters with a thick black outline, stretched wide —
-   the licensed (OFL) Saira Variable at 900 / width 125% stands in for
-   Pricedown, GTA's typeface, which isn't licensed for web embedding. The
-   name is stacked on two levels like the three-level Grand Theft Auto
-   wordmark, with a heavy black ring from the stroked text-shadow. */
-
-.name {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 0.9;
-  font-family: var(--font-gta);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: clamp(2.6rem, 9.5vw, 7.5rem);
-  letter-spacing: 0.01em;
-  text-align: center;
-  text-transform: uppercase;
-  color: #fff;
-  -webkit-text-stroke: 2px #000;
-  text-shadow:
-    0 5px 0 #000,
-    0 -5px 0 #000,
-    5px 0 0 #000,
-    -5px 0 0 #000,
-    5px 5px 0 #000,
-    -5px 5px 0 #000,
-    5px -5px 0 #000,
-    -5px -5px 0 #000,
-    0 12px 30px rgba(0, 0, 0, 0.55);
-}
-
-.nameLine {
-  display: block;
+  padding-bottom: 6.5%;
 }
 
 /* ---- Fullscreen toggle — a small borderless icon, top right ---- */
@@ -159,22 +123,7 @@
 
 @media (max-width: 767px) {
   .ch1 {
-    padding-bottom: 10%;
-  }
-
-  .name {
-    font-size: clamp(2.2rem, 10.5vw, 3.6rem);
-    -webkit-text-stroke: 1.5px #000;
-    text-shadow:
-      0 4px 0 #000,
-      0 -4px 0 #000,
-      4px 0 0 #000,
-      -4px 0 0 #000,
-      4px 4px 0 #000,
-      -4px 4px 0 #000,
-      4px -4px 0 #000,
-      -4px -4px 0 #000,
-      0 10px 24px rgba(0, 0, 0, 0.55);
+    padding-bottom: 9%;
   }
 
   .fullscreen {
