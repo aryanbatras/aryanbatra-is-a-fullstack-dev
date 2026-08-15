@@ -83,7 +83,14 @@
 .ch1 {
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 6.5%;
+  padding-bottom: 3%;
+}
+
+/* The greeting uses Geist explicitly (Vercel's typeface — clean and crisp,
+   kept at 800 extra-bold to match the word mark). */
+.fold {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "Helvetica Neue", Inter, Roboto, Arial, sans-serif;
 }
 
 /* ---- Fullscreen toggle — a small borderless icon, top right ---- */
@@ -123,7 +130,7 @@
 
 @media (max-width: 767px) {
   .ch1 {
-    padding-bottom: 9%;
+    padding-bottom: 4.5%;
   }
 
   .fullscreen {

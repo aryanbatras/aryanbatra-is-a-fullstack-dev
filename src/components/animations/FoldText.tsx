@@ -85,6 +85,7 @@ const FoldText = ({
   const rootRef = useRef<HTMLSpanElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
+  const tweenVarsRef = useRef<{ fromVars: gsap.TweenVars; toVars: gsap.TweenVars } | null>(null);
   const hingeConfig = HINGE_CONFIG[hinge] || HINGE_CONFIG.top;
   const safeCrease = clamp(creaseShading, 0, 1);
   const safePerspective = Math.max(120, perspective);
@@ -212,7 +213,7 @@ const FoldText = ({
       gsap.set(pieces, fromVars);
       scrollTrigger = ScrollTrigger.create({
         trigger: root,
-        start: "top 82%",
+        start: "top 80%",
         once: true,
         onEnter: () => play(false),
       });
@@ -238,20 +239,28 @@ const FoldText = ({
     toVars,
   ]);
 
-  /** Scrub the unfold to 0..1 — creates the paused tween on first use. */
+  /** Scrub the unfold to 0..1 — creates the paused tween on first use and
+      rebuilds it whenever the tween vars change (e.g. duration/stagger tuned
+      live via Leva), preserving the current progress. */
   const setFoldProgress = useCallback(
     (progress: number) => {
       if (typeof window === "undefined") return;
-      if (!tweenRef.current) {
-        const root = rootRef.current;
-        if (!root) return;
+      const root = rootRef.current;
+      if (!root) return;
+      const varsChanged =
+        !tweenVarsRef.current ||
+        tweenVarsRef.current.fromVars !== fromVars ||
+        tweenVarsRef.current.toVars !== toVars;
+      if (!tweenRef.current || varsChanged) {
         const pieces = Array.from(root.querySelectorAll(".fold-text-piece"));
         if (!pieces.length) return;
+        tweenRef.current?.kill();
         tweenRef.current = gsap.fromTo(pieces, fromVars, {
           ...toVars,
           paused: true,
           ease: "none",
         });
+        tweenVarsRef.current = { fromVars, toVars };
       }
       tweenRef.current.progress(clamp(progress, 0, 1));
     },

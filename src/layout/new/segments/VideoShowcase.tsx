@@ -34,8 +34,8 @@ interface VideoShowcaseProps {
  * Overlay blocks (children with data-chapter) animate on the SAME scrubbed
  * timeline, so they stay in lockstep with the frame under them. Today there
  * is exactly one block: the greeting — Vercel-style wordmark typography
- * (FoldText), anchored bottom-centre, rising from below the frame during
- * chapter one and leaving before chapter two. Its unfold is scrubbed to the
+ * (FoldText), anchored bottom-centre, appearing in place as soon as chapter
+ * one starts and leaving before chapter two. Its unfold is scrubbed to the
  * scroll through onProgress, opening character by character across the first
  * half of chapter one.
  *
@@ -153,17 +153,13 @@ export default function VideoShowcase({
       blocks.forEach((el, i) => {
         const w = fadeWindow(i);
         if (i === 0) {
-          // The name — rises from below the bottom edge as it folds open.
-          const riseFrom = window.innerHeight * 0.42;
-          timeline.fromTo(
-            el,
-            { autoAlpha: 0, y: riseFrom },
-            { autoAlpha: 1, y: 0, ease: "none", duration: w.inEnd - w.fadeIn },
-            w.fadeIn,
-          );
+          // The name — appears in place (no rise, no fade) as soon as chapter
+          // one starts; the FoldText character unfold IS the entrance. It
+          // leaves before chapter two with a simple fade.
+          timeline.set(el, { autoAlpha: 1 }, w.fadeIn);
           timeline.to(
             el,
-            { autoAlpha: 0, y: -window.innerHeight * 0.12, ease: "none", duration: w.fadeOut - w.outStart },
+            { autoAlpha: 0, ease: "none", duration: w.fadeOut - w.outStart },
             w.outStart,
           );
         } else {
