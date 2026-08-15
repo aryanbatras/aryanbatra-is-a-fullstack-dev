@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useControls } from "leva";
+import dynamic from "next/dynamic";
 import { ScrollSmootherProvider } from "@/context/ScrollSmootherContext";
 import VideoShowcase from "@/layout/new/segments/VideoShowcase";
-import MacDesktop from "@/layout/new/segments/MacDesktop";
 import LevaPanel from "@/components/utility/LevaPanel";
 import VideoLoader from "@/components/loader/VideoLoader";
 // OLD — FoldText (scrubbed externally via setFoldProgress on the video pin's
@@ -13,6 +13,16 @@ import ScrollFloat from "@/components/animations/ScrollFloat";
 import { ACT1_DURATION, ACT1_DURATIONS, SCRUB_POSTER_A, SCRUB_VIDEO_A } from "@/constants/video";
 import showreel from "@/styles/components/new/VideoShowcase.module.css";
 import styles from "@/styles/pages/new.module.css";
+
+/* The desktop OS is the heaviest client-side module (window manager, Dock,
+   Spotlight, 20+ apps, lucide icons). It only exists after the film's rock
+   bottom, so it loads in the background after first paint instead of
+   blocking the initial JS — the boot chunk is fetched as soon as the page
+   hydrates. */
+const MacDesktop = dynamic(
+  () => import("@/layout/new/segments/MacDesktop"),
+  { ssr: false, loading: () => null },
+);
 
 /** The fold starts ~10% into chapter one (the first film) and completes by
     ~32% of it — the "Hi, I'm Aryan" text unfolds as the user scrolls that

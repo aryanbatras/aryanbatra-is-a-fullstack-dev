@@ -67,6 +67,30 @@ export default function VideoShowcase({
   const completedRef = useRef(false);
   const smootherReady = useScrollSmootherReady();
 
+  /* The 23MB all-intra film is the site's heaviest resource. It starts in the
+     background AFTER first paint (idle callback) so it never races the
+     critical CSS/JS — the loader counter paints first, the film pulls in
+     behind it and gates the reveal through `ready`. */
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    let cancelled = false;
+    const start = () => {
+      if (cancelled || v.src) return;
+      v.src = video;
+      v.load();
+    };
+    const useIdle = typeof window.requestIdleCallback === "function";
+    const id = useIdle
+      ? window.requestIdleCallback(start, { timeout: 1200 })
+      : window.setTimeout(start, 300);
+    return () => {
+      cancelled = true;
+      if (useIdle) window.cancelIdleCallback(id);
+      else window.clearTimeout(id);
+    };
+  }, [video, videoRef]);
+
   useEffect(() => {
     if (!ready || !smootherReady) return;
     let cancelled = false;
@@ -202,7 +226,6 @@ export default function VideoShowcase({
       <video
         ref={videoRef}
         className={styles.video}
-        src={video}
         poster={poster}
         muted
         playsInline

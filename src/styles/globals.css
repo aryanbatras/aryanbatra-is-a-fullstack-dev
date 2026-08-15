@@ -1,6 +1,9 @@
 html, body {
     margin: 0;
     padding: 0;
+    /* Black before the loader paints (kills any white flash) — the loader
+       sheet and /new sections paint their own backgrounds on top. */
+    background: #000;
     /* --font-ui: Geist first (Vercel's typeface — clean, popular, crisp), then
        the system UI fallbacks for every surface that reads overlays/desktop. */
     --font-ui: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display",

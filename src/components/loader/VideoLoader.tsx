@@ -78,7 +78,7 @@ export default function VideoLoader({ ready }: VideoLoaderProps) {
 
   return (
     <div
-      className={styles.overlay}
+      className={`${styles.overlay} loader-overlay`}
       ref={rootRef}
       role="status"
       aria-live="polite"
@@ -103,7 +103,7 @@ export default function VideoLoader({ ready }: VideoLoaderProps) {
             direction="up"
             duration={5}
             delay={0}
-            className={styles.number}
+            className={`${styles.number} loader-number`}
           />
         </div>
       </div>
