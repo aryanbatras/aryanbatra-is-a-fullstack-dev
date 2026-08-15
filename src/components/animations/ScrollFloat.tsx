@@ -80,32 +80,40 @@ const ScrollFloat = ({
     const charElements = el.querySelectorAll(`.${styles.char}`);
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        charElements,
-        {
-          willChange: "opacity, transform",
-          opacity: 0,
-          yPercent: 120,
-          scaleY: 2.3,
-          scaleX: 0.7,
-          transformOrigin: "50% 0%",
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          ...(scroller ? { scroller } : {}),
+          start: scrollStart,
+          end: scrollEnd,
+          scrub: true,
         },
+      });
+
+      // Opacity and transforms run as two parallel tweens (same duration and
+      // stagger, so chars stay in sync) because they need different eases:
+      // opacity must never overshoot past 1 — values > 1 force the browser to
+      // re-rasterize the layer every frame on top of the scrubbed video below.
+      // Transforms keep their bounce via back.inOut, which only affects the
+      // cheap transform properties.
+      tl.fromTo(
+        charElements,
+        { opacity: 0 },
+        { duration: animationDuration, opacity: 1, ease: "power1.in", stagger },
+        0,
+      );
+      tl.fromTo(
+        charElements,
+        { yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: "50% 0%" },
         {
           duration: animationDuration,
-          ease,
-          opacity: 1,
           yPercent: 0,
           scaleY: 1,
           scaleX: 1,
+          ease,
           stagger,
-          scrollTrigger: {
-            trigger: el,
-            ...(scroller ? { scroller } : {}),
-            start: scrollStart,
-            end: scrollEnd,
-            scrub: true,
-          },
         },
+        0,
       );
     }, el);
 

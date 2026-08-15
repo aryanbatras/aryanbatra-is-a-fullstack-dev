@@ -111,6 +111,10 @@ export function ScrollSmootherProvider({ children }: { children: ReactNode }) {
       gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
       if (cancelled) return;
 
+      // Don't stretch time after heavy frames (scrubbed video decode is bursty):
+      // lag-smoothing would otherwise make subsequent scroll frames feel slow.
+      gsap.ticker.lagSmoothing(0);
+
       smoother = ScrollSmoother.create({
         smooth: 0.85, // seconds to catch up to the native scroll position
         effects: true, // honour data-speed / data-lag attributes (parallax)
