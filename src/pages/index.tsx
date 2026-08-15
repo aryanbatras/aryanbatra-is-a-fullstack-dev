@@ -4,6 +4,7 @@ import { ScrollSmootherProvider } from "@/context/ScrollSmootherContext";
 import VideoShowcase from "@/layout/new/segments/VideoShowcase";
 import MacDesktop from "@/layout/new/segments/MacDesktop";
 import LevaPanel from "@/components/utility/LevaPanel";
+import VideoLoader from "@/components/loader/VideoLoader";
 // OLD — FoldText (scrubbed externally via setFoldProgress on the video pin's
 // onProgress). Replaced with React Bits ScrollFloat, which scrubs on its own
 // ScrollTrigger across the same fold window of chapter one.
@@ -33,6 +34,11 @@ export default function Home() {
   const [desktopOpen, setDesktopOpen] = useState(false);
   const open = useCallback(() => setDesktopOpen(true), []);
   // const foldRef = useRef<FoldTextHandle>(null);
+
+  /* The loader curtain (fallback counter) covers the page until the film is
+     loaded and the smoother is live, then slides up like a presentation. */
+  const [filmReady, setFilmReady] = useState(false);
+  const markFilmReady = useCallback(() => setFilmReady(true), []);
 
   /* Viewport height — ScrollFloat's trigger positions are absolute content
      scroll px inside the pin, so they scale with the viewport. */
@@ -102,6 +108,7 @@ export default function Home() {
               pinViewports={PIN_VIEWPORTS}
               showFullscreen
               onComplete={open}
+              onReady={markFilmReady}
               chapter0FadeOut={fadeOut}
             >
               <div
@@ -154,6 +161,10 @@ export default function Home() {
           </div>
         </div>
         <MacDesktop open={desktopOpen} onClose={() => setDesktopOpen(false)} />
+        {/* The fallback counter — covers the page until the film loads, then
+            slides up like a presentation curtain. Fixed, so it lives outside
+            the smoother's wrapper. */}
+        <VideoLoader ready={filmReady} />
       </main>
     </ScrollSmootherProvider>
   );

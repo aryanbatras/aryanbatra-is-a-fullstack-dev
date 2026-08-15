@@ -20,6 +20,8 @@ interface VideoShowcaseProps {
   showFullscreen?: boolean;
   /** Fired once at the rock bottom of the film — the desktop boots then. */
   onComplete?: () => void;
+  /** Fired once when the film + smoother are ready to scrub (loader reveal). */
+  onReady?: () => void;
   /** Fired on every scrub update with the section's progress (0..1). */
   onProgress?: (progress: number) => void;
   /** Chapter overlay blocks, each carrying data-chapter="i". */
@@ -55,6 +57,7 @@ export default function VideoShowcase({
   chapter0FadeOut = 0.55,
   showFullscreen = false,
   onComplete,
+  onReady,
   onProgress,
   children,
 }: VideoShowcaseProps) {
@@ -76,6 +79,9 @@ export default function VideoShowcase({
       ]);
       gsap.registerPlugin(ScrollTrigger);
       if (cancelled || !sectionRef.current || !videoRef.current) return;
+
+      // The loader curtain slides up the instant the experience is live.
+      onReady?.();
 
       // Chapter boundaries as timeline progress (0..1).
       const bounds = durations.reduce<number[]>(
@@ -189,7 +195,7 @@ export default function VideoShowcase({
       cancelled = true;
       trigger?.kill();
     };
-  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, chapter0FadeOut, onComplete, onProgress, videoRef]);
+  }, [ready, smootherReady, seekTo, durations, totalDuration, pinViewports, scrub, chapter0FadeOut, onComplete, onReady, onProgress, videoRef]);
 
   return (
     <section ref={sectionRef} className={styles.section}>
