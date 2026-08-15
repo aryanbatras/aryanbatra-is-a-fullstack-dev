@@ -97,7 +97,7 @@ const iconGridIndex = (i: number) => ({
 });
 
 export default function MacDesktop({ open, onClose }: MacDesktopProps) {
-  const [booting, setBooting] = useState(true);
+  const [booting, setBooting] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -199,17 +199,12 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   const idleTimer = useRef<number | null>(null);
   const osdTimer = useRef<number | null>(null);
 
-  /* ----- boot: welcome notification once ----- */
+  /* ----- open: boot straight into the lock screen (no Apple boot loader) ----- */
   useEffect(() => {
     if (!open) return;
-    setBooting(true);
+    setBooting(false);
     setLocked(true);
-    const id = window.setTimeout(() => {
-      setBooting(false);
-      sounds.bootChime();
-    }, 1100);
-    return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    sounds.bootChime();
   }, [open]);
 
   /* ----- body scroll lock ----- */
