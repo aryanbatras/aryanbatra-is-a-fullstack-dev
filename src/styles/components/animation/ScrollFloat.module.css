@@ -1,0 +1,16 @@
+.float {
+  overflow: hidden;
+  color: var(--fold-color, #f7f2e8);
+}
+
+.text {
+  display: inline-block;
+  font-size: var(--fold-size, clamp(1.6rem, 8vw, 10rem));
+  font-weight: var(--fold-weight, 900);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.char {
+  display: inline-block;
+}
