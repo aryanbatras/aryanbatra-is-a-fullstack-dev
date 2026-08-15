@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { profile } from '../../data/profile';
 import styles from '../../styles/components/profile/Profile.module.css';
-import { MdEmail, MdLocationOn, MdLanguage, MdSchool, MdWork, MdCode, MdLink, MdLaunch, MdDateRange } from 'react-icons/md';
+import { MdEmail, MdLocationOn, MdLanguage, MdSchool, MdWork, MdCode, MdLink, MdLaunch, MdDateRange, MdWorkspacePremium } from 'react-icons/md';
 import { FaGithub, FaLinkedin, FaGlobe, FaCertificate } from 'react-icons/fa';
 
 export default function Profile() {
@@ -97,6 +97,35 @@ export default function Profile() {
                 ))}
               </div>
             </div>
+
+            {profile.honors && profile.honors.length > 0 && (
+              <div className={styles.honors}>
+                <h4 className={styles.subsectionTitle}>
+                  <MdWorkspacePremium className={styles.sectionIcon} />
+                  Honors &amp; Awards
+                </h4>
+                {profile.honors.map((honor, index) => (
+                  <div key={index} className={styles.honorCard}>
+                    <h5 className={styles.honorName}>{honor.title}</h5>
+                    <p className={styles.honorMeta}>
+                      {honor.issuer} · {honor.date}
+                    </p>
+                    <p className={styles.honorDesc}>{honor.description}</p>
+                    {honor.url && (
+                      <a
+                        href={honor.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.honorLink}
+                      >
+                        Read the Book
+                        <MdLaunch className={styles.smallIcon} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

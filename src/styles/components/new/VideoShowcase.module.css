@@ -1,0 +1,289 @@
+.section {
+  position: relative;
+  height: 100vh;
+  height: 100dvh; /* dynamic viewport — correct on mobile (URL bar) */
+  width: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  will-change: transform;
+}
+
+/* ---- Cinematic letterbox + vignette ---- */
+
+.letterbox {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0) 6.5%,
+    rgba(0, 0, 0, 0) 93.5%,
+    rgba(0, 0, 0, 0.82) 100%
+  );
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 130% 95% at 50% 50%,
+      transparent 58%,
+      rgba(0, 0, 0, 0.34) 82%,
+      rgba(0, 0, 0, 0.55) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.42) 0%,
+      transparent 16%,
+      transparent 84%,
+      rgba(0, 0, 0, 0.42) 100%
+    );
+}
+
+/* Overlay layer — sits above the film, lets clicks pass through except the
+   fullscreen icon. Geist first (Vercel's typeface), then the system UI. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-ui);
+}
+
+/* Each chapter block is a full-section flex box so the inner copy is anchored
+   to the free space of its footage without CSS transforms (GSAP owns those). */
+.block {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  opacity: 0; /* hidden until the scrub reaches it */
+  will-change: transform, opacity;
+}
+
+/* Chapter 1 — identity, left column, vertically centred. */
+.ch1 {
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 9%;
+  padding-right: 34%;
+}
+
+/* Chapter 2 — experience, top right (the free space of the footage). */
+.ch2 {
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 11% 7% 0 34%;
+}
+
+/* ---- Chapter 1: identity ---- */
+
+.name {
+  margin: 0 0 24px;
+  font-size: clamp(2.7rem, 6vw, 6rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* Liquid Glass — a soft frosted pill with a hairline highlight and a single
+   macOS-blue dot. No drop shadows, no glow — just glass. */
+.role {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  font-size: clamp(0.78rem, 1.15vw, 0.98rem);
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.role::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2997ff;
+}
+
+.sub {
+  margin: 26px 0 0;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---- Chapter 2: experience — Liquid Glass cards ---- */
+
+.blockLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin: 0 0 30px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.blockLabel::after {
+  content: "";
+  width: 34px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.exp {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  text-align: right;
+}
+
+.expItem {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  padding: 17px 20px 17px 26px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  opacity: 0; /* revealed one-by-one by the scrub timeline */
+  will-change: transform, opacity;
+}
+
+/* A single quiet hairline — the macOS Tahoe widget edge, not a neon spine. */
+.expItem::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 58%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.expRole {
+  font-size: clamp(1.12rem, 2vw, 1.6rem);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.expOrg {
+  font-size: clamp(0.9rem, 1.45vw, 1.1rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.expMeta {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ---- Fullscreen toggle — a small borderless icon, top right ---- */
+
+.fullscreen {
+  pointer-events: auto;
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.fullscreen:hover,
+.fullscreen:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.fullscreenGlyph {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* ---- Small screens ---- */
+
+@media (max-width: 767px) {
+  .ch1 {
+    padding-left: 7%;
+    padding-right: 18%;
+  }
+
+  .ch2 {
+    padding: 20% 7% 0 22%;
+  }
+
+  .name {
+    font-size: clamp(2.3rem, 11vw, 3.4rem);
+  }
+
+  .exp {
+    gap: 20px;
+  }
+
+  .expRole {
+    font-size: clamp(1rem, 3.6vw, 1.25rem);
+  }
+
+  .fullscreen {
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+  }
+}

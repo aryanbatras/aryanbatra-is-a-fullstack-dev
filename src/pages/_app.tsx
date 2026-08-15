@@ -1,3 +1,4 @@
+import { GeistSans } from "geist/font/sans";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ThemeProvider } from "../context/ThemeContext";
@@ -8,8 +9,10 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider>
       <PanelProvider>
-        <Navbar />
-        <Component {...pageProps} />
+        <div className={`${GeistSans.variable} geist-root`} style={{ display: "contents" }}>
+          <Navbar />
+          <Component {...pageProps} />
+        </div>
       </PanelProvider>
     </ThemeProvider>
   );

@@ -15,18 +15,35 @@ export default function Navbar() {
     const path = router.pathname;
     if (path === "/3d") {
       setActive("_3d");
-    } else if (path === "/") {
+    } else if (path === "/new") {
+      setActive("_new");
+    } else if (path === "/" || path === "/legacy") {
       setActive("_aryan");
     }
   }, [router.pathname]);
+
+  // The home page IS the fullscreen showreel + desktop — no chrome at all.
+  // /new is an alias that redirects here, so both are chrome-free.
+  if (router.pathname === "/" || router.pathname === "/new") return null;
+
+  // /legacy is the classic site embedded inside the desktop's Portfolio app.
+  // The showreel routes would load the whole machine inside the iframe, so
+  // they're hidden there and "_aryan" just scrolls back to the top.
+  const isLegacy = router.pathname === "/legacy";
 
   function handleChangeState(e: string) {
     setActive(e);
     setNavOpen(false);
 
-    if (e === "_3d") {
+    if (e === "_aryan") {
+      if (isLegacy) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        router.push("/");
+      }
+    } else if (e === "_3d") {
       router.push("/3d");
-    } else if (e === "_aryan") {
+    } else if (e === "_new") {
       router.push("/");
     } else if (e === "_projects" || e === "_contact") {
       if (router.pathname === "/3d") {
@@ -81,12 +98,22 @@ export default function Navbar() {
           >
             _contact
           </li>
-          <li
-            onClick={() => handleChangeState("_3d")}
-            className={`${styles.item} ${active === "_3d" ? styles.item__active : ""}`}
-          >
-            _3d
-          </li>
+          {!isLegacy && (
+            <li
+              onClick={() => handleChangeState("_3d")}
+              className={`${styles.item} ${active === "_3d" ? styles.item__active : ""}`}
+            >
+              _3d
+            </li>
+          )}
+          {!isLegacy && (
+            <li
+              onClick={() => handleChangeState("_new")}
+              className={`${styles.item} ${active === "_new" ? styles.item__active : ""}`}
+            >
+              _new
+            </li>
+          )}
         </ul>
         <div
           className={styles.theme}
@@ -118,7 +145,8 @@ export default function Navbar() {
           <li onClick={() => handleChangeState("_aryan")}>_aryan</li>
           <li onClick={() => handleChangeState("_projects")}>_projects</li>
           <li onClick={() => handleChangeState("_contact")}>_contact</li>
-          <li onClick={() => handleChangeState("_3d")}>_3d</li>
+          {!isLegacy && <li onClick={() => handleChangeState("_3d")}>_3d</li>}
+          {!isLegacy && <li onClick={() => handleChangeState("_new")}>_new</li>}
         </ul>
       </div>
     </>

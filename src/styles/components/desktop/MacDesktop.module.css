@@ -1,0 +1,4250 @@
+.desktop {
+  /* Liquid Glass recipe — every glass surface (windows, dock, menus, panels,
+     widgets) reads these. Reduce Transparency (Tahoe accessibility) flips
+     them to near-solid fills with no blur. */
+  --glass-bg: rgba(34, 36, 48, 0.46);
+  --glass-blur: 46px;
+  --glass-sat: 235%;
+  --glass-bright: 1.08;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh; /* dynamic viewport — correct on mobile (URL bar) */
+  z-index: 2000;
+  background: #14151c;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* macOS uses the arrow cursor on everything, including buttons */
+  cursor: default;
+  touch-action: manipulation; /* no double-tap zoom on mobile */
+  overscroll-behavior: none; /* never chain scroll to the page behind */
+}
+
+/* Tahoe accessibility: Reduce Transparency replaces glass with solid fills. */
+.reduced {
+  --glass-bg: rgba(26, 26, 32, 0.97);
+  --glass-blur: 0px;
+  --glass-sat: 100%;
+  --glass-bright: 1;
+}
+
+.desktop button,
+.desktop a,
+.desktop [role="button"] {
+  cursor: default;
+}
+
+.desktop input,
+.desktop textarea {
+  cursor: text;
+}
+
+/* ================= Menu bar (liquid glass) ================= */
+
+.menuBar {
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px 0 8px;
+  /* Tahoe: the menu bar is fully transparent — just a whisper of gradient at
+     the very top for legibility over bright wallpapers. */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.24), transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  color: rgba(245, 245, 247, 0.96);
+  font-size: 13px;
+  position: relative;
+  z-index: 3000;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.menuLeft {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.appName {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0 14px 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.menuWrap {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.appleMenu {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  cursor: default;
+  border-radius: 5px;
+}
+
+.appleMenu:hover,
+.appleMenu:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  outline: none;
+}
+
+.menuTitle {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  padding: 0 11px;
+  height: 100%;
+  cursor: default;
+  border-radius: 5px;
+}
+
+.menuTitle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.menuTitleOpen {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 5px 5px 0 0;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  min-width: 240px;
+  background: var(--glass-bg, rgba(36, 38, 50, 0.52));
+  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #f5f5f7;
+  animation: popIn 0.14s ease-out both;
+}
+
+.dropdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: default;
+  font-family: inherit;
+}
+
+.dropdownItem:hover:not(:disabled),
+.dropdownItem:focus-visible {
+  background: rgba(10, 132, 255, 0.85);
+  outline: none;
+}
+
+.dropdownItem:disabled {
+  opacity: 0.45;
+}
+
+.dropdownItemBold {
+  font-weight: 700;
+}
+
+.dropdownLabel {
+  white-space: nowrap;
+}
+
+.dropdownShortcut {
+  color: rgba(245, 245, 247, 0.55);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dropdownItem:hover .dropdownShortcut {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dropdownSeparator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.13);
+  margin: 5px 10px;
+}
+
+.menuRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  position: relative;
+  /* leave room for the absolute clock button at the far right */
+  padding-right: 176px;
+}
+
+.statusBtn {
+  background: none;
+  border: none;
+  color: #f5f5f7;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  cursor: default;
+  border-radius: 5px;
+}
+
+.statusBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.statusIcon {
+  display: inline-flex;
+  color: #f5f5f7;
+  opacity: 0.92;
+}
+
+.statusDim {
+  opacity: 0.35;
+}
+
+.battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #f5f5f7;
+}
+
+/* Now Playing chip — appears in the menu bar while music is playing. */
+
+.npChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 150px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  color: #f5f5f7;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: default;
+  transition: background 0.15s ease;
+  animation: npIn 0.25s ease both;
+}
+
+@keyframes npIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.npChip:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.npChipTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.npPopover {
+  position: absolute;
+  right: 150px;
+  top: calc(100% + 8px);
+  width: 268px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--glass-bg, rgba(34, 36, 48, 0.55));
+  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3200;
+  animation: popIn 0.16s ease-out both;
+}
+
+.npArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.9);
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+
+.npInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.npTitle {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.npArtist {
+  font-size: 11px;
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.npProgressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.npTime {
+  font-size: 10px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+.npProgress {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  padding: 0;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.npProgressFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: #fff;
+}
+
+.npControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.npBtn {
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.85);
+  padding: 4px;
+  cursor: default;
+  display: flex;
+}
+
+.npPlay {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.npVolRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.batteryIcon {
+  opacity: 0.92;
+}
+
+.batteryPct {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.clockBtn {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.clockBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Control Center panel ---------- */
+
+.controlCenter {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 310px;
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  background: var(--glass-bg, rgba(36, 38, 50, 0.5));
+  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  animation: popIn 0.16s ease-out both;
+  z-index: 3100;
+  overscroll-behavior: contain;
+}
+
+.ccSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  margin-bottom: 6px;
+}
+
+.ccLabel {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ccToggle {
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  position: relative;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  color: #f5f5f7;
+  transition: background 0.2s ease;
+}
+
+.ccThumb {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.ccThumbOn {
+  transform: translateX(16px);
+}
+
+.ccToggle:has(.ccThumbOn) {
+  background: #30d158;
+}
+
+.ccMeta {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px 2px;
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.ccAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #f5f5f7;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  padding: 10px 12px;
+  border-radius: 11px;
+  margin-top: 2px;
+}
+
+.ccAction:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ccShortcut {
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.45);
+}
+
+/* macOS Tahoe Control Center — grid of expandable Liquid Glass tiles. */
+
+.ccGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ccTile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 15px;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f5f7;
+  text-align: left;
+  font-family: inherit;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.ccTile:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ccTileActive {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.ccTileIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f5f7;
+  transition: background 0.2s ease;
+}
+
+/* Toggled-on tiles get the tinted iOS-style icon well. */
+.ccTileOn .ccTileIcon {
+  background: #0a84ff;
+}
+
+.ccTileLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.ccTileStatus {
+  font-size: 10px;
+  opacity: 0.55;
+  margin-top: -4px;
+}
+
+/* Control Center header — title + Edit/Done (Tahoe customization). */
+
+.ccHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 8px;
+}
+
+.ccHeaderTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ccEditBtn {
+  background: none;
+  border: none;
+  color: #f5f5f7;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.ccEditBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Edit mode: tiles wiggle, show a remove badge + reorder arrows. */
+
+.ccTileEditing {
+  animation: ccWiggle 0.4s ease-in-out infinite;
+}
+
+@keyframes ccWiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-1.4deg);
+  }
+  75% {
+    transform: rotate(1.4deg);
+  }
+}
+
+.ccTileBadge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(28, 30, 40, 0.9);
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  color: #ff453a;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.ccTileArrows {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  gap: 2px;
+  z-index: 2;
+}
+
+.ccTileArrow {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: rgba(28, 30, 40, 0.9);
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  color: #f5f5f7;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gallery of hidden controls (shown in edit mode). */
+
+.ccGallery {
+  margin-top: 8px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  padding-top: 10px;
+}
+
+.ccGalleryTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.ccGalleryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ccGalleryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  border: 0.5px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5f5f7;
+  font-family: inherit;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.ccGalleryItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ccGalleryIcon {
+  display: flex;
+  color: rgba(245, 245, 247, 0.85);
+  flex-shrink: 0;
+}
+
+.ccGalleryLabel {
+  flex: 1;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ccGalleryAdd {
+  color: #30d158;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ccExpanded {
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 15px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 2px;
+  animation: popIn 0.16s ease-out both;
+}
+
+.ccExpandedHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.ccExpandedHeader strong {
+  flex: 1;
+  font-weight: 600;
+}
+
+.ccExpandedNote {
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.45;
+}
+
+.ccDevice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-radius: 9px;
+}
+
+.ccDevice:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ccDeviceIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ccDeviceName {
+  flex: 1;
+  font-size: 12px;
+}
+
+.ccDeviceState {
+  font-size: 11px;
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+.ccSeg {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.ccSegBtn {
+  flex: 1;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(245, 245, 247, 0.75);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.ccSegBtnActive {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.ccMusicRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ccMusicArt {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #ff9a9e, #fa5e5e 55%, #c4305a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ccMusicTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ccMusicArtist {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.ccMusicControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding-top: 4px;
+}
+
+.ccMusicBtn {
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.8);
+  padding: 4px;
+  cursor: default;
+  display: flex;
+}
+
+.ccMusicPlay {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* ================= Wallpaper + desktop icons ================= */
+
+.wallpaper {
+  position: absolute;
+  inset: 28px 0 0 0;
+  animation: wallpaperIn 0.5s ease both;
+}
+
+.desktopIcon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 8px 12px 6px;
+  border-radius: 10px;
+  font-family: inherit;
+  will-change: transform;
+  z-index: 1;
+}
+
+.desktopIconDragging {
+  z-index: 40;
+  transform-origin: center;
+}
+
+.desktopIconDragging .desktopIconLabel {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+.desktopIconSelected {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.desktopIconLabel {
+  font-size: 12px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  letter-spacing: -0.01em;
+}
+
+/* .url web-shortcut tiles on the desktop — a Liquid Glass squircle with
+   the site's emoji, like a real internet-location file icon. */
+.desktopWebTile {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.07));
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 10px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  user-select: none;
+}
+
+/* ================= Dock (liquid glass) ================= */
+
+.dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  z-index: 2500;
+  padding: 0 14px;
+  pointer-events: none;
+}
+
+.dockInner {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  /* Liquid Glass shelf — wallpaper colours bleed through the strong blur. */
+  background: var(--glass-bg, rgba(26, 28, 40, 0.4));
+  backdrop-filter: blur(var(--glass-blur, 44px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.1));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 44px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.1));
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 9px 11px 7px;
+  box-shadow:
+    0 14px 44px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  pointer-events: auto;
+}
+
+.dockItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* base icon size comes from Settings → Desktop & Dock → Size */
+  width: calc(var(--dock-size, 56px) + 2px);
+  height: calc(var(--dock-size, 56px) + 2px);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+  will-change: transform;
+}
+
+/* Dock position: left / right (Settings → Desktop & Dock → Position). */
+.dockLeft {
+  left: 10px;
+  right: auto;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dockRight {
+  left: auto;
+  right: 10px;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dockLeft .dockInner,
+.dockRight .dockInner {
+  flex-direction: column;
+  align-items: center;
+}
+
+.dockLeft .dockItem,
+.dockRight .dockItem {
+  transform-origin: center;
+}
+
+.dockLeft .dockLabel {
+  bottom: auto;
+  top: 50%;
+  left: calc(100% + 12px);
+  transform: translateY(-50%);
+}
+
+.dockRight .dockLabel {
+  bottom: auto;
+  top: 50%;
+  left: auto;
+  right: calc(100% + 12px);
+  transform: translateY(-50%);
+}
+
+.dockLeft .dockSeparator,
+.dockRight .dockSeparator {
+  align-self: center;
+  width: auto;
+  height: 1px;
+  margin: 6px 8px;
+}
+
+/* Auto-hide: the shelf slides away; a thin edge strip reveals it on hover/tap. */
+.dockPeek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16px;
+  pointer-events: auto;
+}
+
+.dockLeft .dockPeek {
+  right: auto;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  height: auto;
+}
+
+.dockRight .dockPeek {
+  left: auto;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  height: auto;
+}
+
+.dockAutoHide .dockInner {
+  transform: translateY(calc(100% + 24px));
+  opacity: 0;
+  transition:
+    transform 0.32s cubic-bezier(0.3, 0.8, 0.3, 1),
+    opacity 0.32s ease;
+}
+
+.dockLeft.dockAutoHide .dockInner {
+  transform: translateX(calc(-100% - 24px));
+}
+
+.dockRight.dockAutoHide .dockInner {
+  transform: translateX(calc(100% + 24px));
+}
+
+.dockAutoHide:hover .dockInner,
+.dockAutoHide:focus-within .dockInner {
+  transform: translateY(0) translateX(0);
+  opacity: 1;
+}
+
+.dockLabel {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(48, 48, 56, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #f5f5f7;
+  font-size: 12px;
+  padding: 4px 11px;
+  border-radius: 7px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.dockItem:hover .dockLabel {
+  opacity: 1;
+}
+
+.dockDot {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dockDotMinimized {
+  opacity: 0.35;
+}
+
+.dockSeparator {
+  width: 1px;
+  align-self: stretch;
+  margin: 8px 6px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.trashTile {
+  width: calc(var(--dock-size, 56px) - 8px);
+  height: calc(var(--dock-size, 56px) - 8px);
+  border-radius: 10.7px;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+}
+
+/* ================= Context menu ================= */
+
+.contextBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3400;
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: 3500;
+  min-width: 220px;
+  background: var(--glass-bg, rgba(36, 38, 50, 0.52));
+  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  animation: popIn 0.14s ease-out both;
+}
+
+.contextItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: default;
+  font-family: inherit;
+}
+
+.contextItem:hover {
+  background: rgba(10, 132, 255, 0.85);
+}
+
+/* ================= Wallpaper picker ================= */
+
+.wallpaperSheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, 90vw);
+  background: rgba(46, 46, 54, 0.72);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  color: #f5f5f7;
+  animation: popIn 0.2s ease-out both;
+  z-index: 3600;
+}
+
+.wallpaperSheetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.wallpaperSheetHeader strong {
+  font-size: 15px;
+}
+
+.wallpaperSheetHeader span {
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.wallpaperGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.wallpaperThumb {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+.wallpaperThumbArt {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 9px;
+  display: block;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.wallpaperThumb:hover .wallpaperThumbArt {
+  transform: scale(1.05);
+}
+
+.wallpaperThumbActive .wallpaperThumbArt {
+  outline: 2.5px solid #0a84ff;
+  outline-offset: 2px;
+}
+
+.wallpaperThumbName {
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+/* ================= Spotlight ================= */
+
+.spotlightBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3700;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s ease-out both;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spotlight {
+  position: fixed;
+  top: 17%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, 92vw);
+  background: rgba(46, 46, 54, 0.72);
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+  color: #f5f5f7;
+  overflow: hidden;
+  animation: spotlightIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.spotlightInput {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.12);
+}
+
+.spotlightSearchIcon {
+  color: rgba(245, 245, 247, 0.7);
+  flex-shrink: 0;
+}
+
+.spotlightInput input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 20px;
+  font-family: inherit;
+  caret-color: #0a84ff;
+  padding: 0;
+}
+
+.spotlightInput input::placeholder {
+  color: rgba(245, 245, 247, 0.4);
+}
+
+.spotlightResults {
+  max-height: 340px;
+  overflow: auto;
+  padding: 6px;
+}
+
+.spotlightItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #f5f5f7;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: default;
+  font-family: inherit;
+}
+
+.spotlightItemActive {
+  background: rgba(10, 132, 255, 0.85);
+}
+
+.spotlightGlyph {
+  font-size: 20px;
+  width: 30px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.spotlightText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.spotlightText strong {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotlightText small {
+  font-size: 11.5px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.spotlightItemActive small {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.spotlightEnter {
+  color: rgba(245, 245, 247, 0.4);
+  font-size: 13px;
+}
+
+.spotlightEmpty {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.spotlightSection {
+  padding: 8px 14px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(245, 245, 247, 0.5);
+}
+
+/* Aerial screensaver — Ken Burns crossfade over the Tahoe beach stills. */
+
+.saverAerial {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 98000;
+  background: #080a12;
+  overflow: hidden;
+}
+
+.saverAerialFrame {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 2.4s ease;
+  animation: saverKenBurns 12s ease-in-out infinite alternate;
+}
+
+.saverAerialFrameActive {
+  opacity: 1;
+}
+
+@keyframes saverKenBurns {
+  from {
+    transform: scale(1.06) translate(0, 0);
+  }
+  to {
+    transform: scale(1.16) translate(-1.5%, 1.5%);
+  }
+}
+
+.saverAerialVignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+}
+
+/* Clock screensaver — huge thin numerals, iOS-style. */
+
+.saverClock {
+  position: absolute;
+  inset: 0;
+  z-index: 98000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #000;
+  color: #f5f5f7;
+  user-select: none;
+}
+
+.saverClockTime {
+  font-size: clamp(96px, 18vw, 220px);
+  font-weight: 200;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 4px 40px rgba(255, 255, 255, 0.12);
+}
+
+.saverClockDate {
+  font-size: clamp(16px, 3vw, 26px);
+  font-weight: 300;
+  opacity: 0.75;
+}
+
+/* ================= Mission Control ================= */
+
+.mcBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3550;
+  background: rgba(8, 8, 12, 0.42);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.mcStage {
+  position: absolute;
+  inset: 44px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 24px 32px 36px;
+}
+
+/* Spaces strip — one thumbnail per desktop, its own wallpaper. */
+
+.mcSpaces {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  z-index: 1;
+}
+
+.mcSpace {
+  width: 172px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #f5f5f7;
+  cursor: default;
+  font-family: inherit;
+}
+
+.mcSpaceArt {
+  width: 100%;
+  height: 102px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.mcSpace:hover .mcSpaceArt {
+  transform: scale(1.04);
+}
+
+.mcSpaceActive .mcSpaceArt {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.mcSpaceName {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.mcSpaceActive .mcSpaceName {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.mcAddSpace {
+  width: 172px;
+  height: 102px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f7;
+  cursor: default;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.mcAddSpace:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.mcAddSpacePlus {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Current-space area: its wallpaper behind the window cards. */
+
+.mcCurrent {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: 26px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.mcCurrent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 22, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.mcCurrent .mcCard,
+.mcCurrent .mcEmpty {
+  position: relative;
+  z-index: 1;
+}
+
+.mcCard {
+  width: 230px;
+  height: 158px;
+  background: rgba(42, 42, 50, 0.66);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 16px 44px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #f5f5f7;
+  font-family: inherit;
+  padding: 0;
+  transform: translate(var(--mcX, 0px), var(--mcY, 0px));
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: mcIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mcCard:hover {
+  transform: translate(var(--mcX, 0px), var(--mcY, 0px)) scale(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.mcTitlebar {
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.09);
+}
+
+.mcLights {
+  display: flex;
+  gap: 7px;
+}
+
+.mcLightRed {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.mcLightYellow {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #febc2e;
+}
+
+.mcLightGreen {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #28c840;
+}
+
+.mcTitle {
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mcBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+}
+
+.mcIcon {
+  width: 46px;
+  height: 42px;
+  border-radius: 10.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.28), 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.mcName {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mcMinimizedTag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+.mcEmpty {
+  align-self: center;
+  margin-top: 80px;
+  color: rgba(245, 245, 247, 0.55);
+  font-size: 14px;
+}
+
+/* ================= Notification Center ================= */
+
+.ncBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3650;
+}
+
+.ncPanel {
+  position: fixed;
+  top: 28px;
+  right: 0;
+  bottom: 0;
+  width: min(340px, 92vw);
+  background: var(--glass-bg, rgba(42, 42, 50, 0.66));
+  backdrop-filter: blur(var(--glass-blur, 56px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 56px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1));
+  border-left: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.45);
+  color: #f5f5f7;
+  animation: ncIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 3660;
+}
+
+.ncScroll {
+  height: 100%;
+  overflow-y: auto;
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ncDate h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ncDate span {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.ncCard {
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.ncCardTitle {
+  margin-bottom: 10px;
+}
+
+.ncCardTitle strong {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.9);
+}
+
+.ncWeek {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+
+.ncWeekDay {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(245, 245, 247, 0.45);
+  padding: 4px 0;
+}
+
+.ncGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.ncDay {
+  text-align: center;
+  font-size: 12px;
+  padding: 5px 0;
+  border-radius: 50%;
+  color: rgba(245, 245, 247, 0.9);
+}
+
+.ncDayEmpty {
+  visibility: hidden;
+}
+
+.ncDayToday {
+  background: #ff453a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ncWeather {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ncWeatherIcon {
+  color: #7cc0ef;
+}
+
+.ncWeather strong {
+  font-size: 22px;
+  font-weight: 600;
+  display: block;
+}
+
+.ncWeather span {
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.6);
+}
+
+.ncEmpty {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.5);
+  margin: 4px 0;
+}
+
+.ncNotif {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.ncNotif:first-of-type {
+  border-top: none;
+  padding-top: 2px;
+}
+
+.ncNotifIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ncNotifText {
+  flex: 1;
+  min-width: 0;
+}
+
+.ncNotifText strong {
+  font-size: 13px;
+  display: block;
+}
+
+.ncNotifText p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.6);
+  line-height: 1.4;
+}
+
+.ncNotifTime {
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.45);
+  flex-shrink: 0;
+}
+
+/* ================= Dock context menu ================= */
+
+.dockMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3400;
+}
+
+.dockMenu {
+  position: fixed;
+  z-index: 3450;
+  min-width: 200px;
+  background: var(--glass-bg, rgba(36, 38, 50, 0.52));
+  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  animation: popIn 0.14s ease-out both;
+}
+
+.dockMenuTitle {
+  padding: 7px 10px 5px;
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.55);
+  white-space: nowrap;
+}
+
+/* ================= Keyframes ================= */
+
+/* ================= About This Mac ================= */
+
+.aboutBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3800;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.18s ease-out both;
+}
+
+.aboutSheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 90vw);
+  background: rgba(48, 48, 56, 0.78);
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 30px 34px 26px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+  color: #f5f5f7;
+  text-align: center;
+  animation: sheetIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.aboutIcon {
+  width: 92px;
+  height: 92px;
+  border-radius: 21px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #e8e9f2 0%, #9aa0c6 55%, #5b6194 100%);
+  color: #2c2f4a;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.aboutTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.aboutVersion {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.aboutSpecs {
+  margin: 22px 0 20px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+}
+
+.aboutSpec {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px;
+  font-size: 12.5px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.aboutSpec span:first-child {
+  color: rgba(245, 245, 247, 0.5);
+}
+
+.aboutStorage {
+  margin: -6px 0 18px;
+  width: 100%;
+}
+
+.aboutStorageRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.65);
+  margin-bottom: 6px;
+}
+
+.aboutStorageBar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.aboutStorageUsed {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #0a84ff, #64b2ff);
+}
+
+.aboutMoreBtn {
+  background: #0a84ff;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(10, 132, 255, 0.4);
+}
+
+.aboutMoreBtn:hover {
+  background: #3395ff;
+}
+
+.aboutClose {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.6);
+  font-size: 20px;
+  line-height: 1;
+  cursor: default;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.aboutClose:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* ================= Toast ================= */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  background: rgba(46, 46, 54, 0.8);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  color: #f5f5f7;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 3900;
+  animation: toastIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ================= Boot ================= */
+
+.boot {
+  position: absolute;
+  inset: 0;
+  z-index: 100000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bootIn 0.4s ease both, bootOut 0.5s ease 0.6s forwards;
+}
+
+.bootLogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #f5f5f7;
+  font-size: 14px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  animation: bootPulse 1.1s ease-in-out both;
+}
+
+.bootProgress {
+  width: 190px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.bootProgressFill {
+  height: 100%;
+  background: #f5f5f7;
+  border-radius: 2px;
+  animation: bootFill 1.05s ease-out forwards;
+}
+
+@keyframes bootFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* ================= App Switcher (⌘Tab) ================= */
+
+.switcherBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3950;
+}
+
+.switcher {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(14, 14, 18, 0.72);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  padding: 14px 16px 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+  color: #f5f5f7;
+  animation: switcherIn 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.switcherRow {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.switcherItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 12px;
+  color: inherit;
+  font-family: inherit;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.switcherItemActive {
+  opacity: 1;
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.switcherLabel {
+  font-size: 11px;
+  white-space: nowrap;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+.switcherActiveLabel {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@keyframes switcherIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ================= Launchpad ================= */
+
+.launchpad {
+  position: fixed;
+  inset: 28px 0 0 0;
+  z-index: 3850;
+  background: rgba(10, 10, 16, 0.42);
+  backdrop-filter: blur(46px) saturate(160%);
+  -webkit-backdrop-filter: blur(46px) saturate(160%);
+  animation: fadeIn 0.22s ease-out both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 34px;
+}
+
+.launchpadSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 0.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: rgba(245, 245, 247, 0.8);
+  width: min(320px, 80vw);
+}
+
+.launchpadSearch input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.launchpadSearch input::placeholder {
+  color: rgba(245, 245, 247, 0.5);
+}
+
+.launchpadGrid {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  align-content: start;
+  gap: 26px 14px;
+  padding: 40px 20px 60px;
+  overflow-y: auto;
+}
+
+.launchpadItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: inherit;
+  padding: 8px;
+  border-radius: 12px;
+  transition: transform 0.18s ease;
+}
+
+.launchpadItem:hover {
+  transform: scale(1.06);
+}
+
+.launchpadLabel {
+  font-size: 12.5px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ================= Keyframes ================= */
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spotlightIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes bootIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bootOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes bootPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wallpaperIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mcIn {
+  from {
+    opacity: 0;
+    transform: translate(var(--mcX, 0px), var(--mcY, 0px)) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--mcX, 0px), var(--mcY, 0px)) scale(1);
+  }
+}
+
+@keyframes ncIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ================= Lock screen ================= */
+
+.lockScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 99000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  animation: lockIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lockScreen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 22, 0.42);
+  backdrop-filter: blur(46px) saturate(150%);
+  -webkit-backdrop-filter: blur(46px) saturate(150%);
+}
+
+.lockContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  user-select: none;
+}
+
+.lockClock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.lockClockTime {
+  font-size: clamp(64px, 10vw, 116px);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+
+.lockClockSec {
+  font-size: 30px;
+  font-weight: 300;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+.lockDate {
+  font-size: 17px;
+  font-weight: 400;
+  opacity: 0.88;
+  margin-bottom: 14px;
+}
+
+.lockAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #7aa2ff, #3a5bd9 60%, #1f2f8f);
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.lockName {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.lockMachine {
+  font-size: 13px;
+  opacity: 0.72;
+  margin-top: -8px;
+}
+
+.lockAvatarImg {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.lockPwWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lockPwToggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lockPwToggle:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.lockGuest {
+  margin-top: 10px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lockGuest:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.lockInput {
+  width: 252px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 15px;
+  text-align: center;
+  outline: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-top: 8px;
+}
+
+.lockInput::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lockInput:focus {
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lockHint {
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+@keyframes lockIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(46px) saturate(150%);
+  }
+}
+
+@keyframes lockShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(9px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.lockShake {
+  animation: lockShake 0.4s ease;
+}
+
+/* Lock clock — macOS Tahoe appearances (Settings → Wallpaper → Clock). */
+
+.lockClockNumeric .lockClockSec {
+  display: none;
+}
+
+.lockAnalog {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+}
+
+.lockWorld {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.lockWorldTime {
+  font-size: clamp(56px, 9vw, 96px);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+
+.lockWorldCity {
+  font-size: 20px;
+  font-weight: 300;
+  opacity: 0.8;
+}
+
+/* ================= Tahoe desktop widgets (top-right) ================= */
+
+.widgets {
+  position: absolute;
+  top: 64px;
+  right: 24px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 232px;
+  pointer-events: none;
+}
+
+.widget {
+  pointer-events: auto;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: var(--glass-bg, rgba(34, 36, 48, 0.46));
+  backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 12px 30px rgba(0, 0, 0, 0.28);
+  color: #fff;
+  user-select: none;
+}
+
+.widgetLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 6px;
+}
+
+.widgetClockTime {
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.widgetClockDate {
+  font-size: 13px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+.widgetWeather {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.widgetWeatherIcon {
+  font-size: 34px;
+  line-height: 1;
+  filter: saturate(1.1);
+}
+
+.widgetWeatherTemp {
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.widgetWeatherDesc {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.widgetCalDay {
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.widgetCalInfo {
+  font-size: 13px;
+  opacity: 0.75;
+  margin-top: 5px;
+}
+
+/* Widget card column — shared by desktop, lock screen and Smart Stack. */
+
+.widgetColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* Tahoe Icon & Widget Style: Dark — near-solid dark cards. */
+.widgetsDark .widget {
+  background: rgba(22, 24, 30, 0.88);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Tahoe Icon & Widget Style: Tinted — wallpaper-sampled tint (set inline). */
+.widgetsTinted .widget {
+  background: var(--widget-tint, rgba(90, 100, 140, 0.4));
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* Smart Stack (Notification Center) — one rotating card + page dots. */
+
+.widgetStack {
+  gap: 10px;
+}
+
+.widgetStackCard {
+  animation: widgetIn 0.35s ease both;
+}
+
+.smartDots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.smartDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: default;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.smartDotActive {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+@keyframes widgetIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Lock screen: clock becomes a button; widgets slide up from the bottom. */
+
+.lockClockBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: default;
+  border-radius: 24px;
+  padding: 10px 22px;
+  margin: -10px -22px;
+  transition: background 0.2s ease;
+}
+
+.lockClockBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lockClockBtnActive {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lockWidgets {
+  position: absolute;
+  bottom: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 236px;
+  z-index: 2;
+  animation: lockWidgetsIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lockWidgetsIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ================= Stage Manager ================= */
+
+.stageManagerOn .desktopIcon {
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+
+.stageManagerOn .widgets {
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+
+.stageStrip {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 800;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: stageStripIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes stageStripIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* Show Desktop chip — appears when all windows are tucked away. */
+
+.showDesktopChip {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--glass-bg, rgba(34, 36, 48, 0.6));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  color: #f5f5f7;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: default;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: chipIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.showDesktopChip:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.showDesktopChipArrow {
+  opacity: 0.6;
+}
+
+@keyframes chipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.stageThumb {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 92px;
+  padding: 12px 8px 10px;
+  border-radius: 16px;
+  background: var(--glass-bg, rgba(34, 36, 48, 0.46));
+  backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 26px rgba(0, 0, 0, 0.4);
+  color: #f5f5f7;
+  cursor: default;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease;
+}
+
+.stageThumb:hover {
+  transform: scale(1.06) translateX(6px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.stageThumbName {
+  font-size: 11px;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stageThumbCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #0a84ff;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================= Dock: minimized window thumbnails ================= */
+
+.miniWindow {
+  width: 52px;
+  height: 58px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 10px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.miniWindowTitle {
+  font-size: 8px;
+  opacity: 0.78;
+  max-width: 46px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================= Notification Center: dismiss ================= */
+
+.ncCardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ncClear {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: inherit;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.ncClear:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.ncDismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0;
+  padding: 3px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  align-self: center;
+  cursor: default;
+  display: flex;
+  align-items: center;
+}
+
+.ncNotif:hover .ncDismiss {
+  opacity: 0.6;
+}
+
+.ncDismiss:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ================= Control Center: volume ================= */
+
+.ccSlider {
+  width: 100%;
+  height: 4px;
+  accent-color: #fff;
+  cursor: default;
+}
+
+/* macOS-style grouped Control Center modules */
+.ccModule {
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+
+.ccModuleHeader {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.ccRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ccRowIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #f5f5f7;
+}
+
+.ccRowLabel {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ccRowStatus {
+  font-size: 11px;
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+/* ================= Menu bar volume popover ================= */
+
+.volPopover {
+  position: absolute;
+  right: 118px;
+  top: calc(100% + 8px);
+  width: 230px;
+  background: rgba(46, 46, 54, 0.7);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 3100;
+  animation: volIn 0.16s ease-out both;
+}
+
+.volRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volMute {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #f5f5f7;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.volMute:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+@keyframes volIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= Notification banner ================= */
+
+.banner {
+  position: absolute;
+  top: 48px;
+  right: 16px;
+  z-index: 4600;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 320px;
+  padding: 12px 14px;
+  background: rgba(44, 46, 60, 0.8);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  color: #f5f5f7;
+  cursor: default;
+  animation: bannerIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bannerClose {
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.6);
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 4px;
+  margin: -2px -2px 0 0;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.bannerClose:hover {
+  color: #fff;
+}
+
+.banner:hover {
+  background: rgba(54, 56, 72, 0.88);
+}
+
+.bannerIcon {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bannerText strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bannerText p {
+  font-size: 12px;
+  opacity: 0.75;
+  margin: 0;
+  line-height: 1.35;
+}
+
+@keyframes bannerIn {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ================= Display dim + screensaver ================= */
+
+.dimOverlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+  z-index: 5000;
+  transition: opacity 0.25s ease;
+}
+
+.screenSaver {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 98000;
+  background: #080a12;
+  cursor: none;
+}
+
+/* ================= Get Info ================= */
+
+.getInfo {
+  width: 300px;
+  background: rgba(46, 46, 54, 0.78);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  animation: popIn 0.18s ease-out both;
+}
+
+.getInfoIcon {
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4));
+}
+
+.getInfoName {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.getInfoRows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.getInfoRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.getInfoRow span {
+  opacity: 0.6;
+}
+
+.getInfoRow strong {
+  font-weight: 600;
+}
+
+/* ================= Emoji & Symbols ================= */
+
+.emojiPicker {
+  width: 520px;
+  max-width: 92vw;
+  max-height: 70vh;
+  background: rgba(46, 46, 54, 0.82);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  animation: popIn 0.18s ease-out both;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emojiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.emojiHeader strong {
+  font-size: 14px;
+}
+
+.emojiCount {
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.emojiItem {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: default;
+  padding: 0;
+}
+
+.emojiItem:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ================= Wi-Fi menu ================= */
+
+.wifiMenu {
+  position: absolute;
+  right: 62px;
+  top: calc(100% + 8px);
+  width: 240px;
+  background: rgba(46, 46, 54, 0.7);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 3100;
+  animation: volIn 0.16s ease-out both;
+}
+
+.wifiMenuHeader {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px 6px;
+  opacity: 0.85;
+}
+
+.wifiRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+}
+
+.wifiRowLabel {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.wifiRowStatus {
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+.wifiNetwork {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #f5f5f7;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 8px;
+  border-radius: 9px;
+  cursor: default;
+  text-align: left;
+}
+
+.wifiNetwork:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wifiNetworkName {
+  flex: 1;
+}
+
+.wifiCheck {
+  color: #30d158;
+  font-size: 12px;
+}
+
+.wifiOpen {
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.75);
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 8px 8px;
+  border-radius: 9px;
+  cursor: default;
+  text-align: left;
+}
+
+.wifiOpen:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ================= Battery menu ================= */
+
+.battery {
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.batteryMenu {
+  position: absolute;
+  right: 92px;
+  top: calc(100% + 8px);
+  width: 240px;
+  background: rgba(46, 46, 54, 0.7);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 3100;
+  animation: volIn 0.16s ease-out both;
+}
+
+.battHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 6px;
+}
+
+.battHeader strong {
+  font-size: 15px;
+}
+
+.battCharge {
+  margin-left: auto;
+  font-size: 11px;
+  color: #30d158;
+}
+
+.battRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.battRow span:last-child {
+  opacity: 0.7;
+}
+
+/* ================= Alert dialog ================= */
+
+.alert {
+  width: min(360px, 90vw);
+  background: rgba(46, 46, 54, 0.85);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  color: #f5f5f7;
+  animation: popIn 0.18s ease-out both;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 3600;
+}
+
+.alertTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.alertMessage {
+  font-size: 12.5px;
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.alertActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.alertCancel,
+.alertConfirm {
+  border: none;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.alertCancel {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+.alertCancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.alertConfirm {
+  background: #0a84ff;
+  color: #fff;
+}
+
+.alertConfirm:hover {
+  background: #2f96ff;
+}
+
+.alertConfirmDanger {
+  background: #ff3b30;
+}
+
+.alertConfirmDanger:hover {
+  background: #ff5148;
+}
+
+/* ================= Quick Look ================= */
+
+.quickLook {
+  width: min(560px, 92vw);
+  max-height: 82vh;
+  background: rgba(40, 42, 52, 0.9);
+  backdrop-filter: blur(50px) saturate(180%);
+  -webkit-backdrop-filter: blur(50px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+  color: #f5f5f7;
+  animation: popIn 0.18s ease-out both;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3600;
+}
+
+.quickLookTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quickLookIcon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.quickLookTop strong {
+  font-size: 15px;
+  display: block;
+}
+
+.quickLookTop span {
+  font-size: 11.5px;
+  opacity: 0.6;
+}
+
+.quickLookBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.quickLookMedia {
+  max-width: 100%;
+  max-height: 46vh;
+  border-radius: 8px;
+  display: block;
+}
+
+.quickLookDoc {
+  max-width: 420px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.quickLookDoc h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.quickLookDoc p {
+  margin: 0 0 10px;
+  opacity: 0.85;
+}
+
+.quickLookText {
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: rgba(245, 245, 247, 0.85);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+
+.quickLookFolder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.quickLookFolderIcon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.quickLookHint {
+  font-size: 11px;
+  opacity: 0.5;
+  text-align: center;
+}
+
+/* ================= On-screen display (F1/F2/F11/F12) ================= */
+
+.osd {
+  position: fixed;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  background: rgba(46, 46, 54, 0.75);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+  color: #f5f5f7;
+  animation: osdIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.osdLabel {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 66px;
+}
+
+.osdBar {
+  width: 140px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.osdFill {
+  height: 100%;
+  background: #fff;
+  border-radius: 3px;
+  transition: width 0.15s ease;
+}
+
+@keyframes osdIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* ================= Notification Center: Do Not Disturb ================= */
+
+.ncDnd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.ncDndIcon {
+  display: flex;
+  color: #a5b0ff;
+}
+
+.ncDndLabel {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ================= Mission Control: Desktop card ================= */
+
+.mcDesktop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #f5f5f7;
+  cursor: default;
+  padding: 0;
+  margin: 0 20px 20px;
+}
+
+.mcDesktopArt {
+  width: 250px;
+  height: 138px;
+  border-radius: 12px;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+.mcDesktopLabel {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* ================= App Switcher: window preview ================= */
+
+.switcherPreview {
+  width: 92px;
+  height: 68px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 6px 16px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.switcherPreviewTitle {
+  font-size: 8.5px;
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+/* macOS launch bounce on dock icons */
+@keyframes dockBounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-16px) scale(1.08);
+  }
+  55% {
+    transform: translateY(0) scale(0.98);
+  }
+  75% {
+    transform: translateY(-8px) scale(1.04);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dockBounce {
+  animation: dockBounce 0.9s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ================= Mobile (touch-first) ================= */
+
+@media (max-width: 767px) {
+  /* Menu bar: keep the Apple menu + status icons, drop the text menus (they
+     don't have room on a phone — Control Center covers the essentials). */
+  .menuBar {
+    padding: 0 6px 0 4px;
+  }
+
+  .appName,
+  .menuTitle {
+    display: none;
+  }
+
+  .statusBtn {
+    padding: 6px 5px;
+  }
+
+  .battery {
+    padding: 6px 5px;
+  }
+
+  .batteryPct {
+    display: none;
+  }
+
+  .clockBtn {
+    font-size: 11px;
+  }
+
+  .dropdown {
+    min-width: 200px;
+  }
+
+  .controlCenter {
+    right: 4px;
+  }
+
+  /* Dock: tighter shelf, comfortable tap targets. */
+  .dock {
+    bottom: 4px;
+  }
+
+  .dockInner {
+    padding: 7px 9px 6px;
+    gap: 6px;
+    border-radius: 20px;
+  }
+
+  /* Phones: the dock always lives at the bottom, whatever the setting. */
+  .dockLeft,
+  .dockRight {
+    left: 0;
+    right: 0;
+    bottom: 4px;
+    top: auto;
+    transform: none;
+  }
+
+  .dockLeft .dockInner,
+  .dockRight .dockInner {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .dockLeft .dockItem,
+  .dockRight .dockItem {
+    transform-origin: bottom center;
+  }
+
+  .dockLeft .dockLabel,
+  .dockRight .dockLabel {
+    top: auto;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .dockLeft .dockSeparator,
+  .dockRight .dockSeparator {
+    align-self: stretch;
+    width: 1px;
+    height: auto;
+    margin: 8px 6px;
+  }
+
+  .dockLeft .dockPeek,
+  .dockRight .dockPeek {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 16px;
+  }
+
+  /* Phone dock: shrink the icons (overrides the inline Settings size) and
+     wrap into rows so all apps stay reachable on a narrow screen. */
+  .dock {
+    --dock-size: 44px !important;
+  }
+
+  .dockInner {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100vw - 12px);
+    gap: 5px;
+  }
+
+  .dockItem:not([data-dock-icon^="min-"]) img {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Now Playing chip + popover: keep inside the phone's viewport. */
+  .npChip {
+    max-width: 96px;
+    padding: 4px 8px;
+  }
+
+  .npPopover {
+    right: 8px;
+    width: min(268px, calc(100vw - 16px));
+  }
+
+  /* Stage Manager strip: compact on phones so windows keep the room. */
+  .stageStrip {
+    left: 8px;
+    gap: 8px;
+  }
+
+  .stageThumb {
+    width: 60px;
+    padding: 8px 5px 7px;
+    border-radius: 13px;
+  }
+
+  .stageThumbName {
+    font-size: 9px;
+  }
+
+  /* Windows: bigger traffic lights are easier to hit. */
+  .light {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Widgets: single-column, closer to the edge, weather icon smaller. */
+  .widgets {
+    top: 54px;
+    right: 12px;
+    width: 190px;
+    gap: 10px;
+  }
+
+  /* Lock-screen widgets: wider on phones, clear of the password field. */
+  .lockWidgets {
+    bottom: 132px;
+    width: min(236px, 78vw);
+  }
+
+  /* Mission Control: tighter spaces strip + fuller window area on phones. */
+  .mcStage {
+    padding: 14px 10px 24px;
+    gap: 12px;
+  }
+
+  .mcSpace,
+  .mcAddSpace {
+    width: 118px;
+  }
+
+  .mcSpaceArt {
+    height: 74px;
+  }
+
+  .mcCurrent {
+    padding: 14px 10px;
+    gap: 16px;
+  }
+
+  .widget {
+    padding: 12px 14px;
+    border-radius: 16px;
+  }
+
+  .widgetClockTime {
+    font-size: 28px;
+  }
+
+  .widgetWeatherIcon {
+    font-size: 28px;
+  }
+
+  .widgetWeatherTemp {
+    font-size: 22px;
+  }
+
+  .widgetCalDay {
+    font-size: 32px;
+  }
+}
+
+/* Widget slots — the drag wrapper around each card. */
+
+.widgetSlot {
+  position: relative;
+  pointer-events: auto;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.widgetSlot[draggable="true"] {
+  cursor: grab;
+}
+
+.widgetDragging {
+  opacity: 0.45;
+  transform: scale(1.04) rotate(1deg);
+  z-index: 6;
+}
+
+.widgetRemove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(30, 30, 32, 0.92);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.widgetRemove:hover {
+  background: #ff453a;
+  transform: scale(1.1);
+}
+
+.widgetDragHandle {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  z-index: 3;
+  font-size: 10px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  color: #fff;
+}
+
+/* macOS widget edit mode: cards gently wiggle until you drop them. */
+
+.widgetsEditing .widgetSlot[draggable="true"] .widget {
+  animation: widgetWiggle 0.28s ease-in-out infinite alternate;
+}
+
+@keyframes widgetWiggle {
+  from {
+    transform: rotate(-0.6deg);
+  }
+  to {
+    transform: rotate(0.6deg);
+  }
+}
+
+.widgetStats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.widgetStats span {
+  opacity: 0.92;
+}
+
+/* Widget picker — appears in edit mode to add hidden widgets. */
+
+.widgetPicker {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(30, 32, 40, 0.72);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.widgetPickerLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.widgetPickerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.widgetPickerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.widgetPickerBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.widgetPickerDone {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.widgetPickerDone:hover {
+  background: #e8e8ed;
+}

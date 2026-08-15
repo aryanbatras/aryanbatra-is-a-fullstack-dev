@@ -1,0 +1,14 @@
+.page {
+  width: 100vw;
+  min-width: 100vw;
+  max-width: 100vw;
+  min-height: 100vh;
+  /* Tahoe night — deep blue-violet with soft aurora glows instead of flat black. */
+  background:
+    radial-gradient(1400px 700px at 75% -10%, rgba(41, 151, 255, 0.16), transparent 60%),
+    radial-gradient(1100px 750px at 5% 110%, rgba(191, 90, 242, 0.14), transparent 60%),
+    linear-gradient(180deg, #0a0e1f 0%, #0d0a1e 48%, #12071f 100%);
+  color: #fff;
+  position: relative;
+  overflow-x: hidden;
+}

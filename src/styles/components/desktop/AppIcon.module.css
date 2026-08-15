@@ -1,0 +1,8 @@
+.icon {
+  display: block;
+  /* macOS squircle corner radius */
+  border-radius: 22.37%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}

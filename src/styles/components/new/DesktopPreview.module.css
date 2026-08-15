@@ -1,0 +1,123 @@
+/* The machine's screen — a faithful static render of the macOS Tahoe desktop
+   the OS boots into. Everything below is decorative (pointer-events off). */
+.preview {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: #000;
+}
+
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Menu bar ---- */
+
+.menuBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(20, 20, 24, 0.45);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.appleLogo {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.95;
+}
+
+.menuTitle {
+  letter-spacing: 0.01em;
+}
+
+.menuRight {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.menuIcon {
+  opacity: 0.85;
+}
+
+.menuTime {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.92;
+}
+
+/* ---- Desktop icons (left column) ---- */
+
+.icons {
+  position: absolute;
+  top: 44px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.iconTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 76px;
+}
+
+.iconTile img {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+}
+
+.iconLabel {
+  max-width: 76px;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+
+/* ---- Widgets (top right, the real glass cards) ---- */
+
+.widgets {
+  position: absolute;
+  top: 40px;
+  right: 18px;
+  width: 190px;
+}
+
+.widgets :global(div) {
+  pointer-events: none;
+}
+
+/* ---- Dock ---- */
+
+.dockWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+}

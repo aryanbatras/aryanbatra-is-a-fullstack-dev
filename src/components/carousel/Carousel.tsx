@@ -173,6 +173,10 @@ export default function Carousel() {
             project.id === "dsa-in-3d" ? "/images/dsa-in-3d.jpg" :
             project.id === "studystream" ? "/images/study-stream.png" :
             project.id === "java-3d-engine" ? "/images/java-3d-engine.jpg" :
+            project.id === "startx" ? "/images/startx.jpg" :
+            project.id === "weekend-movers-redesign" ? "/images/weekend-movers.jpg" :
+            project.id === "book-of-rose" ? "/images/book-of-rose.jpg" :
+            project.id === "browser-ai" ? "/images/browser-ai.jpg" :
             null;
           
           const webpImage = 

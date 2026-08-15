@@ -1,0 +1,424 @@
+.section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid black;
+  padding-bottom: 1rem;
+  color: black;
+
+  &.dark {
+    border-bottom-color: white;
+    color: white;
+  }
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.count {
+  font-size: 1rem;
+  border: 1px solid;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  color: inherit;
+}
+
+/* Pinned-Featured section headers — full-width rows inside the grid. */
+
+.groupHeader {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.4rem 0 0.2rem;
+  color: black;
+}
+
+.groupHeader.dark {
+  color: white;
+}
+
+.groupLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+.groupLine {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.22;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 260px;
+  max-width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: white;
+  border: 1px solid black;
+  color: black;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.filters.dark .searchInput {
+  background: black;
+  border-color: white;
+  color: white;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+.searchClear {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.pillRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+
+.pillCount {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.pillActive {
+  background: black;
+  color: white;
+  border-color: black;
+}
+
+.filters.dark .pillActive {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+/* Newest / Oldest sort toggle */
+
+.sortToggle {
+  display: inline-flex;
+  border: 1px solid black;
+  overflow: hidden;
+}
+
+.sortBtn {
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: black;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+
+.sortToggle .sortBtn + .sortBtn {
+  border-left: 1px solid black;
+}
+
+.sortBtnActive {
+  background: black;
+  color: white;
+}
+
+.sortToggle.dark {
+  border-color: white;
+}
+
+.sortToggle.dark .sortBtn {
+  color: white;
+}
+
+.sortToggle.dark .sortBtn + .sortBtn {
+  border-left-color: white;
+}
+
+.sortToggle.dark .sortBtnActive {
+  background: white;
+  color: black;
+}
+
+/* Starred filter pill — lives in the pills row, composes with categories. */
+
+.starGlyph {
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.starPillActive .starGlyph {
+  color: #e8b923;
+}
+
+.filters.dark .starPillActive .starGlyph {
+  color: #ffd60a;
+}
+
+.empty {
+  border: 1px solid black;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: black;
+
+  p {
+    margin: 0 0 1rem 0;
+    font-size: 1.05rem;
+  }
+
+  &.dark {
+    border-color: white;
+    color: white;
+  }
+}
+
+.emptyReset {
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  border: 1px solid;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.card {
+  background: white;
+  border: 1px solid black;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: black;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.85);
+  }
+
+  &.dark {
+    background: black;
+    border-color: white;
+    color: white;
+
+    &:hover {
+      box-shadow: 6px 6px 0 rgba(255, 255, 255, 0.85);
+    }
+  }
+}
+
+.thumb {
+  height: 150px;
+  border: 1px solid;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.85);
+  background: linear-gradient(135deg, #f4f4f6 0%, #dfdfe4 50%, #ececf0 100%);
+  user-select: none;
+}
+
+.card.dark .thumbFallback {
+  color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, #2b2b2e 0%, #121214 55%, #26262a 100%);
+}
+
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.35;
+  color: inherit;
+}
+
+.cardDate {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.cardTagline {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.85;
+  color: inherit;
+}
+
+.techList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.techItem {
+  border: 1px solid;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  color: inherit;
+}
+
+.links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4rem 1.25rem;
+  }
+
+  .title {
+    font-size: 1.9rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardHead {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}

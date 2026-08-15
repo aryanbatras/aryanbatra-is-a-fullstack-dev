@@ -516,6 +516,59 @@
   font-weight: 500;
 }
 
+.honors {
+  margin-top: 2rem;
+}
+
+.honorCard {
+  padding: 1.5rem;
+  border: 1px solid;
+  max-width: 720px;
+}
+
+.profile.light .honorCard {
+  background: #ffffff;
+  border-color: #000000;
+}
+
+.profile.dark .honorCard {
+  background: #000000;
+  border-color: #ffffff;
+}
+
+.honorName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: inherit;
+}
+
+.honorMeta {
+  font-weight: 500;
+  margin: 0 0 0.75rem 0;
+  opacity: 0.85;
+}
+
+.honorDesc {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0 0 1rem 0;
+  color: inherit;
+}
+
+.honorLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.honorLink:hover {
+  text-decoration: none;
+}
+
 .profile.light .certSkill {
   border-color: #000000;
 }
