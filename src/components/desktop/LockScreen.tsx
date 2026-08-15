@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ShapeBlur from "@/components/desktop/ShapeBlur";
 import WidgetStack from "@/components/desktop/WidgetStack";
 import { sounds } from "@/utils/sounds";
 import type { ClockStyle, WidgetStyle } from "@/constants/desktop";
@@ -164,15 +165,40 @@ export default function LockScreen({
           <span className={styles.lockDate}>{dateLabel}</span>
         </button>
 
-        <img
-          src="/images/aryan.jpeg"
-          alt="Aryan Batra"
-          className={styles.lockAvatarImg}
-        />
+        {/* Liquid-glass ShapeBlur behind the avatar — a morphing glass
+            squircle that follows the mouse, straight from React Bits. */}
+        <div className={styles.lockAvatarWrap}>
+          <div className={styles.lockAvatarShape} aria-hidden>
+            <ShapeBlur
+              variation={0}
+              shapeSize={0.85}
+              roundness={0.9}
+              borderSize={0.045}
+              circleSize={0.5}
+              circleEdge={0.35}
+            />
+          </div>
+          <img
+            src="/images/aryan.jpeg"
+            alt="Aryan Batra"
+            className={styles.lockAvatarImg}
+          />
+        </div>
         <span className={styles.lockName}>Aryan Batra</span>
         <span className={styles.lockMachine}>Aryan&apos;s MacBook Pro</span>
 
         <div className={styles.lockPwWrap}>
+          {/* Subtle ShapeBlur morph behind the password field. */}
+          <div className={styles.lockPwShape} aria-hidden>
+            <ShapeBlur
+              variation={0}
+              shapeSize={1.7}
+              roundness={0.5}
+              borderSize={0.05}
+              circleSize={0.6}
+              circleEdge={0.5}
+            />
+          </div>
           <input
             ref={inputRef}
             className={styles.lockInput}

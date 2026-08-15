@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { DESKTOP_APPS, SPOTLIGHT_ITEMS } from "@/constants/desktop";
 import AppIcon from "@/components/desktop/AppIcon";
+import Glyph from "@/components/desktop/Glyph";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
 
 interface SpotlightProps {
@@ -114,7 +115,9 @@ export default function Spotlight({ onPick, onClose }: SpotlightProps) {
                         size={34}
                       />
                     ) : (
-                      <span className={styles.spotlightGlyph}>{item.icon}</span>
+                      <span className={styles.spotlightGlyph}>
+                        <Glyph id={item.icon} size={18} />
+                      </span>
                     )}
                     <span className={styles.spotlightText}>
                       <strong>{item.title}</strong>

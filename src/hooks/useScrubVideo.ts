@@ -16,16 +16,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *     engine jumps straight to the LATEST target. That caps the media
  *     pipeline at a single decode (no backlog that janks the scroll) and
  *     skips the intermediate frames a fast scroll would otherwise force.
- *  2. Micro-seeks are dropped — targets within ~half a video frame (24fps ≈
- *     42ms) never re-decode the same frame.
+ *  2. Micro-seeks are dropped — targets within ~half a video frame never
+ *     re-decode the same frame. The threshold is derived from the film's
+ *     frame rate (60fps ≈ 8ms) so slow scrolls stay decode-free.
  *
  * Usage:
- *   const { videoRef, seekTo, ready } = useScrubVideo(durationSeconds);
+ *   const { videoRef, seekTo, ready } = useScrubVideo(durationSeconds, frameRate);
  *   // render one <video> element with that ref
  *   // on scroll: seekTo(progress * durationSeconds)
  */
 
-export function useScrubVideo(totalDuration = 16) {
+export function useScrubVideo(totalDuration = 16, frameRate = 24) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const pendingRef = useRef<number | null>(null);
   const seekingRef = useRef(false);
@@ -34,13 +35,17 @@ export function useScrubVideo(totalDuration = 16) {
   const pumpRef = useRef<(v: HTMLVideoElement) => void>(() => {});
   const [ready, setReady] = useState(false);
 
+  // Half a video frame — two targets this close are the same frame, so a
+  // re-seek would only waste a decode. 60fps film ≈ 8.3ms, 24fps ≈ 20.8ms.
+  const frameTolerance = 0.5 / frameRate;
+
   useEffect(() => {
     pumpRef.current = (v) => {
       const target = pendingRef.current;
       if (v.readyState < 2 || target === null) return;
       // Micro-seek guard — re-decode only when the target moved at least
-      // ~half a video frame (24fps). Keeps slow scrolls decode-free.
-      if (Math.abs(target - appliedRef.current) < 0.02) {
+      // half a video frame. Keeps slow scrolls decode-free.
+      if (Math.abs(target - appliedRef.current) < frameTolerance) {
         appliedRef.current = target;
         return;
       }
@@ -62,6 +67,8 @@ export function useScrubVideo(totalDuration = 16) {
       v.addEventListener("seeked", onSeeked, { once: true });
       // Watchdog: if a seek ever stalls (e.g. buffering over a slow network),
       // release the engine so the next scroll input can re-request the target.
+      // 250ms — short enough that a lost `seeked` event can't freeze the
+      // scrub for long, long enough that normal ~12ms decodes never trip it.
       window.clearTimeout(watchdogRef.current);
       watchdogRef.current = window.setTimeout(() => {
         if (!seekingRef.current) return;
@@ -69,7 +76,7 @@ export function useScrubVideo(totalDuration = 16) {
         appliedRef.current = t;
         v.removeEventListener("seeked", onSeeked);
         pumpRef.current(v);
-      }, 400);
+      }, 250);
       try {
         v.currentTime = t;
       } catch {
@@ -78,7 +85,7 @@ export function useScrubVideo(totalDuration = 16) {
       }
     };
     return () => window.clearTimeout(watchdogRef.current);
-  }, [totalDuration]);
+  }, [totalDuration, frameRate, frameTolerance]);
 
   /** Coalesced seek: only one decode in flight, always to the latest target. */
   const seekTo = useCallback(

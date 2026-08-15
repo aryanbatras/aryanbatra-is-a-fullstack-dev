@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useScrubVideo } from "@/hooks/useScrubVideo";
+import { SCRUB_FRAME_RATE } from "@/constants/video";
 import { useScrollSmootherReady } from "@/context/ScrollSmootherContext";
 import styles from "@/styles/components/new/VideoShowcase.module.css";
 
@@ -61,7 +62,7 @@ export default function VideoShowcase({
   onProgress,
   children,
 }: VideoShowcaseProps) {
-  const { videoRef, seekTo, ready } = useScrubVideo(totalDuration);
+  const { videoRef, seekTo, ready } = useScrubVideo(totalDuration, SCRUB_FRAME_RATE);
   const sectionRef = useRef<HTMLElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const completedRef = useRef(false);
@@ -230,6 +231,7 @@ export default function VideoShowcase({
         muted
         playsInline
         preload="auto"
+        disablePictureInPicture
         aria-label="Scroll-scrubbed film"
       />
 

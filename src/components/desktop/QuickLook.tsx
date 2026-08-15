@@ -1,4 +1,5 @@
 import { README_TEXT, RESUME } from "@/constants/desktop";
+import Glyph from "@/components/desktop/Glyph";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
 
 export interface QuickLookFile {
@@ -69,14 +70,18 @@ export default function QuickLook({ file, onClose }: QuickLookProps) {
     if (file.kind === "Folder") {
       return (
         <div className={styles.quickLookFolder}>
-          <span className={styles.quickLookFolderIcon}>{file.icon}</span>
+          <span className={styles.quickLookFolderIcon}>
+            <Glyph id={file.icon} size={52} />
+          </span>
           <span>{file.name} — a folder of real files</span>
         </div>
       );
     }
     return (
       <div className={styles.quickLookFolder}>
-        <span className={styles.quickLookFolderIcon}>{file.icon}</span>
+        <span className={styles.quickLookFolderIcon}>
+          <Glyph id={file.icon} size={52} />
+        </span>
         <span>{file.name}</span>
       </div>
     );
@@ -91,7 +96,9 @@ export default function QuickLook({ file, onClose }: QuickLookProps) {
         aria-label={`Quick Look: ${file.name}`}
       >
         <div className={styles.quickLookTop}>
-          <span className={styles.quickLookIcon}>{file.icon}</span>
+          <span className={styles.quickLookIcon}>
+            <Glyph id={file.icon} size={32} />
+          </span>
           <div>
             <strong>{file.name}</strong>
             <span>

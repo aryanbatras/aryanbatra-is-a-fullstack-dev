@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { APP_ICON, DESKTOP_APPS } from "@/constants/desktop";
 
 export interface DesktopWindow {
@@ -26,6 +26,35 @@ export function setSpaceContext(id: number) {
   spaceContext = id;
 }
 
+/** Persisted per-app window geometry (daedalOS: size/position/maximized states). */
+interface SavedGeometry {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  maximized?: boolean;
+}
+
+const GEO_KEY = "aryanos.window-geometry";
+
+function loadGeometry(): Record<string, SavedGeometry> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(GEO_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, SavedGeometry>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveGeometry(geometry: Record<string, SavedGeometry>) {
+  try {
+    window.localStorage.setItem(GEO_KEY, JSON.stringify(geometry));
+  } catch {
+    // best effort
+  }
+}
+
 function defaultSize(appId: string) {
   const app = DESKTOP_APPS.find((a) => a.id === appId);
   return {
@@ -42,6 +71,25 @@ export function useWindowManager() {
   const openCount = useRef(0);
   const idSeq = useRef(0);
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const geometry = useRef<Record<string, SavedGeometry>>(loadGeometry());
+
+  // Persist geometry as windows move / resize / maximize (debounced).
+  const saveTimer = useRef<number | null>(null);
+  useEffect(() => {
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      const next: Record<string, SavedGeometry> = { ...geometry.current };
+      windows.forEach((w) => {
+        if (w.appId === "pdf" || w.appId === "website" || w.appId === "textedit") return;
+        next[w.appId] = { x: w.x, y: w.y, w: w.w, h: w.h, maximized: w.maximized };
+      });
+      geometry.current = next;
+      saveGeometry(next);
+    }, 600);
+    return () => {
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    };
+  }, [windows]);
 
   const bringToFront = useCallback((id: string) => {
     zCounter.current += 1;
@@ -61,7 +109,7 @@ export function useWindowManager() {
         return existing.id;
       }
 
-      const { w: deskW, h: deskH } = defaultSize(appId);
+      const { w: deskW, h: deskH, minW, minH } = defaultSize(appId);
       const vw = typeof window !== "undefined" ? window.innerWidth : 1280;
       const vh = typeof window !== "undefined" ? window.innerHeight : 800;
       // Fit the window to the viewport (on phones: clamp and centre it).
@@ -72,8 +120,20 @@ export function useWindowManager() {
       openCount.current += 1;
       idSeq.current += 1;
       const id = `${appId}-${Date.now()}-${idSeq.current}`;
-      const x = narrow ? Math.max(8, (vw - w) / 2) : Math.max(24, 64 + count * 34);
-      const y = narrow ? Math.max(46, (vh - h) / 2) : Math.max(24, 48 + count * 30);
+      // Restore the app's saved geometry when it fits the screen.
+      const saved = geometry.current[appId];
+      let x = narrow ? Math.max(8, (vw - w) / 2) : Math.max(24, 64 + count * 34);
+      let y = narrow ? Math.max(46, (vh - h) / 2) : Math.max(24, 48 + count * 30);
+      let fw = w;
+      let fh = h;
+      let maximized = false;
+      if (saved && !narrow && saved.w >= minW && saved.h >= minH && saved.x < vw - 60 && saved.y < vh - 60) {
+        x = Math.max(8, saved.x);
+        y = Math.max(40, saved.y);
+        fw = Math.min(saved.w, vw - 16);
+        fh = Math.min(saved.h, vh - 120);
+        maximized = saved.maximized ?? false;
+      }
       zCounter.current += 1;
       setWindows((ws) => [
         ...ws,
@@ -84,10 +144,10 @@ export function useWindowManager() {
           icon: APP_ICON[appId] ?? "•",
           x,
           y,
-          w,
-          h,
+          w: fw,
+          h: fh,
           minimized: false,
-          maximized: false,
+          maximized,
           z: zCounter.current,
           spaceId: spaceContext,
         },

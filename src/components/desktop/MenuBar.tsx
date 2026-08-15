@@ -48,6 +48,7 @@ export interface MenuBarActions {
   onShutDown: () => void;
   onSleep: () => void;
   onSpotlight: () => void;
+  onRun: () => void;
   onOpenApp: (id: string) => void;
   onNewWindow: () => void;
   onCloseFocused: () => void;
@@ -437,6 +438,7 @@ export default function MenuBar({
     { label: "About This Mac", action: actions.onAbout, bold: true },
     { label: "", separator: true },
     { label: "System Settings…", action: () => actions.onOpenApp("settings"), shortcut: "⌘," },
+    { label: "Run…", action: actions.onRun, shortcut: "⌘⇧R" },
     { label: "", separator: true },
     { label: "Force Quit…", action: () => actions.onOpenApp("terminal"), shortcut: "⌥⌘⎋" },
     { label: "", separator: true },

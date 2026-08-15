@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import {
+  Accessibility,
   BatteryFull,
+  Bell,
   Check,
+  HardDrive,
+  Image,
+  Info,
   Moon,
+  Wallpaper,
   PanelsTopLeft,
   Sun,
   Volume2,
@@ -12,6 +18,7 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
+import Glyph from "@/components/desktop/Glyph";
 import useSystemInfo, { formatBytes } from "@/hooks/useSystemInfo";
 import {
   DEFAULT_NOTIF_PREF,
@@ -28,17 +35,19 @@ interface SettingsAppProps {
   onSystemChange: (patch: Partial<SystemState>) => void;
   wallpaperIndex: number;
   onWallpaper: (index: number) => void;
+  /** Set via Finder → Set as Wallpaper; shown so it can be reset. */
+  customWallpaperName?: string;
   onAbout: () => void;
 }
 
 /** Apps that can send notifications, as listed in Settings → Notifications. */
 const NOTIF_APPS = [
-  { id: "finder", name: "Finder", icon: "🗂️" },
-  { id: "settings", name: "System Settings", icon: "⚙️" },
-  { id: "safari", name: "Safari", icon: "🧭" },
-  { id: "messages", name: "Messages", icon: "💬" },
-  { id: "calendar", name: "Calendar", icon: "📅" },
-  { id: "notes", name: "Notes", icon: "📝" },
+  { id: "finder", name: "Finder", icon: "folder" },
+  { id: "settings", name: "System Settings", icon: "settings" },
+  { id: "safari", name: "Safari", icon: "compass" },
+  { id: "messages", name: "Messages", icon: "message-square" },
+  { id: "calendar", name: "Calendar", icon: "calendar" },
+  { id: "notes", name: "Notes", icon: "sticky-note" },
 ];
 
 const NOTIF_STYLES: Array<{ id: NotifPref["style"]; label: string }> = [
@@ -70,6 +79,7 @@ export default function SettingsApp({
   onSystemChange,
   wallpaperIndex,
   onWallpaper,
+  customWallpaperName,
   onAbout,
 }: SettingsAppProps) {
   const [pane, setPane] = useState("network");
@@ -83,6 +93,9 @@ export default function SettingsApp({
     clockStyle,
     reduceTransparency,
     showWidgets,
+    slideshow,
+    slideshowInterval,
+    wallpaperFit,
     widgetStyle,
     dockSize,
     dockMagnify,
@@ -117,13 +130,13 @@ export default function SettingsApp({
       icon: soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />,
     },
     { id: "displays", label: "Displays", icon: <Sun size={15} /> },
-    { id: "wallpaper", label: "Wallpaper", icon: <span>🖼️</span> },
+    { id: "wallpaper", label: "Wallpaper", icon: <Image size={15} /> },
     { id: "desktop-dock", label: "Desktop & Dock", icon: <PanelsTopLeft size={15} /> },
-    { id: "storage", label: "Storage", icon: <span>💾</span> },
+    { id: "storage", label: "Storage", icon: <HardDrive size={15} /> },
     { id: "battery", label: "Battery", icon: <BatteryFull size={15} /> },
-    { id: "notifications", label: "Notifications", icon: <span>🔔</span> },
-    { id: "accessibility", label: "Accessibility", icon: <span>♿</span> },
-    { id: "about", label: "About", icon: <span>ℹ️</span> },
+    { id: "notifications", label: "Notifications", icon: <Bell size={15} /> },
+    { id: "accessibility", label: "Accessibility", icon: <Accessibility size={15} /> },
+    { id: "about", label: "About", icon: <Info size={15} /> },
   ];
 
   /* ---- real data helpers ---- */
@@ -295,13 +308,21 @@ export default function SettingsApp({
           <>
             <h2>Wallpaper</h2>
             <p className={styles.settingsSub}>Choose a look for your desktop</p>
+            {customWallpaperName && (
+              <div className={styles.settingsNote}>
+                <Wallpaper size={13} /> Using “{customWallpaperName}” from Finder — pick a
+                wallpaper below to reset.
+              </div>
+            )}
             <div className={styles.settingsThumbs}>
               {WALLPAPERS.map((wp, i) => (
                 <button
                   key={wp.id}
                   type="button"
                   className={`${styles.settingsThumb} ${
-                    i === wallpaperIndex ? styles.settingsThumbActive : ""
+                    !customWallpaperName && i === wallpaperIndex
+                      ? styles.settingsThumbActive
+                      : ""
                   }`}
                   onClick={() => onWallpaper(i)}
                 >
@@ -316,6 +337,73 @@ export default function SettingsApp({
                   <span className={styles.settingsThumbName}>{wp.name}</span>
                 </button>
               ))}
+            </div>
+
+            <div className={styles.settingsRow}>
+              <div className={styles.settingsRowText}>
+                <span className={styles.settingsRowLabel}>Wallpaper Slideshow</span>
+                <span className={styles.settingsRowSub}>
+                  Automatically rotate through the wallpapers
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`${styles.setToggle} ${slideshow ? styles.setToggleOn : ""}`}
+                onClick={() => onSystemChange({ slideshow: !slideshow })}
+                aria-label="Toggle wallpaper slideshow"
+              >
+                <span className={`${styles.setThumb} ${slideshow ? styles.setThumbOn : ""}`} />
+              </button>
+            </div>
+            {slideshow && (
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Change every</span>
+                <div className={styles.segmented}>
+                  {[10, 20, 30, 60].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`${styles.segmentedItem} ${
+                        slideshowInterval === s ? styles.segmentedItemActive : ""
+                      }`}
+                      onClick={() => onSystemChange({ slideshowInterval: s })}
+                    >
+                      {s}s
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className={styles.settingsRow}>
+              <div className={styles.settingsRowText}>
+                <span className={styles.settingsRowLabel}>Wallpaper Fit</span>
+                <span className={styles.settingsRowSub}>
+                  How the image fills the screen
+                </span>
+              </div>
+              <div className={styles.segmented}>
+                {(
+                  [
+                    ["fill", "Fill"],
+                    ["fit", "Fit"],
+                    ["stretch", "Stretch"],
+                    ["tile", "Tile"],
+                    ["center", "Center"],
+                  ] as const
+                ).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`${styles.segmentedItem} ${
+                      wallpaperFit === id ? styles.segmentedItemActive : ""
+                    }`}
+                    onClick={() => onSystemChange({ wallpaperFit: id })}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className={styles.settingsSectionGap} />
@@ -528,6 +616,8 @@ export default function SettingsApp({
                     { id: "flurry", label: "Flurry" },
                     { id: "aerial", label: "Aerial" },
                     { id: "clock", label: "Clock" },
+                    { id: "matrix", label: "Matrix" },
+                    { id: "pipes", label: "Pipes" },
                   ] as const
                 ).map((s) => (
                   <button
@@ -682,7 +772,9 @@ export default function SettingsApp({
                 return (
                   <div key={app.id} className={styles.notifApp}>
                     <div className={styles.notifAppHeader}>
-                      <span className={styles.notifAppIcon}>{app.icon}</span>
+                      <span className={styles.notifAppIcon}>
+                        <Glyph id={app.icon} size={16} />
+                      </span>
                       <span className={styles.notifAppName}>{app.name}</span>
                       <button
                         type="button"

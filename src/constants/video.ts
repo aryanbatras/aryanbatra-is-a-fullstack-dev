@@ -9,10 +9,11 @@
  *     [16, 24)  -> new_video_003
  *     [24, 32)  -> new_video_004         (ends on a complete desktop screen)
  *
- * The film is encoded ALL-INTRA (a keyframe at every frame — see
- * scripts/build-showreel.sh), so scrubbing via currentTime is instant and
- * frame-accurate: each seek decodes exactly one frame, no buffering, no
- * black frames, no flicker.
+ * The film is encoded ALL-INTRA (a keyframe at every frame) at 60fps — the
+ * 24fps sources are motion-interpolated to 60fps by the build script so the
+ * scrub has a true 60fps content rate (see scripts/build-showreel.sh).
+ * Scrubbing via currentTime is instant and frame-accurate: each seek decodes
+ * exactly one frame, no buffering, no black frames, no flicker.
  *
  * When the film reaches its last frames the frozen frame — the finished
  * desktop (the last frame of video 004) — zooms in and fades to black. The
@@ -25,6 +26,9 @@ export const SCRUB_VIDEO_A = "/aryan/showreel_a.mp4";
 export const SCRUB_POSTER_A = "/aryan/poster_a.jpg";
 export const ACT1_DURATIONS = [8, 8, 8, 8];
 export const ACT1_DURATION = ACT1_DURATIONS.reduce((a, b) => a + b, 0); // 32s
+
+/** Content frame rate of the scrub film (see scripts/build-showreel.sh). */
+export const SCRUB_FRAME_RATE = 60;
 
 /** Full original chapter files used by the desktop Videos app. */
 export const ORIGINAL_VIDEOS = [

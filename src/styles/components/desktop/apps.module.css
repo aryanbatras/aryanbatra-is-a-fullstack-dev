@@ -957,6 +957,15 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+.photosSection {
+  padding: 12px 18px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.45);
+}
+
 .photoGrid {
   flex: 1;
   display: grid;
@@ -1007,6 +1016,7 @@
 }
 
 .photosStage {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -1014,6 +1024,7 @@
   padding: 18px;
   overflow: hidden;
   background: #000;
+  touch-action: none;
 }
 
 .photosStage img {
@@ -1021,6 +1032,13 @@
   max-height: 100%;
   object-fit: contain;
   border-radius: 4px;
+}
+
+/* Zoom target — transform-driven (wheel + drag pan), origin 0,0 so the
+   translate/scale math in PhotosApp stays exact. */
+.photosStageImg {
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 /* ================= Videos ================= */
@@ -1426,6 +1444,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  position: relative;
   color: #f5f5f7;
 }
 
@@ -1449,12 +1468,39 @@
   color: rgba(245, 245, 247, 0.5);
 }
 
+.finderNavBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f7;
+  cursor: default;
+  padding: 0;
+}
+
+.finderNavBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .finderTitle {
   font-size: 14px;
   font-weight: 600;
   flex: 1;
   text-align: center;
   color: rgba(245, 245, 247, 0.9);
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0;
+  cursor: default;
+}
+
+.finderTitle:hover {
+  color: #fff;
 }
 
 .finderToolbarRight {
@@ -1462,6 +1508,44 @@
   gap: 12px;
   align-items: center;
   color: rgba(245, 245, 247, 0.65);
+}
+
+.finderSortWrap {
+  position: relative;
+}
+
+.finderSortBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: rgba(245, 245, 247, 0.7);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.finderSortBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f5f7;
+}
+
+.finderSortMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 150px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(38, 38, 42, 0.92);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 20;
 }
 
 .finderSearch {
@@ -1622,6 +1706,97 @@
   outline-offset: -1px;
 }
 
+.finderFileCut {
+  opacity: 0.45;
+}
+
+/* Group drag-to-arrange: dimmed while dragging, highlight for folder drops. */
+.finderFileDragging {
+  opacity: 0.4;
+}
+
+.finderDropTarget {
+  outline: 2px dashed #0a84ff !important;
+  outline-offset: -2px;
+  background: rgba(10, 132, 255, 0.18) !important;
+}
+
+/* Read-only banner when browsing inside a mounted zip/iso. */
+.finderArchiveBanner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 24px);
+  margin: 0 auto 6px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(255, 200, 90, 0.12);
+  border: 1px solid rgba(255, 200, 90, 0.25);
+  color: rgba(255, 220, 140, 0.95);
+  font-size: 12px;
+}
+
+.finderArchiveBanner strong {
+  font-weight: 700;
+}
+
+.finderArchiveBanner span {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.finderArchiveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 11px;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.finderArchiveBtn:hover {
+  background: rgba(10, 132, 255, 0.5);
+}
+
+.finderClipToast {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(30, 30, 34, 0.92);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  color: #f5f5f7;
+  font-size: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: finderToastIn 0.18s ease;
+}
+
+@keyframes finderToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 .finderFileMeta {
   font-size: 10.5px;
   color: rgba(245, 245, 247, 0.45);
@@ -1643,6 +1818,323 @@
 
 .finderPathSep {
   color: rgba(245, 245, 247, 0.35);
+}
+
+/* ---- Finder: editable address bar (click the title to navigate) ---- */
+
+.finderAddrInput {
+  flex: 1;
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(10, 132, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+}
+
+.finderAddrInput::placeholder {
+  color: rgba(245, 245, 247, 0.45);
+}
+
+/* ---- Finder: Icon / List view toggle ---- */
+
+.finderViewToggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.finderViewBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: rgba(245, 245, 247, 0.55);
+  cursor: default;
+}
+
+.finderViewBtn:hover {
+  color: #f5f5f7;
+}
+
+.finderViewBtnActive {
+  background: rgba(255, 255, 255, 0.16);
+  color: #f5f5f7;
+}
+
+/* ---- Finder: Details (list) view ---- */
+
+.finderList {
+  flex: 1;
+  overflow: auto;
+  align-content: start;
+  padding: 4px 10px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.finderListHead {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 0.7fr 0.5fr 0.9fr;
+  gap: 8px;
+  padding: 6px 10px 6px 14px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.12);
+  position: sticky;
+  top: 0;
+  background: rgba(20, 20, 24, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 2;
+}
+
+.finderListHeadCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: rgba(245, 245, 247, 0.5);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: default;
+}
+
+.finderListHeadCell svg {
+  opacity: 0.4;
+}
+
+.finderListHeadCell:hover {
+  color: rgba(245, 245, 247, 0.85);
+}
+
+.finderListHeadActive {
+  color: #0a84ff;
+}
+
+.finderListHeadDir {
+  font-size: 10px;
+}
+
+.finderListHeadRight {
+  justify-content: flex-end;
+}
+
+.finderListRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 0.7fr 0.5fr 0.9fr;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 10px 5px 14px;
+  border-radius: 7px;
+  cursor: default;
+  outline: none;
+}
+
+.finderListRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.finderListName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.finderListName .finderFileIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.finderListFileName {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f5f5f7;
+}
+
+.finderListCell {
+  font-size: 11.5px;
+  color: rgba(245, 245, 247, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.finderListCellRight {
+  text-align: right;
+}
+
+.finderList .finderRenameInput {
+  font-size: 12px;
+  padding: 2px 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* ---- Finder context menu, rename, Get Info ---- */
+
+.finderCtxBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: transparent;
+}
+
+.finderCtx {
+  position: fixed;
+  z-index: 100;
+  min-width: 200px;
+  padding: 5px;
+  border-radius: 12px;
+  background: rgba(40, 40, 44, 0.95);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55);
+}
+
+.finderCtxItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: #f5f5f7;
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.finderCtxItem:hover {
+  background: rgba(10, 132, 255, 0.6);
+  color: #fff;
+}
+
+.finderCtxItemActive {
+  color: #0a84ff;
+}
+
+.finderCtxItemActive:hover {
+  color: #fff;
+}
+
+.finderCtxDanger {
+  color: #ff6b6b;
+}
+
+.finderCtxSep {
+  height: 1px;
+  margin: 4px 8px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.finderCtxLabel {
+  display: block;
+  padding: 5px 10px 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(245, 245, 247, 0.45);
+}
+
+.finderRenameInput {
+  width: 108px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid #0a84ff;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+}
+
+.finderInfo {
+  width: 236px;
+  flex-shrink: 0;
+  border-left: 0.5px solid rgba(255, 255, 255, 0.09);
+  background: rgba(0, 0, 0, 0.16);
+  padding: 14px;
+  overflow: auto;
+}
+
+.finderInfoHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.finderInfoHead strong {
+  font-size: 13px;
+}
+
+.finderInfoClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
+  cursor: default;
+  padding: 0;
+}
+
+.finderInfoThumb {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.finderInfoThumb img {
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.finderInfoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 0;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.finderInfoLabel {
+  font-size: 10.5px;
+  color: rgba(245, 245, 247, 0.45);
+}
+
+.finderInfoValue {
+  font-size: 12.5px;
+  color: #f5f5f7;
+  word-break: break-word;
 }
 
 /* ================= System Settings ================= */
@@ -1706,6 +2198,19 @@
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 4px;
+}
+
+.settingsNote {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.8);
 }
 
 .settingsSub {
@@ -2234,9 +2739,175 @@
   border: none;
 }
 
+/* Proxy (network) menu — daedalOS's answer to sites that block iframes */
+
+.websiteProxyWrap {
+  position: relative;
+}
+
+.websiteProxyActive {
+  background: rgba(10, 132, 255, 0.35);
+  color: #fff;
+}
+
+.websiteProxyMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  width: 210px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(30, 30, 32, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.websiteProxyGroup + .websiteProxyGroup {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* History dropdowns on the back / forward buttons (right-click or caret) */
+
+.websiteHistoryCaret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 26px;
+  margin-left: -2px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0;
+}
+
+.websiteHistoryCaret:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.websiteHistoryMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  width: 280px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(30, 30, 32, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.websiteHistoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.websiteHistoryItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.websiteHistoryLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Real favicon in the address bar */
+
+.websiteAddrFav {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.websiteProxyTitle {
+  margin: 2px 6px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.websiteProxyOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.websiteProxyOption:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.websiteProxyOptionActive {
+  color: #fff;
+}
+
+.websiteProxyRadio {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.websiteProxyRadio span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0a84ff;
+}
+
+.websiteProxyHint {
+  margin: 6px 6px 2px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.45);
+}
+
 /* ================= Games (Mini Arcade) ================= */
 
 .gameShell {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -2247,7 +2918,9 @@
   padding: 20px;
   overflow: auto;
   color: #f5f5f7;
-  background: radial-gradient(1200px 600px at 50% -10%, rgba(90, 120, 220, 0.18), transparent 60%);
+  background:
+    radial-gradient(1100px 520px at 50% -10%, rgba(90, 120, 220, 0.16), transparent 60%),
+    radial-gradient(800px 420px at 50% 110%, rgba(60, 40, 120, 0.12), transparent 60%);
 }
 
 .gameBar {
@@ -2256,23 +2929,71 @@
   gap: 10px;
   width: 100%;
   max-width: 460px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Back button — a filled circle, accent-tinted on hover. */
+.gameBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.gameBack:hover {
+  background: color-mix(in srgb, var(--accent, #7aa2ff) 32%, transparent);
+  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 60%, transparent);
+  transform: translateX(-1px);
+}
+
+.gameTitleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  color: var(--accent, #7aa2ff);
+  background: color-mix(in srgb, var(--accent, #7aa2ff) 18%, transparent);
 }
 
 .gameTitle {
   font-weight: 600;
   font-size: 14px;
   margin-right: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gameScore {
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
 }
 
 .gameBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.24);
@@ -2282,14 +3003,18 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .gameBtn:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--accent, #7aa2ff) 26%, rgba(255, 255, 255, 0.08));
+  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 55%, rgba(255, 255, 255, 0.24));
 }
 
 .gameHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   opacity: 0.6;
   margin: 0;
@@ -2308,6 +3033,9 @@
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
 .game2048Cell {
@@ -2315,9 +3043,11 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  font-size: clamp(20px, 6vw, 34px);
+  font-size: clamp(18px, 5.4vw, 32px);
   font-weight: 700;
-  transition: background 0.15s ease;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .gameOverlay {
@@ -2327,13 +3057,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   background: rgba(10, 12, 18, 0.72);
   backdrop-filter: blur(8px);
   border-radius: 18px;
   font-size: 16px;
   text-align: center;
   padding: 20px;
+  z-index: 2;
+}
+
+.gameOverlaySub {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: -6px;
 }
 
 /* Memory match */
@@ -2346,6 +3083,7 @@
 }
 
 .gameMemCard {
+  position: relative;
   aspect-ratio: 1;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -2354,90 +3092,207 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
-  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease, border-color 0.18s ease;
+}
+
+/* Card back — a subtle diagonal weave so faces are never confused with backs. */
+.gameMemCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05) 0 6px,
+    transparent 6px 12px
+  );
+  pointer-events: none;
 }
 
 .gameMemCard:hover {
   transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 55%, rgba(255, 255, 255, 0.16));
 }
 
 .gameMemCardUp {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
+  color: #3a3d47;
   transform: scale(0.97);
 }
 
+.gameMemCardUp::before {
+  display: none;
+}
+
 .gameMemCardMatched {
-  opacity: 0.45;
+  opacity: 0.55;
   transform: scale(0.94);
+  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 70%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent, #7aa2ff) 45%, transparent);
 }
 
 .gameMemFace {
   user-select: none;
+  display: inline-flex;
 }
 
 /* Launcher */
 
+.arcadeHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(92%, 520px);
+  margin-top: 8px;
+}
+
+.arcadeMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #7aa2ff, #5b8cff 55%, #7c5cff);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 8px 20px rgba(90, 120, 255, 0.35);
+}
+
 .gameLauncherTitle {
-  margin: 10px 0 0 0;
-  font-size: 22px;
+  margin: 0;
+  font-size: 20px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .gameLauncherSub {
-  margin: 0 0 8px 0;
-  font-size: 13px;
-  opacity: 0.65;
+  margin: 2px 0 0 0;
+  font-size: 12.5px;
+  opacity: 0.62;
+  line-height: 1.4;
 }
 
 .gameLauncherGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
   width: min(92%, 520px);
 }
 
 .gameCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
   padding: 18px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.055);
   color: #f5f5f7;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
+  overflow: hidden;
   transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
+.gameCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    340px 140px at 20% -20%,
+    color-mix(in srgb, var(--accent, #7aa2ff) 22%, transparent),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.gameCard:hover::after {
+  opacity: 1;
+}
+
 .gameCard:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 45%, rgba(255, 255, 255, 0.13));
   transform: translateY(-2px);
 }
 
-.gameCardEmoji {
-  font-size: 30px;
+.gameCardIcon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--accent, #7aa2ff) 78%, #fff 10%),
+    color-mix(in srgb, var(--accent, #7aa2ff) 55%, #000 18%)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 16px color-mix(in srgb, var(--accent, #7aa2ff) 40%, transparent);
+  margin-bottom: 2px;
 }
 
 .gameCardTitle {
-  font-size: 15px;
+  position: relative;
+  z-index: 1;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
 }
 
 .gameCardDesc {
+  position: relative;
+  z-index: 1;
   font-size: 12px;
   opacity: 0.7;
   line-height: 1.45;
 }
 
-.gameCardPlay {
-  margin-top: 4px;
-  font-size: 12px;
+.gameCardFoot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.gameCardKeys {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
   font-weight: 600;
-  color: rgba(140, 180, 255, 0.95);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.gameCardPlay {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent, #7aa2ff) 85%, #fff 15%);
+  transition: gap 0.15s ease;
+}
+
+.gameCard:hover .gameCardPlay {
+  gap: 8px;
 }
 
 /* Live-project embed inside the arcade (the piano, browser AI, etc.) */
@@ -2458,6 +3313,66 @@
   height: 100%;
   border: none;
   display: block;
+}
+
+/* Emscripten / WASM games (Space Cadet Pinball, Quake III) — ported from daedalOS */
+
+.gameShell[data-game="emu"] {
+  padding: 12px;
+  gap: 10px;
+  background:
+    radial-gradient(900px 480px at 50% -10%, rgba(60, 90, 200, 0.18), transparent 60%),
+    radial-gradient(700px 420px at 50% 110%, rgba(120, 30, 40, 0.12), transparent 60%),
+    #0a0a0c;
+}
+
+.gameShell[data-game="emu"] .gameBar {
+  max-width: 760px;
+}
+
+.gameEmuFrame {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  flex: 1;
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+.gameEmuLoading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(6, 6, 8, 0.85);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  transition: opacity 0.35s ease;
+}
+
+.gameEmuLoading em {
+  font-style: normal;
+  opacity: 0.5;
+}
+
+.gameSpin {
+  animation: gameSpin 1s linear infinite;
+}
+
+@keyframes gameSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Browser bookmarks bar + blocked-site fallback */
@@ -2626,4 +3541,1098 @@
   background: #fff;
   transform: translate(-50%, -50%);
   box-shadow: 0 0 14px rgba(255, 255, 255, 0.8);
+}
+
+/* ---- Chess (vs AI) ---- */
+
+.chessBoard {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: min(92%, 420px);
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.chessSquare {
+  position: relative;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0d9b5;
+  font-family: inherit;
+  transition: background 0.12s ease;
+}
+
+.chessDark {
+  background: #b58863;
+}
+
+.chessSquare:hover {
+  filter: brightness(1.06);
+}
+
+.chessSelected {
+  box-shadow: inset 0 0 0 3px rgba(90, 140, 255, 0.9);
+  z-index: 1;
+}
+
+/* Highlight on a square the selected piece can move to. */
+.chessLegal {
+  box-shadow: inset 0 0 0 3px rgba(120, 220, 140, 0.85);
+  z-index: 1;
+}
+
+.chessLast {
+  background: rgba(250, 220, 90, 0.55);
+}
+
+.chessLast.chessDark {
+  background: rgba(230, 190, 60, 0.55);
+}
+
+.chessPiece {
+  font-size: clamp(24px, 6vw, 40px);
+  line-height: 1;
+  user-select: none;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+
+.chessDot {
+  position: absolute;
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background: rgba(20, 40, 20, 0.35);
+  pointer-events: none;
+}
+
+.chessRing {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 3px solid rgba(20, 60, 20, 0.5);
+  pointer-events: none;
+}
+
+.chessFiles {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: 1px;
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 9px;
+  color: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  font-weight: 700;
+}
+
+.chessRanks {
+  position: absolute;
+  left: 2px;
+  top: 1%;
+  bottom: 1%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  font-size: 9px;
+  color: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  font-weight: 700;
+}
+
+.chessCaptured {
+  display: flex;
+  width: min(92%, 420px);
+  min-height: 20px;
+  margin-top: -8px;
+}
+
+.chessCapturedSide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.chessCapLabel {
+  opacity: 0.6;
+  font-size: 11px;
+  min-width: 64px;
+}
+
+.chessCapPieces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+
+.chessCapPiece {
+  font-size: 15px;
+  opacity: 0.85;
+  line-height: 1;
+}
+
+.chessHistory {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  width: min(92%, 420px);
+  min-height: 20px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+.chessHistoryRow {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.chessHistoryNum {
+  opacity: 0.45;
+}
+
+.chessHistoryEmpty {
+  opacity: 0.5;
+}
+
+/* PGN review navigator — step through a saved game (daedalOS Chess). */
+
+.chessPgnNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: min(92%, 420px);
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.chessPgnBtn {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  width: 30px;
+  height: 26px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s ease;
+}
+
+.chessPgnBtn:hover:not(:disabled) {
+  background: rgba(10, 132, 255, 0.55);
+}
+
+.chessPgnBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.chessPgnCounter {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+/* ---- Minesweeper ---- */
+
+.mineHud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #b0b6bd;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.mineDigit {
+  font-family: "SF Mono", ui-monospace, monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f00;
+  background: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+}
+
+.mineFace {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: #d8dde2;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+}
+
+.mineFace:active {
+  transform: scale(0.92);
+}
+
+.mineBoard {
+  display: grid;
+  gap: 1px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #b0b6bd;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.mineCell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: linear-gradient(145deg, #e8ebef, #c3c9d0);
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+}
+
+.mineCell:active {
+  background: #b0b6bd;
+}
+
+.mineCellOpen {
+  background: #d8dde2;
+  border-color: rgba(0, 0, 0, 0.08);
+  cursor: default;
+}
+
+.mineCellBoom {
+  background: #ff5f57;
+}
+
+.mineNum1 { color: #0a84ff; }
+.mineNum2 { color: #30d158; }
+.mineNum3 { color: #ff3b30; }
+.mineNum4 { color: #5856d6; }
+.mineNum5 { color: #af52de; }
+.mineNum6 { color: #ff9f0a; }
+.mineNum7 { color: #ff2d55; }
+.mineNum8 { color: #7c7c7c; }
+
+/* ---- Tetris ---- */
+
+.tetrisWrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.tetrisSide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 72px;
+}
+
+.tetrisSideLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+.tetrisMini {
+  display: grid;
+  grid-template-columns: repeat(4, 14px);
+  grid-template-rows: repeat(4, 14px);
+  gap: 1px;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tetrisMiniBlock {
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.tetrisCanvas {
+  width: 220px;
+  height: 440px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  background: #0c0e16;
+}
+
+/* ---- Paint ---- */
+
+.paint {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #1c1c1e;
+  color: #f5f5f7;
+}
+
+.paintToolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(40, 40, 44, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.paintTools {
+  display: flex;
+  gap: 4px;
+}
+
+.paintTool {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #f5f5f7;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.paintTool:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.paintToolActive {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.paintColors {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.paintColor {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+
+.paintColor:hover {
+  transform: scale(1.15);
+}
+
+.paintColorActive {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.paintSize {
+  width: 90px;
+  accent-color: #5b8cff;
+}
+
+.paintSizeLabel {
+  font-size: 11px;
+  opacity: 0.6;
+  min-width: 30px;
+}
+
+.paintActions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.paintCanvasWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+  background: repeating-conic-gradient(#2c2c2e 0% 25%, #333336 0% 50%) 0 0 / 20px 20px;
+}
+
+.paintCanvas {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  height: auto;
+  touch-action: none;
+}
+
+/* ---- Photos zoom (daedalOS Photos) ---- */
+
+.photosZoomControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.photosZoomPct {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* ================= TextEdit ================= */
+
+.textedit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: #f5f5f7;
+  background: rgba(20, 20, 22, 0.9);
+}
+
+.texteditToolbar {
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.texteditTabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.texteditTab {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(245, 245, 247, 0.6);
+  font-size: 12px;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: default;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.texteditTab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.texteditTabActive {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.texteditTabNew {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: rgba(245, 245, 247, 0.7);
+  cursor: default;
+  padding: 0;
+}
+
+.texteditTabNew:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.texteditToolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.texteditBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: none;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(245, 245, 247, 0.8);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.texteditBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.texteditBtnActive {
+  background: rgba(10, 132, 255, 0.35);
+  color: #fff;
+}
+
+.texteditSaved {
+  font-size: 11px;
+  color: #30d158;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.texteditBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+  background: rgba(16, 16, 18, 0.85);
+}
+
+.texteditPre {
+  margin: 0;
+  padding: 14px 0 26px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #abb2bf;
+  min-width: max-content;
+  pointer-events: none;
+  user-select: none;
+}
+
+.texteditLine {
+  display: flex;
+  padding-right: 18px;
+}
+
+.texteditGutter {
+  flex-shrink: 0;
+  width: 46px;
+  padding-right: 12px;
+  text-align: right;
+  color: rgba(245, 245, 247, 0.3);
+  user-select: none;
+}
+
+.texteditCode {
+  font-family: inherit;
+  white-space: pre;
+}
+
+.texteditArea {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 14px 18px 26px 76px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: #0a84ff;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre;
+  overflow: hidden;
+  tab-size: 2;
+}
+
+.texteditArea::selection {
+  background: rgba(10, 132, 255, 0.35);
+  color: transparent;
+}
+
+.texteditPreviewScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: rgba(16, 16, 18, 0.85);
+}
+
+.texteditEmpty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(245, 245, 247, 0.5);
+  font-size: 13px;
+}
+
+.texteditStatus {
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.texteditStatusLang {
+  text-transform: capitalize;
+}
+
+.texteditStatusSpacer {
+  flex: 1;
+}
+
+.texteditStatusRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---- Markdown preview (the daedalOS "Marked" equivalent) ---- */
+
+.md {
+  padding: 20px 26px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #e8e8ec;
+}
+
+.mdHeading {
+  color: #fff;
+  margin: 1.2em 0 0.5em;
+  line-height: 1.3;
+}
+
+.mdHeading:first-child {
+  margin-top: 0;
+}
+
+.md h1 {
+  font-size: 24px;
+}
+
+.md h2 {
+  font-size: 19px;
+}
+
+.md h3 {
+  font-size: 16px;
+}
+
+.mdP {
+  margin: 0.7em 0;
+}
+
+.mdCode {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+
+.mdPre {
+  background: rgba(0, 0, 0, 0.45);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  overflow: auto;
+  font-size: 12.5px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  line-height: 1.5;
+}
+
+.mdLink {
+  color: #61afef;
+  text-decoration: underline;
+}
+
+.mdQuote {
+  margin: 0.8em 0;
+  padding: 2px 0 2px 14px;
+  border-left: 3px solid rgba(255, 255, 255, 0.25);
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.mdList {
+  margin: 0.6em 0;
+  padding-left: 1.4em;
+}
+
+.mdList li {
+  margin: 0.25em 0;
+}
+
+
+/* ---- Breakout (DX-Ball) ---- */
+
+.gameBreakoutWrap {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 6px;
+}
+
+.gameBreakoutCanvas {
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  cursor: default;
+  touch-action: none;
+  max-width: 100%;
+}
+
+/* ---- Chess mode switcher ---- */
+
+.chessModeSwitcher {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chessModeBtn {
+  border: none;
+  background: none;
+  color: rgba(245, 245, 247, 0.65);
+  font-size: 11px;
+  font-family: inherit;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.chessModeBtn:hover {
+  color: #fff;
+}
+
+.chessModeBtnActive {
+  background: rgba(10, 132, 255, 0.55);
+  color: #fff;
+}
+
+/* Toolbar above the board — mode/side/skill + actions. */
+
+.chessToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(92%, 460px);
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.chessSkillLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.chessSkillSelect {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 11px;
+  font-family: inherit;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+
+.chessSkillSelect option {
+  background: #1c1c1e;
+  color: #fff;
+}
+
+/* ---- Emulators (EmulatorJS / Ruffle / js-dos) ---- */
+
+.emuShell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  position: relative;
+}
+
+.emuHint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(30, 30, 32, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emuHost {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.emuHostDrag {
+  outline: 2px dashed #0a84ff;
+  outline-offset: -3px;
+}
+
+.emuFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+  position: relative;
+}
+
+.emuOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  color: rgba(245, 245, 247, 0.9);
+  font-size: 13px;
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+}
+
+.emuDrop {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: rgba(245, 245, 247, 0.65);
+  text-align: center;
+  font-size: 14px;
+}
+
+.emuDrop svg {
+  color: rgba(10, 132, 255, 0.8);
+  margin-bottom: 6px;
+}
+
+.emuDropSub {
+  font-size: 12px;
+  opacity: 0.55;
+  max-width: 380px;
+}
+
+/* ---- Markdown viewer (daedalOS Marked) ---- */
+
+.markdownApp {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 20, 24, 0.94);
+  color: #e8e8ec;
+}
+
+.markdownBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(32, 32, 36, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.markdownIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  color: #64d2ff;
+  background: rgba(100, 210, 255, 0.14);
+  flex-shrink: 0;
+}
+
+.markdownName {
+  font-weight: 600;
+  font-size: 13px;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.markdownFileType {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.markdownScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 28px 40px;
+}
+
+.markdownScroll .md {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ---- Webamp (Winamp music player, from daedalOS) ---- */
+
+.webampApp {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a1e;
+}
+
+.webampHint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(32, 32, 36, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.webampCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.webampHost {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(700px 300px at 50% -20%, rgba(60, 90, 200, 0.14), transparent 60%),
+    #1a1a1e;
+}
+
+.webampHost:not(:has(.webamp-root)) .webampEmpty {
+  display: flex;
+}
+
+.webampHostDrag {
+  outline: 2px dashed rgba(100, 210, 255, 0.6);
+  outline-offset: -4px;
+}
+
+.webampEmpty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+  padding: 20px;
+}
+
+.webampEmpty em {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+/* ---- Dino runner ---- */
+
+.gameDinoCanvas {
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  cursor: default;
+  touch-action: none;
+  max-width: 100%;
+  background: #f7f7f2;
 }

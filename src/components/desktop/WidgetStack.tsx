@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Glyph from "@/components/desktop/Glyph";
 import type { WidgetId, WidgetStyle } from "@/constants/desktop";
 import { WIDGET_IDS } from "@/constants/desktop";
 import type { WallpaperTint } from "@/hooks/useWallpaperTint";
@@ -20,12 +21,12 @@ interface WidgetStackProps {
   onReorder?: (from: number, to: number) => void;
 }
 
-/** Widget label + emoji, shared by the picker and the cards. */
-export const WIDGET_META: Record<WidgetId, { label: string; emoji: string }> = {
-  clock: { label: "Clock", emoji: "🕐" },
-  weather: { label: "Weather", emoji: "☀️" },
-  calendar: { label: "Calendar", emoji: "📅" },
-  stats: { label: "Aryan Stats", emoji: "🚀" },
+/** Widget label + icon key, shared by the picker and the cards. */
+export const WIDGET_META: Record<WidgetId, { label: string; icon: string }> = {
+  clock: { label: "Clock", icon: "clock" },
+  weather: { label: "Weather", icon: "cloud-sun" },
+  calendar: { label: "Calendar", icon: "calendar" },
+  stats: { label: "Aryan Stats", icon: "rocket" },
 };
 
 /**
@@ -138,10 +139,18 @@ export default function WidgetStack({
           <div className={styles.widget}>
             <p className={styles.widgetLabel}>Aryan Stats</p>
             <div className={styles.widgetStats}>
-              <span>🚀 20+ projects shipped</span>
-              <span>☕ 4 yrs of building</span>
-              <span>⚙️ 50+ Spring Boot APIs</span>
-              <span>🧠 5,000 LOC ray tracer</span>
+              <span>
+                <Glyph id="rocket" size={12} /> 20+ projects shipped
+              </span>
+              <span>
+                <Glyph id="coffee" size={12} /> 4 yrs of building
+              </span>
+              <span>
+                <Glyph id="settings" size={12} /> 50+ Spring Boot APIs
+              </span>
+              <span>
+                <Glyph id="brain" size={12} /> 5,000 LOC ray tracer
+              </span>
             </div>
           </div>
         );

@@ -22,6 +22,7 @@ import AppIcon from "@/components/desktop/AppIcon";
 import Spotlight from "@/components/desktop/Spotlight";
 import AboutThisMac from "@/components/desktop/AboutThisMac";
 import MissionControl from "@/components/desktop/MissionControl";
+import Glyph from "@/components/desktop/Glyph";
 import NotificationCenter, { type OsNotification } from "@/components/desktop/NotificationCenter";
 import LockScreen from "@/components/desktop/LockScreen";
 import WidgetStack, { WIDGET_META } from "@/components/desktop/WidgetStack";
@@ -46,8 +47,17 @@ import ReadMeApp from "@/components/desktop/apps/ReadMeApp";
 import WebsiteApp from "@/components/desktop/apps/WebsiteApp";
 import TerminalApp from "@/components/desktop/apps/TerminalApp";
 import GamesApp from "@/components/desktop/apps/GamesApp";
+import PaintApp from "@/components/desktop/apps/PaintApp";
 import PdfViewerApp from "@/components/desktop/apps/PdfViewerApp";
+import TextEditApp from "@/components/desktop/apps/TextEditApp";
+import MarkdownApp from "@/components/desktop/apps/MarkdownApp";
+import WebampApp from "@/components/desktop/apps/WebampApp";
+import EmulatorApp from "@/components/desktop/apps/EmulatorApp";
+import RuffleApp from "@/components/desktop/apps/RuffleApp";
+import JSDOSApp from "@/components/desktop/apps/JSDOSApp";
+import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
+import { addDroppedPhoto, addFile, fileToDataUrl } from "@/utils/finderStorage";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
 
 const APP_VIEWS: Record<string, () => React.JSX.Element> = {
@@ -60,9 +70,15 @@ const APP_VIEWS: Record<string, () => React.JSX.Element> = {
   videos: VideosApp,
   maps: MapsApp,
   readme: ReadMeApp,
-  // website is replaced below with a prop-carrying render (per-window URL)
-  terminal: TerminalApp,
-  games: GamesApp,
+  // website + textedit + terminal + markdown + games are replaced below with prop-carrying renders
+  terminal: () => <div />,
+  games: () => <div />,
+  paint: PaintApp,
+  // webamp + the emulators are replaced below with prop-carrying renders
+  webamp: () => <div />,
+  emulator: () => <div />,
+  ruffle: () => <div />,
+  jsdos: () => <div />,
   settings: () => <div />, // replaced with a prop-carrying render below
 };
 
@@ -150,6 +166,9 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       clockStyle: "default",
       reduceTransparency: false,
       showWidgets: true,
+      slideshow: false,
+      slideshowInterval: 20,
+      wallpaperFit: "fill",
       widgetStyle: "default",
       dockSize: 56,
       dockMagnify: true,
@@ -287,6 +306,28 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     setSys((s) => ({ ...s, ...patch }));
   };
 
+  /* ----- wallpaper slideshow: rotate through the real wallpapers ----- */
+  useEffect(() => {
+    if (!sys.slideshow || locked || booting) return;
+    const id = window.setInterval(() => {
+      setSys((s) => {
+        const sp = s.spaces.find((x) => x.id === currentSpace);
+        if (!sp) return s;
+        const next = (sp.wallpaperIndex + 1) % WALLPAPERS.length;
+        return {
+          ...s,
+          spaces: s.spaces.map((x) =>
+            x.id === currentSpace
+              ? { ...x, wallpaperIndex: next, customWallpaper: undefined, customWallpaperName: undefined }
+              : x,
+          ),
+        };
+      });
+    }, Math.max(5, sys.slideshowInterval) * 1000);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sys.slideshow, sys.slideshowInterval, currentSpace, locked, booting]);
+
   /* ----- power: restart replays the boot, shut down exits, sleep dims the screen ----- */
   const restart = () => {
     manager.windows.forEach((w) => manager.closeWindow(w.id));
@@ -323,7 +364,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       onConfirm: () => {
         sounds.whoosh();
         showToast("Trash is empty");
-        pushNotif("🗑️", "Trash", "The Trash is empty.", "finder");
+        pushNotif("trash", "Trash", "The Trash is empty.", "finder");
       },
     });
 
@@ -365,6 +406,64 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     window.setTimeout(() => setToast(null), 2200);
   };
 
+  /* ----- drag & drop external files onto the desktop (daedalOS File Explorer) ----- */
+  const [dragOver, setDragOver] = useState(false);
+  const dragDepth = useRef(0);
+  const handleDropFiles = async (e: React.DragEvent) => {
+    e.preventDefault();
+    dragDepth.current = 0;
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer?.files ?? []);
+    if (!files.length) return;
+    let photos = 0;
+    let docs = 0;
+    for (const file of files) {
+      if (file.type.startsWith("image/")) {
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl) {
+          addDroppedPhoto(file.name, dataUrl);
+          photos += 1;
+        }
+      } else if (file.name.endsWith(".txt") || file.name.endsWith(".md") || file.name.endsWith(".pgn")) {
+        const text = await file.text().catch(() => "");
+        addFile(file.name, text);
+        docs += 1;
+      } else if (/\.(m3u|m3u8)$/i.test(file.name)) {
+        // Playlists are text — parsed into tracks by Webamp.
+        const text = await file.text().catch(() => "");
+        addFile(file.name, text);
+        docs += 1;
+      } else if (/\.(mp3|wav|ogg|oga|flac|aac|m4a|opus|wma|webm|wsz|zip|iso)$/i.test(file.name)) {
+        // Audio, Winamp skins + archives persist as data URLs so Finder can
+        // reopen/browse them (daedalOS file association); big files best-effort.
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl) {
+          addFile(file.name, dataUrl);
+          docs += 1;
+        }
+      } else if (/\.(nes|smc|sfc|gb|gbc|gba|n64|z64|v64|gen|md|smd|sms|gg|a26|a52|a78|pce|nds|ws|wsc|vb|vboy|j64|jag|lnx|ngp|ngc|32x|swf|spl|jsdos|exe|com|bat)$/i.test(file.name)) {
+        // ROMs, Flash movies + DOS games persist so Finder reopens them in the
+        // emulators (daedalOS file association); big files best-effort.
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl) {
+          addFile(file.name, dataUrl);
+          docs += 1;
+        }
+      }
+    }
+    if (photos) {
+      showToast(`${photos} photo${photos > 1 ? "s" : ""} added to Photos`);
+      pushNotif("image", "Photos", `${photos} photo${photos > 1 ? "s" : ""} imported from your device.`, "photos");
+    }
+    if (docs) {
+      showToast(`${docs} document${docs > 1 ? "s" : ""} saved to Documents`);
+      pushNotif("file-text", "Finder", `${docs} document${docs > 1 ? "s" : ""} saved to Documents.`, "finder");
+    }
+    if (!photos && !docs) {
+      showToast("Dropped file type isn't supported");
+    }
+  };
+
   const closeWindowAnimated = (id: string) => {
     setClosingIds((s) => new Set(s).add(id));
     window.setTimeout(() => {
@@ -396,6 +495,20 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   };
   openWindowRef.current = openWindow;
 
+  // daedalOS-style URL loading: /?app=<id> opens an app once the machine
+  // boots (e.g. /?app=notes, /?app=games).
+  const appOpenedFromUrl = useRef(false);
+  useEffect(() => {
+    if (locked || booting || appOpenedFromUrl.current) return;
+    const appParam = new URLSearchParams(window.location.search).get("app");
+    if (!appParam) return;
+    const match = DESKTOP_APPS.find((a) => a.id === appParam.toLowerCase());
+    if (!match) return;
+    appOpenedFromUrl.current = true;
+    openWindow(match.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locked, booting]);
+
   // Documents (PDFs) open in their own window, each with its own src.
   const [pdfSrcs, setPdfSrcs] = useState<Record<string, string>>({});
   const openDocument = (src: string, name: string) => {
@@ -410,19 +523,64 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     setWebUrls((m) => ({ ...m, [id]: url }));
     sounds.pop();
   };
+  // Text documents open in TextEdit, each with its own file.
+  const [editDocs, setEditDocs] = useState<Record<string, { name: string; content?: string }>>({});
+  const openTextEdit = (name: string, content?: string) => {
+    const id = manager.openWindow("textedit", { title: name, multi: true });
+    setEditDocs((m) => ({ ...m, [id]: { name, content } }));
+    sounds.pop();
+  };
+  // Markdown files render in the Markdown viewer (daedalOS Marked).
+  const [mdDocs, setMdDocs] = useState<Record<string, { name: string; content?: string }>>({});
+  const openMarkdown = (name: string, content?: string) => {
+    const id = manager.openWindow("markdown", { title: name, multi: true });
+    setMdDocs((m) => ({ ...m, [id]: { name, content } }));
+    sounds.pop();
+  };
+  // PGN game records open in Chess, each in its own games window (daedalOS).
+  const [chessDocs, setChessDocs] = useState<Record<string, { name: string; content?: string }>>({});
+  // Audio / playlist / skin files open in Webamp, each in its own window.
+  const [webampDocs, setWebampDocs] = useState<Record<string, { name: string }>>({});
+  const openWebamp = (name: string) => {
+    const id = manager.openWindow("webamp", { title: name, multi: true });
+    setWebampDocs((m) => ({ ...m, [id]: { name } }));
+    sounds.pop();
+  };
+  // ROMs / Flash / DOS games open in the emulators (daedalOS associations).
+  const [emuDocs, setEmuDocs] = useState<Record<string, { app: string; name: string }>>({});
+  const openEmulator = (app: string, name: string) => {
+    const id = manager.openWindow(app, { title: name, multi: true });
+    setEmuDocs((m) => ({ ...m, [id]: { app, name } }));
+    sounds.pop();
+  };
+  const openChess = (name: string, content?: string) => {
+    const id = manager.openWindow("games", { title: name, multi: true });
+    setChessDocs((m) => ({ ...m, [id]: { name, content } }));
+    sounds.pop();
+  };
   // Finder's onOpenApp — web shortcuts carry a url, documents a src,
-  // regular apps neither.
-  const handleOpen = (appId: string, src?: string, name?: string, url?: string) => {
+  // text documents a name (content lets archive entries open in TextEdit).
+  const handleOpen = (appId: string, src?: string, name?: string, url?: string, content?: string) => {
     if (url) openWebUrl(url, name ?? "Portfolio");
     else if (src) openDocument(src, name ?? "PDF");
+    else if (appId === "markdown") openMarkdown(name ?? "Untitled.md", content);
+    else if (appId === "textedit") openTextEdit(name ?? "Untitled.txt", content);
+    else if (appId === "chess") openChess(name ?? "game.pgn");
+    else if (appId === "webamp") openWebamp(name ?? "track.mp3");
+    else if (appId === "emulator" || appId === "ruffle" || appId === "jsdos")
+      openEmulator(appId, name ?? "game");
     else openWindow(appId);
   };
+
+  // daedalOS Run dialog — ⌘⇧R or the Apple menu → type an app name.
+  const [runOpen, setRunOpen] = useState(false);
+  const openRun = () => setRunOpen(true);
 
   const unlock = () => {
     setLocked(false);
     if (!welcomeSent.current) {
       welcomeSent.current = true;
-      pushNotif("🖥️", "Welcome to Aryan OS", "Your machine is ready.", "finder");
+      pushNotif("monitor", "Welcome to Aryan OS", "Your machine is ready.", "finder");
     }
   };
 
@@ -430,6 +588,20 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     manager.windows
       .filter((w) => w.appId === appId)
       .forEach((w) => closeWindowAnimated(w.id));
+  };
+
+  /* daedalOS “Set as wallpaper”: a Finder image becomes this desktop's background. */
+  const setCustomWallpaper = (src: string, name: string) => {
+    patchSys({
+      spaces: sys.spaces.map((s) =>
+        s.id === currentSpace
+          ? { ...s, customWallpaper: src, customWallpaperName: name }
+          : s,
+      ),
+    });
+    sounds.pop();
+    showToast("Wallpaper updated");
+    pushNotif("image", "Wallpaper", `Set “${name}” as the wallpaper.`, "settings");
   };
 
   const handleSpotlightPick = (action: string) => {
@@ -618,6 +790,11 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       if (e.metaKey && e.key === ",") {
         e.preventDefault();
         openWindow("settings");
+        return;
+      }
+      if (e.metaKey && e.shiftKey && e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        setRunOpen(true);
         return;
       }
       if (e.metaKey && e.ctrlKey && e.key.toLowerCase() === "f") {
@@ -866,7 +1043,14 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   if (!open) return null;
 
   const desktopIcons = DESKTOP_APPS.filter((a) => a.onDesktop);
-  const wallpaper = WALLPAPERS[space.wallpaperIndex];
+  // A custom image (Finder → Set as Wallpaper) overrides the built-in set.
+  const wallpaper = space.customWallpaper
+    ? {
+        id: "custom",
+        name: space.customWallpaperName ?? "Custom Wallpaper",
+        src: space.customWallpaper,
+      }
+    : WALLPAPERS[space.wallpaperIndex];
   const spaceWindows = manager.windows.filter((w) => w.spaceId === currentSpace);
 
   const bringStageApp = (appId: string) => {
@@ -884,6 +1068,18 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       aria-label="Aryan OS desktop"
       onContextMenu={onWallpaperContext}
       onPointerMove={onDesktopPointerMove}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        dragDepth.current += 1;
+        setDragOver(true);
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        dragDepth.current = Math.max(0, dragDepth.current - 1);
+        if (dragDepth.current === 0) setDragOver(false);
+      }}
+      onDrop={handleDropFiles}
     >
       {!anyMaximized && (
         <MenuBar
@@ -907,6 +1103,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
           onShutDown: requestShutDown,
           onSleep: sleep,
           onSpotlight: () => setSpotlightOpen(true),
+          onRun: openRun,
           onOpenApp: openWindow,
           onNewWindow: () => focusedWindow && openWindow(focusedWindow.appId),
           onCloseFocused: () => focusedWindow && closeWindowAnimated(focusedWindow.id),
@@ -924,11 +1121,22 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       )}
 
       <div
-        key={space.wallpaperIndex}
+        key={`${space.wallpaperIndex}-${space.customWallpaper ?? ""}`}
         className={styles.wallpaper}
         style={{
           backgroundImage: `url(${wallpaper.src})`,
-          backgroundSize: "cover",
+          backgroundSize:
+            sys.wallpaperFit === "fill"
+              ? "cover"
+              : sys.wallpaperFit === "fit"
+                ? "contain"
+                : sys.wallpaperFit === "stretch"
+                  ? "100% 100%"
+                  : sys.wallpaperFit === "tile"
+                    ? "auto"
+                    : "auto",
+          backgroundRepeat:
+            sys.wallpaperFit === "tile" ? "repeat" : "no-repeat",
           backgroundPosition: "center",
         }}
         onPointerDown={() => {
@@ -1001,13 +1209,23 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
             aria-label={`Open ${f.name}`}
           >
             <span className={styles.desktopWebTile} aria-hidden>
-              {f.icon}
+              <Glyph id={f.icon} size={30} />
             </span>
             <span className={styles.desktopIconLabel}>{f.name}</span>
           </button>
           );
         })}
       </div>
+
+      {/* Drop-target highlight while dragging files onto the desktop. */}
+      {dragOver && (
+        <div className={styles.dropOverlay}>
+          <div className={styles.dropHint}>
+            <strong>Drop to import</strong>
+            <span>Images go to Photos · .txt / .md go to Documents</span>
+          </div>
+        </div>
+      )}
 
       {/* macOS Tahoe desktop widgets — top-right, below any windows.
           Edit mode (context menu → Edit Widgets…) shows remove buttons, a
@@ -1048,7 +1266,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
                         patchSys({ widgets: [...sys.widgets, id] })
                       }
                     >
-                      {WIDGET_META[id].emoji} {WIDGET_META[id].label}
+                      <Glyph id={WIDGET_META[id].icon} size={13} /> {WIDGET_META[id].label}
                     </button>
                   ),
                 )}
@@ -1111,25 +1329,45 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
                   onOpenApp={handleOpen}
                   onLaunchpad={() => setLaunchpadOpen(true)}
                   onQuickLook={(f: FinderFile) => setQuickLook(f)}
+                  onSetWallpaper={setCustomWallpaper}
                 />
               ) : win.appId === "pdf" ? (
                 <PdfViewerApp src={pdfSrcs[win.id] ?? ""} title={win.title} />
               ) : win.appId === "website" ? (
                 <WebsiteApp initialUrl={webUrls[win.id]} />
+              ) : win.appId === "textedit" ? (
+                <TextEditApp
+                  initialDoc={editDocs[win.id]?.name}
+                  initialContent={editDocs[win.id]?.content}
+                />
+              ) : win.appId === "markdown" ? (
+                <MarkdownApp
+                  name={mdDocs[win.id]?.name}
+                  content={mdDocs[win.id]?.content}
+                  onEdit={() => {
+                    const doc = mdDocs[win.id];
+                    if (doc) openTextEdit(doc.name, doc.content);
+                  }}
+                />
+              ) : win.appId === "terminal" ? (
+                <TerminalApp onOpenApp={handleOpen} />
               ) : win.appId === "settings" ? (
                 <SettingsApp
                   system={sys}
                   onSystemChange={patchSys}
                   wallpaperIndex={space.wallpaperIndex}
+                  customWallpaperName={space.customWallpaperName}
                   onWallpaper={(i) => {
                     patchSys({
                       spaces: sys.spaces.map((s) =>
-                        s.id === currentSpace ? { ...s, wallpaperIndex: i } : s,
+                        s.id === currentSpace
+                          ? { ...s, wallpaperIndex: i, customWallpaper: undefined, customWallpaperName: undefined }
+                          : s,
                       ),
                     });
                     sounds.pop();
                     pushNotif(
-                      "🖼️",
+                      "image",
                       "Wallpaper",
                       `Wallpaper changed to ${WALLPAPERS[i].name}.`,
                       "settings",
@@ -1137,6 +1375,20 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
                   }}
                   onAbout={() => setAboutOpen(true)}
                 />
+              ) : win.appId === "games" ? (
+                <GamesApp
+                  initialGame={chessDocs[win.id] ? "chess" : undefined}
+                  pgnName={chessDocs[win.id]?.name}
+                  pgnContent={chessDocs[win.id]?.content}
+                />
+              ) : win.appId === "webamp" ? (
+                <WebampApp file={webampDocs[win.id]?.name} />
+              ) : win.appId === "emulator" ? (
+                <EmulatorApp file={emuDocs[win.id]?.name} />
+              ) : win.appId === "ruffle" ? (
+                <RuffleApp file={emuDocs[win.id]?.name} />
+              ) : win.appId === "jsdos" ? (
+                <JSDOSApp file={emuDocs[win.id]?.name} />
               ) : View ? (
                 <View />
               ) : (
@@ -1170,7 +1422,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
         onEmptyTrash={() => {
           sounds.whoosh();
           showToast("Trash is empty");
-          pushNotif("🗑️", "Trash", "The Trash is empty.", "finder");
+          pushNotif("trash", "Trash", "The Trash is empty.", "finder");
         }}
         onEmptyTrashRequest={requestEmptyTrash}
         />
@@ -1270,12 +1522,14 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
                   onClick={() => {
                     patchSys({
                       spaces: sys.spaces.map((s) =>
-                        s.id === currentSpace ? { ...s, wallpaperIndex: i } : s,
+                        s.id === currentSpace
+                          ? { ...s, wallpaperIndex: i, customWallpaper: undefined, customWallpaperName: undefined }
+                          : s,
                       ),
                     });
                     setWallpaperPicker(false);
                     sounds.pop();
-                    pushNotif("🖼️", "Wallpaper", `Wallpaper changed to ${wp.name}.`, "settings");
+                    pushNotif("image", "Wallpaper", `Wallpaper changed to ${wp.name}.`, "settings");
                   }}
                   aria-label={wp.name}
                 >
@@ -1473,6 +1727,8 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
         />
       )}
 
+      {runOpen && <RunDialog onClose={() => setRunOpen(false)} onOpenApp={openWindow} />}
+
       {alert && <AlertDialog alert={alert} onClose={() => setAlert(null)} />}
 
       {quickLook && (
@@ -1507,7 +1763,9 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
           role="button"
           tabIndex={0}
         >
-          <span className={styles.bannerIcon}>{banner.icon}</span>
+          <span className={styles.bannerIcon}>
+            <Glyph id={banner.icon} size={18} />
+          </span>
           <div className={styles.bannerText}>
             <strong>{banner.title}</strong>
             <p>{banner.body}</p>

@@ -19,6 +19,10 @@ export interface SpaceConfig {
   id: number;
   name: string;
   wallpaperIndex: number;
+  /** daedalOS “Set as wallpaper”: a custom image replaces the built-in one. */
+  customWallpaper?: string;
+  /** Name of the custom wallpaper, for Settings. */
+  customWallpaperName?: string;
 }
 
 export const DEFAULT_SPACES: SpaceConfig[] = [
@@ -100,6 +104,12 @@ export interface SystemState {
   reduceTransparency: boolean;
   /** Desktop widgets (top-right column, like real macOS). */
   showWidgets: boolean;
+  /** Rotate through the real wallpapers automatically (daedalOS slideshow). */
+  slideshow: boolean;
+  /** Wallpaper fit mode (daedalOS: Fill/Fit/Stretch/Tile/Center). */
+  wallpaperFit: "fill" | "fit" | "stretch" | "tile" | "center";
+  /** Seconds between wallpaper changes. */
+  slideshowInterval: number;
   /** Tahoe: Icon & Widget Style — default glass, solid dark, or wallpaper-tinted. */
   widgetStyle: WidgetStyle;
   /** Desktop & Dock: base icon size in px (macOS Dock Size slider). */
@@ -119,7 +129,7 @@ export interface SystemState {
   /** Settings → Battery: show the percentage in the menu bar. */
   showBatteryPct: boolean;
   /** Settings → Desktop & Dock → Screen Saver: which saver to play. */
-  screensaverStyle: "flurry" | "aerial" | "clock";
+  screensaverStyle: "flurry" | "aerial" | "clock" | "matrix" | "pipes";
   /** Minutes of inactivity before the saver starts (0 = Never). */
   screensaverDelay: number;
   /** Settings → Notifications: per-app alert style. Absent = default banners. */
@@ -153,22 +163,33 @@ export interface DesktopAppConfig {
 }
 
 export const DESKTOP_APPS: DesktopAppConfig[] = [
-  { id: "finder", title: "Finder", icon: "", iconUrl: "/aryan/icons/finder.png", width: 720, height: 500, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
-  { id: "about", title: "About Me", icon: "🧑", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: true, inDock: true },
-  { id: "resume", title: "Resume", icon: "📄", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: true, inDock: true },
-  { id: "projects", title: "Projects", icon: "🗂️", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "notes", title: "Notes", icon: "📝", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
-  { id: "photos", title: "Photos", icon: "🖼️", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "videos", title: "Videos", icon: "🎬", iconUrl: "/aryan/icons/quicktime.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "maps", title: "Maps", icon: "🗺️", iconUrl: "/aryan/icons/maps.png", width: 720, height: 520, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
-  { id: "readme", title: "Read Me", icon: "📖", iconUrl: "/aryan/icons/textedit.png", width: 600, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
-  { id: "terminal", title: "Terminal", icon: ">_", iconUrl: "/aryan/icons/terminal.png", width: 620, height: 400, minWidth: 440, minHeight: 280, onDesktop: false, inDock: true },
-  { id: "games", title: "Games", icon: "🎮", iconUrl: "/aryan/icons/games.svg", width: 560, height: 500, minWidth: 420, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "settings", title: "System Settings", icon: "⚙️", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: false, inDock: true },
+  { id: "finder", title: "Finder", icon: "folder", iconUrl: "/aryan/icons/finder.png", width: 720, height: 500, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
+  { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: true, inDock: true },
+  { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: true, inDock: true },
+  { id: "projects", title: "Projects", icon: "folder", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "notes", title: "Notes", icon: "sticky-note", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
+  { id: "photos", title: "Photos", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "videos", title: "Videos", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "maps", title: "Maps", icon: "map", iconUrl: "/aryan/icons/maps.png", width: 720, height: 520, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
+  { id: "readme", title: "Read Me", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 600, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
+  { id: "terminal", title: "Terminal", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 620, height: 400, minWidth: 440, minHeight: 280, onDesktop: false, inDock: true },
+  { id: "textedit", title: "TextEdit", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 560, height: 500, minWidth: 420, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "paint", title: "Paint", icon: "image", iconUrl: "/aryan/icons/paint.png", width: 760, height: 560, minWidth: 560, minHeight: 420, onDesktop: true, inDock: true },
+  { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: true },
+  // Console emulator (EmulatorJS) — drop a ROM and play (daedalOS).
+  { id: "emulator", title: "Emulator", icon: "emulator", iconUrl: "/aryan/icons/emulator.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  // Flash player (Ruffle) — .swf files play in the browser.
+  { id: "ruffle", title: "Ruffle", icon: "ruffle", iconUrl: "/aryan/icons/ruffle.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: true },
+  // DOSBox (js-dos) — .jsdos/.exe/.zip DOS games.
+  { id: "jsdos", title: "DOS", icon: "jsdos", iconUrl: "/aryan/icons/jsdos.png", width: 760, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: true },
+  { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: false, inDock: true },
   // The classic portfolio website, rendered as a web page inside the machine.
-  { id: "website", title: "Portfolio", icon: "🌐", iconUrl: "/aryan/icons/safari.png", width: 960, height: 640, minWidth: 640, minHeight: 460, onDesktop: true, inDock: true },
+  { id: "website", title: "Portfolio", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 960, height: 640, minWidth: 640, minHeight: 460, onDesktop: true, inDock: true },
   // Hidden helper app: renders a PDF document (Finder Downloads etc.).
-  { id: "pdf", title: "PDF", icon: "📄", iconUrl: "/aryan/icons/preview.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  { id: "pdf", title: "PDF", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  // Hidden helper app: renders a .md file (daedalOS Marked).
+  { id: "markdown", title: "Markdown", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -213,13 +234,13 @@ export const SPOTLIGHT_ITEMS: SpotlightItem[] = [
     icon: a.icon,
     action: `app:${a.id}`,
   })),
-  { id: "file-resume", title: "Resume.pdf", subtitle: "Document — 2 MB", icon: "📄", action: "app:resume" },
-  { id: "file-showreel", title: "showreel.mp4", subtitle: "Movie — 24s · 46 MB", icon: "🎬", action: "app:videos" },
-  { id: "file-readme", title: "README.txt", subtitle: "Plain text — 2 KB", icon: "📖", action: "app:readme" },
-  { id: "sys-about", title: "About This Mac", subtitle: "System information", icon: "", action: "about" },
-  { id: "sys-settings", title: "System Settings", subtitle: "System preferences", icon: "⚙️", action: "app:settings" },
-  { id: "action-dark", title: "Toggle Dark Mode", subtitle: "Action — Appearance", icon: "🌙", action: "toggle-dark" },
-  { id: "action-lock", title: "Lock Screen", subtitle: "Action — Security", icon: "🔒", action: "lock" },
+  { id: "file-resume", title: "Resume.pdf", subtitle: "Document — 2 MB", icon: "file-text", action: "app:resume" },
+  { id: "file-showreel", title: "showreel.mp4", subtitle: "Movie — 32s · 35 MB", icon: "film", action: "app:videos" },
+  { id: "file-readme", title: "README.txt", subtitle: "Plain text — 2 KB", icon: "book-open", action: "app:readme" },
+  { id: "sys-about", title: "About This Mac", subtitle: "System information", icon: "apple", action: "about" },
+  { id: "sys-settings", title: "System Settings", subtitle: "System preferences", icon: "settings", action: "app:settings" },
+  { id: "action-dark", title: "Toggle Dark Mode", subtitle: "Action — Appearance", icon: "moon", action: "toggle-dark" },
+  { id: "action-lock", title: "Lock Screen", subtitle: "Action — Security", icon: "lock", action: "lock" },
 ];
 
 export const APP_ICON: Record<string, string> = Object.fromEntries(
@@ -244,14 +265,14 @@ export interface WebShortcut {
 
 /** Internet-location files — double-click one and the Browser opens there. */
 export const WEB_SHORTCUTS: WebShortcut[] = [
-  { id: "web-portfolio", name: "Portfolio.url", url: "/legacy", icon: "🌐", hint: "The classic portfolio website" },
-  { id: "web-3d", name: "3D Experience.url", url: "/3d", icon: "🧊", hint: "The interactive 3D portfolio" },
-  { id: "web-piano", name: "Online Piano.url", url: "https://online-piano-two.vercel.app", icon: "🎹", hint: "Play the piano with your keyboard" },
-  { id: "web-browser-ai", name: "Browser AI.url", url: "https://browser-ai-dun.vercel.app", icon: "🤖", hint: "AI that runs on your machine" },
-  { id: "web-movers", name: "Weekend Movers.url", url: "https://weekend-movers.vercel.app", icon: "🚚", hint: "The GSAP re-design, live" },
-  { id: "web-startx", name: "StartX.url", url: "https://startx-zeta.vercel.app", icon: "🚀", hint: "AI startup validation platform" },
-  { id: "web-bookofrose", name: "Book of Rose.url", url: "https://bookofrose.vercel.app", icon: "🌹", hint: "The philosophical book, live" },
-  { id: "web-github", name: "GitHub.url", url: "https://github.com/aryanbatras", icon: "🐙", hint: "All my repositories" },
+  { id: "web-portfolio", name: "Portfolio.url", url: "/legacy", icon: "globe", hint: "The classic portfolio website" },
+  { id: "web-3d", name: "3D Experience.url", url: "/3d", icon: "box", hint: "The interactive 3D portfolio" },
+  { id: "web-piano", name: "Online Piano.url", url: "https://online-piano-two.vercel.app", icon: "piano", hint: "Play the piano with your keyboard" },
+  { id: "web-browser-ai", name: "Browser AI.url", url: "https://browser-ai-dun.vercel.app", icon: "bot", hint: "AI that runs on your machine" },
+  { id: "web-movers", name: "Weekend Movers.url", url: "https://weekend-movers.vercel.app", icon: "truck", hint: "The GSAP re-design, live" },
+  { id: "web-startx", name: "StartX.url", url: "https://startx-zeta.vercel.app", icon: "rocket", hint: "AI startup validation platform" },
+  { id: "web-bookofrose", name: "Book of Rose.url", url: "https://bookofrose.vercel.app", icon: "flower", hint: "The philosophical book, live" },
+  { id: "web-github", name: "GitHub.url", url: "https://github.com/aryanbatras", icon: "github", hint: "All my repositories" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -666,7 +687,14 @@ portfolio, built as a macOS-style operating system.
 
 WHAT'S HERE
 -----------
-  · Finder        — the file browser; every file on this machine is real
+  · Finder        — the file browser; every file on this machine is real.
+                    Drop a .zip or .iso on the desktop and double-click to
+                    browse inside it (read-only) or Extract Here to a folder,
+                    select files and right-click → Add to Archive to pack a
+                    .zip, drag files to arrange them (or onto a folder to
+                    move them in), and sort by name/kind/size/date in either
+                    direction — your sort + arrangement are remembered per
+                    folder
   · About Me      — who I am and what I care about
   · Resume        — experience, education, skills
   · Projects      — a few things I've shipped
@@ -674,10 +702,32 @@ WHAT'S HERE
   · Photos        — frames pulled straight from the showreel
   · Videos        — the full scroll-scrubbed showreel, with sound
   · Maps          — where I work, think and wander
-  · Portfolio     — the classic site, rendered as a web page (in Safari)
-  · Games         — mini arcade: 2048, Memory, Heap Worm, Binary Pong and
-                    a real Online Piano — plus my live projects to play with
-  · Terminal      — type 'help' and see what happens
+  · TextEdit      — a real code editor: syntax highlighting, line numbers
+                    and ⌘S saving (try notes.md and its Preview mode)
+  · Portfolio     — a real browser: Google search works (basic-HTML mode),
+                    real favicons, back/forward history dropdowns (right-
+                    click or the caret), and a proxy menu — AllOrigins,
+                    Wayback Machine, and Old Net (1996–2012) that opens
+                    sites which refuse iframes
+  · Emulator      — a console emulator right in the browser: drop an NES,
+                    SNES, Game Boy, GBA, N64 or Sega ROM and it plays with
+                    the right core picked automatically
+  · Ruffle        — Flash Player in the browser: drop any .swf (game or
+                    animation) and it runs
+  · DOS           — js-dos DOSBox: drop a .jsdos bundle, .exe or .zip DOS
+                    game and play it — save states and all
+  · Winamp        — the real Winamp (Webamp) in the browser: drop an .mp3
+                    on the desktop or open one in Finder, play URLs and .m3u
+                    playlists, save your playlist, even load .wsz skins
+  · Games         — mini arcade: 2048, Memory, Heap Worm, Binary Pong,
+                    Breakout, Offline Dino, Chess (REAL Stockfish engine,
+                    skill 0-20, play as White or Black, and opening a .pgn
+                    file from Finder reviews it move-by-move), Minesweeper,
+                    Tetris and a real Online Piano — plus the full WASM
+                    games ported from daedalOS (Space Cadet Pinball, Quake
+                    III Arena) and my live projects to play
+  · Terminal      — type 'help' and see what happens (weather is live,
+                    pipes work, \`open <app>\` and \`edit <file>\` launch apps)
 
 TIPS
 ----
@@ -696,8 +746,19 @@ TIPS
   · ⌘Tab (via Control Center) — app switcher
   · ⌘,            — System Settings
   · Right-click anything — menus everywhere
+  · Right-click a Finder folder — New Folder / New Text Document
+  · Drag files from your computer onto the desktop — images go to Photos,
+    .txt / .md documents go to Documents
+  · Settings → Wallpaper — turn on the slideshow to rotate wallpapers
+  · Settings → Desktop & Dock — Screen Saver: try Flurry, Aerial, Clock,
+    Matrix or Pipes
+  · Finder — right-click for New Folder / New Text Document / Open Terminal
+    Here; ⌘C / ⌘X / ⌘V to copy, cut and paste files; ⌘I for Get Info; F2 to
+    rename; Pictures folder → Set as Wallpaper
+  · Windows remember their position and size between sessions
   · Drag a window to the left/right edge — macOS-style tiling preview
   · Drag a window to the very top — it zooms to full screen
+  · Open the machine with an app pre-loaded: /?app=notes or /?app=games
 
 HOW IT'S BUILT
 --------------
@@ -859,6 +920,44 @@ export const TERMINAL_COMMANDS: TerminalCommand[] = [
         return "say: speech synthesis unavailable";
       }
     },
+  },
+  {
+    name: "weather",
+    help: "Live conditions for Jammu (open-meteo)",
+    run: () => "weather: fetching live conditions…",
+  },
+  {
+    name: "open",
+    help: "Open an app — e.g. open textedit",
+    run: () => "usage: open <app> — try: finder, textedit, notes, photos, maps, games, settings",
+  },
+  {
+    name: "edit",
+    help: "Open a file in TextEdit — e.g. edit notes.md",
+    run: () => "usage: edit <file>",
+  },
+  {
+    name: "matrix",
+    help: "Raining code, just for fun",
+    run: () => "matrix: the simulation is watching.",
+  },
+  {
+    name: "sudo",
+    help: "Try it. You are not root here.",
+    run: () => "sudo: command not found — you are not root here.",
+  },
+  {
+    name: "banner",
+    help: "Print a boxed banner — e.g. banner hello",
+    run: (raw: string) => {
+      const text = raw.split(/\s+/).slice(1).join(" ");
+      return text ? `banner: ${text}` : "usage: banner <text>";
+    },
+  },
+  {
+    name: "pipe",
+    help: "Chain commands with | — e.g. ls | grep txt",
+    run: () => "pipes: try `projects | grep AI` or `help | head -5`",
   },
 ];
 

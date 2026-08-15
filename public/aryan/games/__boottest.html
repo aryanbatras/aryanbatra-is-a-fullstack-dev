@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>BOOTTEST RUNNING</title>
+<style>
+  body { background: #111; color: #eee; font-family: monospace; font-size: 12px; padding: 10px; }
+  .row { display: flex; gap: 10px; margin: 8px 0; }
+  .box { width: 340px; height: 260px; background: #000; border: 1px solid #333; position: relative; }
+  .tag { position: absolute; top: 4px; left: 6px; z-index: 5; background: rgba(0,0,0,.7); padding: 2px 6px; font-size: 10px; }
+  #status { padding: 8px; white-space: pre-wrap; border-top: 1px solid #333; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="box"><span class="tag">SPACECADET</span><div id="sc" style="position:absolute;inset:0"></div></div>
+    <div class="box"><span class="tag">QUAKE3</span><div id="q3" style="position:absolute;inset:0"></div></div>
+  </div>
+  <div id="status">HARNESS LOADED</div>
+<script>
+  function report(msg) {
+    var el = document.getElementById("status");
+    el.textContent = el.textContent + "\n" + msg;
+    console.log("[HARNESS]", msg);
+  }
+
+  function alwaysPreserveDrawingBuffer(win) {
+    var orig = win.HTMLCanvasElement.prototype.getContext;
+    win.HTMLCanvasElement.prototype.getContext = function (contextId, options) {
+      if (contextId === "webgl" || contextId === "webgl2") {
+        options = Object.assign({}, options, { preserveDrawingBuffer: true });
+      }
+      return orig.call(this, contextId, options);
+    };
+  }
+
+  function makeFrame(containerId, baseHref, createsCanvas, onReady) {
+    var container = document.getElementById(containerId);
+    var iframe = document.createElement("iframe");
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+    iframe.style.display = "block";
+    iframe.style.background = "#000";
+    container.appendChild(iframe);
+    iframe.srcdoc =
+      "<!DOCTYPE html><html><head>" +
+      (baseHref ? '<base href="' + baseHref + '">' : "") +
+      "<style>html,body{height:100%;width:100%;margin:0;overflow:hidden;background:#000}body{display:flex;place-content:center;place-items:center}canvas{display:block;background:#000}</style>" +
+      "</head><body></body></html>";
+    iframe.addEventListener("load", function () {
+      var win = iframe.contentWindow;
+      alwaysPreserveDrawingBuffer(win);
+      if (!createsCanvas) {
+        var canvas = win.document.createElement("canvas");
+        canvas.id = "canvas";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        win.document.body.appendChild(canvas);
+        win.__pinballCanvas = canvas;
+      }
+      onReady(win);
+    });
+  }
+
+  // ---- SPACE CADET ----
+  makeFrame("sc", "", false, function (win) {
+    win.Module = {
+      canvas: win.__pinballCanvas,
+      windowElement: win.document.body,
+      postRun: function () { report("SPACECADET: postRun fired -> BOOTED"); },
+      print: function (m) { console.log("[SC]", m); },
+      printErr: function (m) { console.error("[SC]", m); },
+      locateFile: function (p) {
+        return "/aryan/games/SpaceCadet/" + p.replace(/^Program%20Files\/SpaceCadet\//, "");
+      },
+    };
+    var s = win.document.createElement("script");
+    s.src = "/aryan/games/SpaceCadet/SpaceCadetPinball.js";
+    s.onload = function () { report("SPACECADET: glue script loaded"); };
+    s.onerror = function () { report("SPACECADET: GLUE SCRIPT ERROR"); };
+    win.document.head.appendChild(s);
+  });
+  setTimeout(function () { report("SPACECADET: 20s timeout, no postRun"); }, 20000);
+
+  // ---- QUAKE 3 ----
+  makeFrame("q3", "/aryan/games/Quake3/", true, function (win) {
+    win.ioq3 = win.ioq3 || {};
+    var s = win.document.createElement("script");
+    s.src = "/aryan/games/Quake3/Quake3Game.js";
+    s.onload = function () {
+      var ioq3 = win.ioq3;
+      report("QUAKE3: glue loaded, ioq3 = " + (ioq3 ? "yes" : "MISSING"));
+      if (!ioq3) return;
+      ioq3.viewport = win.document.body;
+      ioq3.elementPointerLock = true;
+      try {
+        ioq3.callMain([]);
+        report("QUAKE3: callMain returned (async boot)");
+      } catch (e) {
+        report("QUAKE3: callMain THREW " + (e && e.stack || e));
+      }
+      var attempts = 0;
+      (function poll() {
+        if (ioq3.canvas) {
+          report("QUAKE3: canvas exists -> BOOTED");
+        } else if (attempts++ < 40) {
+          setTimeout(poll, 500);
+        } else {
+          report("QUAKE3: 20s timeout, no canvas");
+        }
+      })();
+    };
+    s.onerror = function () { report("QUAKE3: GLUE SCRIPT ERROR"); };
+    win.document.head.appendChild(s);
+  });
+  setTimeout(function () { report("QUAKE3: 25s timeout"); }, 25000);
+</script>
+</body>
+</html>

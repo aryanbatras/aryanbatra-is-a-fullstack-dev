@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Moon, X } from "lucide-react";
+import Glyph from "@/components/desktop/Glyph";
 import WidgetStack from "@/components/desktop/WidgetStack";
 import useLiveWeather, { WEATHER_DESC } from "@/hooks/useLiveWeather";
 import type { WidgetStyle } from "@/constants/desktop";
@@ -150,7 +151,9 @@ export default function NotificationCenter({
             )}
             {notifications.map((n) => (
               <div key={n.id} className={styles.ncNotif}>
-                <span className={styles.ncNotifIcon}>{n.icon}</span>
+                <span className={styles.ncNotifIcon}>
+                  <Glyph id={n.icon} size={16} />
+                </span>
                 <div className={styles.ncNotifText}>
                   <strong>{n.title}</strong>
                   <p>{n.body}</p>
