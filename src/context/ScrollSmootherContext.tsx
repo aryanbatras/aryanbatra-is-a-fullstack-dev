@@ -115,9 +115,12 @@ export function ScrollSmootherProvider({ children }: { children: ReactNode }) {
       // lag-smoothing would otherwise make subsequent scroll frames feel slow.
       gsap.ticker.lagSmoothing(0);
 
+      // effects is left off: nothing uses data-speed/lag, and every tick it
+      // scans would be wasted work. normalizeScroll stays ON so wheel input
+      // keeps flowing even over the booted fullscreen desktop overlay.
       smoother = ScrollSmoother.create({
         smooth: 0.85, // seconds to catch up to the native scroll position
-        effects: true, // honour data-speed / data-lag attributes (parallax)
+        effects: false,
         normalizeScroll: true,
         smoothTouch: 0.1,
       });

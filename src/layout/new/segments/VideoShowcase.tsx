@@ -29,9 +29,9 @@ interface VideoShowcaseProps {
 /**
  * A pinned, scroll-scrubbed film section. ScrollSmoother lerps the native
  * scroll and this ScrollTrigger pins the section for `pinViewports` viewport
- * heights while `scrub` eases the film position toward the scroll — the
- * ultra-slow cinematic glide. Progress maps 0 → 100% of this section's
- * all-intra film, so scrubbing is frame-accurate.
+ * heights while `scrub` eases the film position toward the scroll — a smooth
+ * cinematic glide that still tracks the scrollbar tightly. Progress maps
+ * 0 → 100% of this section's all-intra film, so scrubbing is frame-accurate.
  *
  * Overlay blocks (children with data-chapter) animate on the SAME scrubbed
  * timeline, so they stay in lockstep with the frame under them. Today there
@@ -51,7 +51,7 @@ export default function VideoShowcase({
   durations,
   totalDuration,
   pinViewports = 20,
-  scrub = 3.8,
+  scrub = 1.5,
   chapter0FadeOut = 0.55,
   showFullscreen = false,
   onComplete,

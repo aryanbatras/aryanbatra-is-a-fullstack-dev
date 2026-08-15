@@ -19,8 +19,16 @@
 #   to any timestamp then decodes exactly one frame — instant, frame-accurate,
 #   no buffering, no flicker.
 #
+# Why 1440x810 (not 1080p)?
+#   Every scrub seek decodes one full frame, and decode time scales with
+#   pixels. 1080p all-intra costs ~29ms per frame in software decode (~70% of
+#   a 60fps frame budget at 24 seeks/s); 1440x810 halves that to ~13ms. The
+#   film is displayed fullscreen and zooms to 2.4x at the desktop hand-off, so
+#   this is the smallest resolution that still reads sharp on a Retina
+#   display. Smaller = smoother; tune RES to taste.
+#
 # Output:
-#   public/aryan/showreel_a.mp4       (32s,    1080p, all-intra, no audio)
+#   public/aryan/showreel_a.mp4       (32s,    1440x810, all-intra, no audio)
 #   public/aryan/poster_a.jpg         (first frame of the film)
 #   public/aryan/poster_003.jpg       (first frame of chapter 3)
 #   public/aryan/poster_004.jpg       (first frame of chapter 4)
@@ -41,6 +49,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FPS=24
+RES="1440:810"
 FILMS=(
   "$ROOT/public/aryan/processed_video_001.mp4"
   "$ROOT/public/aryan/processed_video_002.mp4"
@@ -48,14 +57,14 @@ FILMS=(
   "$ROOT/public/aryan/new_video_004.mp4"
 )
 
-echo "==> Film: 001 + 002 + 003 + 004 (continued sequence, all-intra, ${FPS}fps)..."
+echo "==> Film: 001 + 002 + 003 + 004 (continued sequence, all-intra, ${FPS}fps, ${RES})..."
 
 # Build the concat filter from the films — every chapter normalized to
-# ${FPS}fps and 1920x1080 before the concat so the chain is seamless.
+# ${FPS}fps and ${RES} before the concat so the chain is seamless.
 FILTERS=()
 MAPS=""
 for i in "${!FILMS[@]}"; do
-  FILTERS+=("[${i}:v]fps=${FPS},scale=1920:1080,setsar=1[v${i}]")
+  FILTERS+=("[${i}:v]fps=${FPS},scale=${RES},setsar=1[v${i}]")
 done
 CHAIN=""
 for i in "${!FILMS[@]}"; do
