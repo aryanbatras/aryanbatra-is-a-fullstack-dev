@@ -137,7 +137,7 @@ export default function NotificationCenter({
             </div>
           </div>
 
-          <div className={styles.ncCard}>
+          <div className={`${styles.ncCard} ${styles.ncCardList}`}>
             <div className={styles.ncCardTitle}>
               <strong>Notifications</strong>
               {notifications.length > 0 && (

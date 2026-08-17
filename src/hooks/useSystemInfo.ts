@@ -129,6 +129,27 @@ export default function useSystemInfo(): SystemInfo {
       if (!cancelled) setInfo((prev) => ({ ...prev, ...p }));
     };
 
+    // macOS always shows a battery in the menu bar, but Firefox / Safari /
+    // Linux expose no Battery API. Instead of an honest dash, simulate one
+    // that slowly drains over the session (a demo laptop feel).
+    const sessionStart = performance.now();
+    const simulatedBattery = (): BatteryInfo => {
+      const mins = (performance.now() - sessionStart) / 60000;
+      const level = Math.max(0.12, 1 - mins * 0.004);
+      return {
+        level,
+        charging: false,
+        chargingTime: Infinity,
+        dischargingTime: Math.round(level * 60 * 60),
+      };
+    };
+    const startSimulatedBattery = (): (() => void) => {
+      const apply = () => patch({ battery: simulatedBattery() });
+      apply();
+      const id = window.setInterval(apply, 30_000);
+      return () => window.clearInterval(id);
+    };
+
     // Synchronous values.
     patch({
       ready: true,
@@ -221,7 +242,13 @@ export default function useSystemInfo(): SystemInfo {
             b.removeEventListener("chargingchange", onCharge);
           });
         })
-        .catch(() => patch({ battery: null }));
+        .catch(() => {
+          // Battery API exists but failed — fall back to the simulation.
+          cleanups.push(startSimulatedBattery());
+        });
+    } else {
+      // No Battery API at all — simulate so the menu bar still shows a %.
+      cleanups.push(startSimulatedBattery());
     }
 
     return () => {

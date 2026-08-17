@@ -1,8 +1,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { DESKTOP_APPS, type MinimizeEffect } from "@/constants/desktop";
+import type { MinimizeEffect } from "@/constants/desktop";
 import type { DesktopWindow, TilePlacement } from "@/hooks/useWindowManager";
-import AppIcon from "@/components/desktop/AppIcon";
 import styles from "@/styles/components/desktop/Window.module.css";
 
 interface WindowProps {
@@ -150,6 +149,7 @@ export default function Window({
       onPointerDown={() => onFocus(win.id)}
       onContextMenu={(e) => e.stopPropagation()}
       role="dialog"
+      data-window-app={win.appId}
       aria-label={win.title}
     >
       <div
@@ -188,7 +188,6 @@ export default function Window({
             <span>+</span>
           </button>
         </div>
-        <AppIcon app={DESKTOP_APPS.find((a) => a.id === win.appId)!} size={20} />
         <span className={styles.title}>{win.title}</span>
         <span className={styles.titleSpacer} />
       </div>

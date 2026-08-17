@@ -99,7 +99,7 @@ export function useWindowManager() {
   }, []);
 
   const openWindow = useCallback(
-    (appId: string, opts?: { title?: string; multi?: boolean }) => {
+    (appId: string, opts?: { title?: string; multi?: boolean; maximized?: boolean }) => {
       const existing = windows.find((w) => w.appId === appId);
       if (existing && !opts?.multi) {
         bringToFront(existing.id);
@@ -126,8 +126,9 @@ export function useWindowManager() {
       let y = narrow ? Math.max(46, (vh - h) / 2) : Math.max(24, 48 + count * 30);
       let fw = w;
       let fh = h;
-      let maximized = false;
-      if (saved && !narrow && saved.w >= minW && saved.h >= minH && saved.x < vw - 60 && saved.y < vh - 60) {
+      // Games (and similar full-window apps) open maximized on demand.
+      let maximized = opts?.maximized ?? false;
+      if (saved && !narrow && !opts?.maximized && saved.w >= minW && saved.h >= minH && saved.x < vw - 60 && saved.y < vh - 60) {
         x = Math.max(8, saved.x);
         y = Math.max(40, saved.y);
         fw = Math.min(saved.w, vw - 16);

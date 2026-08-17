@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import Glyph from "@/components/desktop/Glyph";
 import styles from "@/styles/components/desktop/apps.module.css";
 
-const HOME = "/legacy";
-
 /** Google's basic HTML mode — unlike the modern UI it sends no X-Frame-Options,
  *  so it actually embeds in an iframe (the daedalOS trick for running Google). */
 const GOOGLE_HOME = "https://www.google.com/webhp?igu=1";
 const GOOGLE_SEARCH = "https://www.google.com/search?igu=1&q=";
+
+/** Safari's home page — Google, like every fresh Mac. The portfolio (and
+ *  every other site) lives in the bookmarks bar and as .url files in Finder. */
+const HOME = GOOGLE_HOME;
 
 /** daedalOS proxy modes — re-serve pages so sites that block iframes work. */
 type ProxyMode = "direct" | "allorigins" | "wayback" | `oldnet_${number}`;
@@ -113,8 +115,8 @@ const IFRAME_SANDBOX =
   "allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts";
 
 const BOOKMARKS = [
-  { label: "Portfolio", url: HOME, icon: "globe" },
   { label: "Google", url: GOOGLE_HOME, icon: "globe" },
+  { label: "Portfolio", url: "/legacy", icon: "globe" },
   { label: "3D", url: "/3d", icon: "box" },
   { label: "Piano", url: "https://online-piano-two.vercel.app", icon: "piano" },
   { label: "Browser AI", url: "https://browser-ai-dun.vercel.app", icon: "bot" },
@@ -129,6 +131,10 @@ const BOOKMARKS = [
 interface WebsiteAppProps {
   /** Where this browser window starts (a .url file was double-clicked). */
   initialUrl?: string;
+  /** Close this browser window (Safari's tab ✕). */
+  onClose?: () => void;
+  /** Open a fresh browser window (Safari's ＋ tab button). */
+  onNewTab?: () => void;
 }
 
 /**
@@ -137,7 +143,7 @@ interface WebsiteAppProps {
  * AllOrigins / Wayback / Old Net from the network menu, back/forward buttons
  * drop down their full histories, and bookmarks + pages show real favicons.
  */
-export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
+export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteAppProps) {
   const start = initialUrl && initialUrl !== HOME ? initialUrl : HOME;
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [url, setUrl] = useState(start);
@@ -147,11 +153,12 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
   const [input, setInput] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [addrFocused, setAddrFocused] = useState(false);
-  const [blocked, setBlocked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [proxyMode, setProxyMode] = useState<ProxyMode>("direct");
   const [proxyOpen, setProxyOpen] = useState(false);
   const [historyMenu, setHistoryMenu] = useState<"back" | "fwd" | null>(null);
+  // Safari-style right-click menu for the page area.
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
   const loadTimer = useRef<number | null>(null);
   const proxyRef = useRef<ProxyMode>("direct");
   proxyRef.current = proxyMode;
@@ -183,7 +190,6 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
       return;
     }
     clearLoadWatch();
-    setBlocked(false);
     setLoading(true);
     const next = intoHistory ? history.slice(0, hIndex + 1) : history;
     if (intoHistory) {
@@ -195,14 +201,10 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
     setInput("");
     const proxied = await proxify(u, proxyRef.current);
     if (next[next.length - 1] === u) setFrameSrc(proxied);
-    // Watch for refusal: no load event after a grace period → assume blocked.
-    loadTimer.current = window.setTimeout(() => {
-      const f = frameRef.current;
-      if (f && f.contentDocument === null && !f.src.startsWith(location.origin)) {
-        setBlocked(true);
-      }
-      setLoading(false);
-    }, 8000);
+    // Safety: if a page never fires a load event, stop the spinner (the
+    // "refused to embed" banner from before was a false positive — for
+    // cross-origin iframes contentDocument is ALWAYS null).
+    loadTimer.current = window.setTimeout(() => setLoading(false), 30000);
   };
 
   const go = (step: number) => {
@@ -213,18 +215,11 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
     const target = history[i];
     setUrl(target);
     setInput("");
-    setBlocked(false);
     setLoading(true);
     proxify(target, proxyRef.current).then((proxied) => {
       if (history[i] === target) setFrameSrc(proxied);
     });
-    loadTimer.current = window.setTimeout(() => {
-      const f = frameRef.current;
-      if (f && f.contentDocument === null && !f.src.startsWith(location.origin)) {
-        setBlocked(true);
-      }
-      setLoading(false);
-    }, 8000);
+    loadTimer.current = window.setTimeout(() => setLoading(false), 30000);
   };
 
   /** Jump to an absolute history index (from the dropdown menus). */
@@ -236,10 +231,54 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
 
   const onLoaded = () => {
     clearLoadWatch();
-    setBlocked(false);
     setLoading(false);
     setCanGoBack(hIndex > 0);
     setCanGoFwd(hIndex < history.length - 1);
+    attachBridge();
+  };
+
+  // Same-origin pages (/legacy, /3d) don't bubble events to the parent
+  // document — inject a listener into the iframe and route its right-clicks
+  // to the Safari menu. Cross-origin pages keep their own page menu.
+  const onFrameContext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCtxMenu({
+      x: Math.min(e.clientX, window.innerWidth - 240),
+      y: Math.min(e.clientY, window.innerHeight - 220),
+    });
+  };
+
+  // Same-origin pages need a listener INSIDE the iframe (events don't cross
+  // the frame boundary). Attach it on every load — the previous document is
+  // replaced by the navigation, so its listener disappears on its own.
+  const bridgeRef = useRef<((e: Event) => void) | null>(null);
+  const attachBridge = () => {
+    const iframe = frameRef.current;
+    if (!iframe) return;
+    let doc: Document | null = null;
+    try {
+      doc = iframe.contentDocument;
+    } catch {
+      // Cross-origin — can't touch the page; its own menu shows.
+    }
+    if (!doc) return;
+    if (bridgeRef.current) {
+      try {
+        doc.removeEventListener("contextmenu", bridgeRef.current);
+      } catch {
+        // Old doc gone — fine.
+      }
+    }
+    const onCtx = (e: Event) => {
+      e.preventDefault();
+      const m = e as MouseEvent;
+      setCtxMenu({
+        x: Math.min(m.clientX, window.innerWidth - 240),
+        y: Math.min(m.clientY, window.innerHeight - 220),
+      });
+    };
+    bridgeRef.current = onCtx;
+    doc.addEventListener("contextmenu", onCtx);
   };
 
   const switchProxy = (m: ProxyMode) => {
@@ -248,7 +287,6 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
     if (m !== "direct") {
       // Re-serve the current page through the new proxy immediately.
       clearLoadWatch();
-      setBlocked(false);
       setLoading(true);
       proxify(url, m).then(setFrameSrc);
     }
@@ -263,12 +301,51 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
 
   const isLocal = url.startsWith("/");
 
+  // Safari tab title — a friendly name for the open page.
+  const pageTitle = isLocal
+    ? "Portfolio"
+    : (() => {
+        try {
+          const host = new URL(url).hostname.replace(/^www\./, "");
+          const known = BOOKMARKS.find((b) => b.url === url)?.label;
+          return known ?? host;
+        } catch {
+          return url;
+        }
+      })();
+
   // Entries for the back / forward dropdowns (most recent first for back).
   const backEntries = history.slice(0, hIndex).reverse();
   const fwdEntries = history.slice(hIndex + 1);
 
   return (
     <div className={styles.website}>
+      {/* Safari tab strip — the open page as a tab, with favicon + title. */}
+      <div className={styles.safariTabs}>
+        <div className={styles.safariTab}>
+          {!isLocal && <Favicon url={url} fallback="globe" size={12} />}
+          {isLocal && <Glyph id="globe" size={12} />}
+          <span className={styles.safariTabTitle}>{pageTitle}</span>
+          <button
+            type="button"
+            className={styles.safariTabClose}
+            onClick={onClose}
+            aria-label="Close tab"
+            title="Close tab"
+          >
+            ×
+          </button>
+        </div>
+        <button
+          type="button"
+          className={styles.safariTabNew}
+          onClick={onNewTab}
+          aria-label="New tab"
+          title="New tab"
+        >
+          +
+        </button>
+      </div>
       <div className={styles.websiteToolbar}>
         <div className={styles.websiteNavBtns}>
           <div className={styles.websiteProxyWrap}>
@@ -503,48 +580,7 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
         ))}
       </div>
 
-      <div className={styles.websiteFrameWrap}>
-        {blocked && (
-          <div className={styles.websiteBlocked}>
-            <strong>This site refused to be embedded</strong>
-            <p>
-              {url} blocks being shown inside another page. Re-serve it through
-              a proxy, open it in a new tab, or head home.
-            </p>
-            <div className={styles.websiteBlockedBtns}>
-              <button
-                type="button"
-                className={styles.gameBtn}
-                onClick={() => switchProxy("allorigins")}
-              >
-                Open via AllOrigins
-              </button>
-              <button
-                type="button"
-                className={styles.gameBtn}
-                onClick={() => switchProxy("wayback")}
-              >
-                Open via Wayback
-              </button>
-              <a
-                className={styles.gameBtn}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                style={{ textDecoration: "none" }}
-              >
-                Open in new tab ↗
-              </a>
-              <button
-                type="button"
-                className={styles.gameBtn}
-                onClick={() => load(HOME)}
-              >
-                Go to Portfolio
-              </button>
-            </div>
-          </div>
-        )}
+      <div className={styles.websiteFrameWrap} onContextMenu={onFrameContext}>
         <iframe
           key={`${frameSrc}|${reloadKey}`}
           ref={frameRef}
@@ -553,8 +589,100 @@ export default function WebsiteApp({ initialUrl }: WebsiteAppProps) {
           className={styles.websiteFrame}
           onLoad={onLoaded}
           referrerPolicy="no-referrer"
+          // @ts-expect-error credentialless is a Chromium-only iframe attr
+          credentialless="credentialless"
           {...(isLocal ? {} : { sandbox: IFRAME_SANDBOX })}
         />
+
+        {/* Safari-style right-click menu (Back/Forward/Reload/Open in new tab). */}
+        {ctxMenu && (
+          <>
+            <div
+              className={styles.websiteCtxBackdrop}
+              onClick={() => setCtxMenu(null)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setCtxMenu(null);
+              }}
+            />
+            <div
+              className={styles.websiteCtxMenu}
+              style={{ left: ctxMenu.x, top: ctxMenu.y }}
+              role="menu"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                disabled={!canGoBack}
+                onClick={() => {
+                  setCtxMenu(null);
+                  go(-1);
+                }}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                disabled={!canGoFwd}
+                onClick={() => {
+                  setCtxMenu(null);
+                  go(1);
+                }}
+              >
+                Forward
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                onClick={() => {
+                  setCtxMenu(null);
+                  setReloadKey((k) => k + 1);
+                  load(url, false);
+                }}
+              >
+                Reload Page
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                onClick={() => {
+                  setCtxMenu(null);
+                  load(HOME);
+                }}
+              >
+                Home
+              </button>
+              <div className={styles.websiteCtxSep} />
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                onClick={() => {
+                  setCtxMenu(null);
+                  onNewTab?.();
+                }}
+              >
+                Open in New Window
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.websiteCtxItem}
+                onClick={() => {
+                  void navigator.clipboard?.writeText(url);
+                  setCtxMenu(null);
+                }}
+              >
+                Copy Link
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

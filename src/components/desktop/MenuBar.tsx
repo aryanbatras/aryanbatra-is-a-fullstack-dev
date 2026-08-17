@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   AppWindow,
-  BatteryFull,
   Layers,
   LayoutGrid,
+  Maximize,
+  Minimize,
   Moon,
   Music,
   Pause,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import useSystemInfo from "@/hooks/useSystemInfo";
 import { sounds, setSoundEnabled } from "@/utils/sounds";
+import { getNtpAdjustedTime } from "@/utils/ntp";
 import * as music from "@/utils/music";
 import {
   CONTROL_TILE_IDS,
@@ -46,6 +48,7 @@ export interface MenuBarActions {
   onLock: () => void;
   onRestart: () => void;
   onShutDown: () => void;
+  onLogOut: () => void;
   onSleep: () => void;
   onSpotlight: () => void;
   onRun: () => void;
@@ -71,6 +74,8 @@ interface MenuBarProps {
   /** Do Not Disturb — the Tahoe Control Center Focus tile mirrors it. */
   dndOn?: boolean;
   onToggleDnd?: () => void;
+  /** Desktop & Dock: automatically hide the bar — hover the top edge to reveal. */
+  autoHide?: boolean;
 }
 
 const FONT =
@@ -170,6 +175,42 @@ function CCTile({
   );
 }
 
+interface BatteryGlyphProps {
+  level: number | null; // 0..1 from the Battery API
+  charging: boolean;
+  size?: number;
+}
+
+/** macOS menu-bar battery — outline + terminal nub, the fill tracks the real
+    charge level (green + bolt while charging, red when critically low). */
+function BatteryGlyph({ level, charging, size = 16 }: BatteryGlyphProps) {
+  const pct = level == null ? 1 : Math.max(0, Math.min(1, level));
+  const low = level != null && pct < 0.2 && !charging;
+  const fillColor = charging ? "#30d158" : low ? "#ff453a" : "#f5f5f7";
+  const innerW = 18.5;
+  // A hairline sliver at 0% so the battery never reads as "missing".
+  const fillW = Math.max(0.8, innerW * pct);
+  return (
+    <svg
+      width={size}
+      height={size * (12 / 26)}
+      viewBox="0 0 26 12"
+      className={styles.batteryIcon}
+      aria-hidden
+    >
+      {/* body + terminal nub */}
+      <rect x="0.75" y="1.25" width="22" height="9.5" rx="3" fill="none" stroke="#f5f5f7" strokeOpacity="0.92" />
+      <rect x="23.6" y="3.9" width="2" height="4.2" rx="1" fill="#f5f5f7" fillOpacity="0.92" />
+      {/* charge fill */}
+      <rect x="2.5" y="3.3" width={fillW} height="5.4" rx="1.7" fill={fillColor} />
+      {/* bolt while charging */}
+      {charging && (
+        <path d="M14.6 0.9 L8.6 6.5 h2.6 L11.8 11.1 L17.8 5.5 h-2.6 z" fill="#fff" />
+      )}
+    </svg>
+  );
+}
+
 export default function MenuBar({
   focusedAppTitle,
   system,
@@ -180,8 +221,11 @@ export default function MenuBar({
   actions,
   dndOn = false,
   onToggleDnd,
+  autoHide = false,
 }: MenuBarProps) {
+  const menuBarStyle = system.menuBarStyle ?? "transparent";
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [mbHidden, setMbHidden] = useState(false);
   const [controlCenter, setControlCenter] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [volOpen, setVolOpen] = useState(false);
@@ -192,31 +236,101 @@ export default function MenuBar({
   const [editing, setEditing] = useState(false);
   const dragId = useRef<string | null>(null);
   const [time, setTime] = useState("");
+  const [fsActive, setFsActive] = useState(false);
   const lastTick = useRef(0);
 
   // Keep the Now Playing chip + popover in sync with the music engine.
   useEffect(() => music.subscribe(() => setNp(music.getState())), []);
 
-  const { darkMode, soundOn, volume, brightness } = system;
+  /* ----- Auto-hide menu bar (macOS): the bar slides up off-screen and
+     reappears when the cursor enters the top of the screen. It reveals once
+     the cursor reaches the top ~10% of the viewport — deliberately BEFORE
+     the very top edge, because the browser's own fullscreen tab bar lives
+     there and would steal the reveal. Stable: show/hide thresholds have a
+     hysteresis margin, and it never hides while a menu or panel is open,
+     or on touch devices (no hover). ----- */
+  useEffect(() => {
+    if (!autoHide) {
+      setMbHidden(false);
+      return;
+    }
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    const anyOpen =
+      openMenu !== null || controlCenter || volOpen || wifiMenu || battMenu || npOpen;
+    const zone = () => window.innerHeight * 0.1;
+    const onMove = (e: PointerEvent) => {
+      if (anyOpen) {
+        setMbHidden(false);
+      } else if (e.clientY <= zone()) {
+        setMbHidden(false);
+      } else if (e.clientY > zone() + 16) {
+        setMbHidden(true);
+      }
+      // Between the two thresholds: keep the current state — no flicker.
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [autoHide, openMenu, controlCenter, volOpen, wifiMenu, battMenu, npOpen]);
+
+  const { darkMode, soundOn, volume, brightness, clockSource } = system;
   // REAL system state: battery, network and online status come from the
   // visitor's actual device/browser, not a scripted simulation.
   const real = useSystemInfo();
   const batteryPct =
     real.battery != null ? Math.round(real.battery.level * 100) : null;
 
+  // daedalOS clock: NTP server time (Settings → Clock) with a date tooltip.
+  const clockSourceRef = useRef(clockSource);
+  clockSourceRef.current = clockSource;
+  const [clockTip, setClockTip] = useState("");
+
   useEffect(() => {
     const tick = () => {
-      const now = new Date();
+      const now =
+        clockSourceRef.current === "ntp" ? getNtpAdjustedTime() : new Date();
+      // macOS Tahoe menu-bar clock with date shown (Settings → Control
+      // Center → Clock → Show date): weekday, month, day, year, then the
+      // time — “Sat Aug 16, 2026  9:41 PM”. The tooltip still carries the
+      // long date.
       setTime(
-        now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) +
-          "  " +
-          now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }),
+        `${now.toLocaleDateString(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })}  ${now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`,
+      );
+      setClockTip(
+        now.toLocaleDateString(undefined, {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
       );
     };
     tick();
     const id = window.setInterval(tick, 30_000);
     return () => window.clearInterval(id);
   }, []);
+
+  // Track the browser's fullscreen state so the menu-bar toggle reflects it.
+  useEffect(() => {
+    const onFs = () => setFsActive(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  /** Enter or exit browser full screen (menu-bar toggle). */
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen?.();
+    } else {
+      document.documentElement.requestFullscreen?.().catch(() => {
+        // Denied — this click is a user gesture, so it normally succeeds.
+      });
+    }
+  };
 
   useEffect(() => {
     if (!openMenu && !controlCenter && !volOpen && !wifiMenu && !battMenu) return;
@@ -239,6 +353,12 @@ export default function MenuBar({
     setControlCenter(false);
     setVolOpen(false);
     setOpenMenu(openMenu === label ? null : label);
+  };
+
+  /* macOS menus are dynamic: once one is open, hovering any other menu
+     title switches straight to it (no extra click needed). */
+  const hoverMenu = (label: string) => {
+    if (openMenu && openMenu !== label) setOpenMenu(label);
   };
 
   const toggleSound = () => {
@@ -443,22 +563,29 @@ export default function MenuBar({
     { label: "Force Quit…", action: () => actions.onOpenApp("terminal"), shortcut: "⌥⌘⎋" },
     { label: "", separator: true },
     { label: "Sleep", action: actions.onSleep },
-    { label: "Restart…", action: actions.onRestart },
-    { label: "Shut Down…", action: actions.onShutDown },
+    { label: "Restart…", action: actions.onRestart, shortcut: "⌃⌘⏻" },
+    { label: "Shut Down…", action: actions.onShutDown, shortcut: "⌃⌥⌘⏻" },
     { label: "", separator: true },
     { label: "Lock Screen", action: actions.onLock, shortcut: "⌃⌘Q" },
+    { label: "Log Out…", action: actions.onLogOut, shortcut: "⌘⇧Q" },
     { label: "", separator: true },
     { label: "Quit Aryan OS", action: actions.onQuit, shortcut: "⌘Q" },
   ];
 
   return (
-    <div className={styles.menuBar} style={{ fontFamily: FONT }}>
+    <div
+      className={`${styles.menuBar} ${
+        autoHide && mbHidden ? styles.menuBarHidden : ""
+      } ${menuBarStyle === "semi" ? styles.menuBarSemi : ""}`}
+      style={{ fontFamily: FONT }}
+    >
       <div className={styles.menuLeft}>
         <button
           type="button"
           className={styles.appleMenu}
           style={{ fontFamily: FONT }}
           onClick={(e) => toggleMenu("__apple", e)}
+          onMouseEnter={() => hoverMenu("__apple")}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -473,6 +600,7 @@ export default function MenuBar({
               type="button"
               className={`${styles.menuTitle} ${openMenu === m.label ? styles.menuTitleOpen : ""}`}
               onClick={(e) => toggleMenu(m.label, e)}
+              onMouseEnter={() => hoverMenu(m.label)}
             >
               {m.label}
             </button>
@@ -740,7 +868,10 @@ export default function MenuBar({
           }}
           aria-label="Battery menu"
         >
-          <BatteryFull size={16} strokeWidth={1.6} className={styles.batteryIcon} />
+          <BatteryGlyph
+            level={real.battery?.level ?? null}
+            charging={real.battery?.charging ?? false}
+          />
           {system.showBatteryPct && batteryPct != null && (
             <span className={styles.batteryPct}>{batteryPct}%</span>
           )}
@@ -748,7 +879,11 @@ export default function MenuBar({
         {battMenu && (
           <div className={styles.batteryMenu} onClick={(e) => e.stopPropagation()}>
             <div className={styles.battHeader}>
-              <BatteryFull size={18} strokeWidth={1.6} />
+              <BatteryGlyph
+                level={real.battery?.level ?? null}
+                charging={real.battery?.charging ?? false}
+                size={20}
+              />
               <strong>{batteryPct != null ? `${batteryPct}%` : "—"}</strong>
               <span className={styles.battCharge}>
                 {real.battery?.charging ? "Charging" : "Battery"}
@@ -781,6 +916,19 @@ export default function MenuBar({
             </button>
           </div>
         )}
+        <button
+          type="button"
+          className={styles.statusBtn}
+          onClick={toggleFullscreen}
+          title={fsActive ? "Exit Full Screen" : "Enter Full Screen"}
+          aria-label={fsActive ? "Exit Full Screen" : "Enter Full Screen"}
+        >
+          {fsActive ? (
+            <Minimize size={15} strokeWidth={1.8} />
+          ) : (
+            <Maximize size={15} strokeWidth={1.8} />
+          )}
+        </button>
         <button
           type="button"
           className={styles.statusBtn}
@@ -1049,6 +1197,7 @@ export default function MenuBar({
           setVolOpen(false);
           actions.onNotifications();
         }}
+        title={`${clockTip || time}${clockSource === "ntp" ? " · NTP" : ""}`}
         aria-label="Notification Center"
       >
         {time}

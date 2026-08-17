@@ -39,10 +39,11 @@ const SPACE_CADET_CONFIG: EmscriptenGameConfig = {
 
 interface SpaceCadetGameProps {
   onExit: () => void;
+  fullWindow?: boolean;
 }
 
 /** Space Cadet 3D Pinball — flippers, bumpers, gravity. */
-export default function SpaceCadetGame({ onExit }: SpaceCadetGameProps) {
+export default function SpaceCadetGame({ onExit, fullWindow }: SpaceCadetGameProps) {
   return (
     <EmscriptenGame
       {...SPACE_CADET_CONFIG}
@@ -52,6 +53,7 @@ export default function SpaceCadetGame({ onExit }: SpaceCadetGameProps) {
       keys="Z / / · X / . — left / right flippers · ↑ launches the ball"
       hint="The legendary Windows 95 table, ported from the daedalOS machine."
       onExit={onExit}
+      fullWindow={fullWindow}
     />
   );
 }

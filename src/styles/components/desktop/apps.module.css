@@ -831,7 +831,8 @@
 .notesHeader {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
+  gap: 8px;
   padding: 4px 10px 12px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.55);
@@ -839,6 +840,21 @@
 
 .notesHeader strong {
   color: #f5f5f7;
+}
+
+.notesHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.notesHeaderActions .notesNew {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 8px;
 }
 
 .noteItem {
@@ -1169,7 +1185,11 @@
   flex: 1;
   display: flex;
   min-height: 0;
-  background: #000;
+  /* macOS Tahoe Terminal refresh: Liquid Glass translucent dark, not solid
+     black — the wallpaper bleeds through a blur + saturation. */
+  background: rgba(12, 13, 16, 0.55);
+  backdrop-filter: blur(44px) saturate(190%);
+  -webkit-backdrop-filter: blur(44px) saturate(190%);
   color: #e6e6e8;
   font-family: "SF Mono", Menlo, Consolas, monospace;
   font-size: 13px;
@@ -1379,7 +1399,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   max-width: 320px;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
@@ -1446,17 +1466,23 @@
   min-height: 0;
   position: relative;
   color: #f5f5f7;
+  outline: none;
 }
 
 .finderToolbar {
-  height: 42px;
+  height: 44px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 0 14px;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.04);
+  /* Spec — Scroll Edge Effect (Hard): translucent glass strip with its own
+     blur and a 0.67px hairline, so content scrolls beneath it. */
+  border-bottom: 0.67px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .finderNav {
@@ -1508,6 +1534,41 @@
   gap: 12px;
   align-items: center;
   color: rgba(245, 245, 247, 0.65);
+}
+
+/* Toolbar action buttons (New Folder / New Text Document) — a Finder
+   button that reads like a real toolbar control. */
+.finderToolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: rgba(245, 245, 247, 0.8);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.finderToolbarBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Move to Trash — dimmed + non-interactive until something deletable is
+   selected, like Finder's toolbar trash. */
+.finderTrashBtn:disabled {
+  opacity: 0.38;
+  color: rgba(245, 245, 247, 0.8);
+  background: none;
+}
+
+.finderTrashBtn:not(:disabled):hover {
+  background: rgba(255, 69, 58, 0.16);
+  color: #ff6961;
 }
 
 .finderSortWrap {
@@ -1617,7 +1678,15 @@
   width: 180px;
   flex-shrink: 0;
   border-right: 0.5px solid rgba(255, 255, 255, 0.09);
-  background: rgba(0, 0, 0, 0.16);
+  /* Tahoe sidebar: a luminous glass pane, lighter than the content area,
+     with a vertical sheen like the spec's Luminosity layer. */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.025) 60%,
+    rgba(255, 255, 255, 0.05)
+  );
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
   padding: 10px 8px;
   overflow: auto;
 }
@@ -1631,7 +1700,9 @@
 }
 
 .finderSidebarItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: left;
   background: none;
@@ -1639,8 +1710,23 @@
   color: rgba(245, 245, 247, 0.85);
   font-size: 13px;
   font-family: inherit;
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 7px;
+}
+
+.finderSidebarIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.finderSidebarItemActive .finderSidebarIcon {
+  color: #fff;
 }
 
 .finderSidebarItem:hover {
@@ -1648,7 +1734,7 @@
 }
 
 .finderSidebarItemActive {
-  background: rgba(10, 132, 255, 0.4);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.4);
   color: #fff;
 }
 
@@ -1660,6 +1746,20 @@
   align-content: start;
   padding: 18px;
   overflow: auto;
+}
+
+/* Details (list) view — the file pane becomes a flex column so the list
+   fills the whole width. (Inside the icon grid it would be crushed into
+   one narrow column — that's the bug this fixes.) */
+.finderFilesList {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.finderFilesList .finderList {
+  flex: 1;
+  min-height: 0;
 }
 
 .finderFile {
@@ -1716,9 +1816,9 @@
 }
 
 .finderDropTarget {
-  outline: 2px dashed #0a84ff !important;
+  outline: 2px dashed var(--accent, #0a84ff) !important;
   outline-offset: -2px;
-  background: rgba(10, 132, 255, 0.18) !important;
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.18) !important;
 }
 
 /* Read-only banner when browsing inside a mounted zip/iso. */
@@ -1765,7 +1865,7 @@
 }
 
 .finderArchiveBtn:hover {
-  background: rgba(10, 132, 255, 0.5);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.5);
 }
 
 .finderClipToast {
@@ -1803,6 +1903,24 @@
   text-align: center;
 }
 
+/* Status bar — “X items”, selection count (View → Show Status Bar). */
+.finderStatusbar {
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.09);
+  font-size: 11.5px;
+  color: rgba(245, 245, 247, 0.55);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.finderStatusItem {
+  white-space: nowrap;
+}
+
 .finderPathbar {
   height: 26px;
   flex-shrink: 0;
@@ -1828,7 +1946,7 @@
   margin: 0 auto;
   padding: 4px 10px;
   border-radius: 8px;
-  border: 0.5px solid rgba(10, 132, 255, 0.7);
+  border: 0.5px solid rgba(var(--accent-rgb, 10, 132, 255), 0.7);
   background: rgba(255, 255, 255, 0.1);
   color: #f5f5f7;
   font-size: 12.5px;
@@ -1888,12 +2006,14 @@
   grid-template-columns: minmax(180px, 1fr) 0.7fr 0.5fr 0.9fr;
   gap: 8px;
   padding: 6px 10px 6px 14px;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
-  background: rgba(20, 20, 24, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* macOS Finder list header — a hair of translucent glass that matches the
+     window chrome, NOT a black strip. The wallpaper bleeds through subtly. */
+  background: rgba(60, 62, 74, 0.28);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
   z-index: 2;
 }
 
@@ -1922,7 +2042,7 @@
 }
 
 .finderListHeadActive {
-  color: #0a84ff;
+  color: var(--accent, #0a84ff);
 }
 
 .finderListHeadDir {
@@ -1994,13 +2114,13 @@
 .finderCtxBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 90;
+  z-index: 90000;
   background: transparent;
 }
 
 .finderCtx {
   position: fixed;
-  z-index: 100;
+  z-index: 90010;
   min-width: 200px;
   padding: 5px;
   border-radius: 12px;
@@ -2008,7 +2128,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.26);
 }
 
 .finderCtxItem {
@@ -2028,12 +2148,12 @@
 }
 
 .finderCtxItem:hover {
-  background: rgba(10, 132, 255, 0.6);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.6);
   color: #fff;
 }
 
 .finderCtxItemActive {
-  color: #0a84ff;
+  color: var(--accent, #0a84ff);
 }
 
 .finderCtxItemActive:hover {
@@ -2064,7 +2184,7 @@
   width: 108px;
   padding: 3px 6px;
   border-radius: 6px;
-  border: 1px solid #0a84ff;
+  border: 1px solid var(--accent, #0a84ff);
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
   font-size: 12px;
@@ -2147,9 +2267,16 @@
 }
 
 .settingsSidebar {
-  width: 192px;
+  width: 212px;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.16);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.025) 60%,
+    rgba(255, 255, 255, 0.05)
+  );
+  border-right: 0.5px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
   padding: 10px 8px;
   display: flex;
   flex-direction: column;
@@ -2157,19 +2284,67 @@
   overflow-y: auto;
 }
 
-.settingsSidebarTitle {
+/* Tahoe System Settings sidebar: search field on top, then grouped
+   navigation — each section (Network / Notifications & Focus / Sound /
+   General) gets a small header above its icon rows, exactly like the real
+   Settings app in macOS Tahoe. */
+.settingsSearchWrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 2px 8px;
+  padding: 0 9px;
+  height: 27px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(245, 245, 247, 0.55);
+  flex-shrink: 0;
+}
+
+.settingsSearch {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: #f5f5f7;
   font-size: 12px;
-  font-weight: 700;
-  padding: 8px 10px 6px;
-  opacity: 0.7;
+  font-family: inherit;
+}
+
+.settingsSearch::placeholder {
+  color: rgba(245, 245, 247, 0.45);
+}
+
+.settingsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 6px;
+}
+
+.settingsGroupLabel {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px 3px;
+  opacity: 0.55;
+  letter-spacing: -0.01em;
+}
+
+.settingsNoResults {
+  font-size: 12px;
+  opacity: 0.55;
+  padding: 10px;
+  text-align: center;
 }
 
 .settingsItem {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px 10px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 7px;
   border: none;
   background: none;
   color: inherit;
@@ -2184,7 +2359,10 @@
 }
 
 .settingsItemActive {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .settingsContent {
@@ -2227,14 +2405,39 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* macOS Form Group — the spec's settings card: a subtle quaternary fill,
+   12px radius, and rows separated by 1px rgba(255,255,255,0.05) hairlines
+   at a 42px min-height. */
+.formGroup {
+  margin: 10px 0 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.formGroup .settingsRow {
+  min-height: 42px;
+  padding: 8px 2px;
+  border-bottom: none;
+  gap: 16px;
+}
+
+.formGroup .settingsRow + .settingsRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .settingsRowLabel {
   flex: 1;
   font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .settingsRowStatus {
-  font-size: 12px;
-  opacity: 0.55;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .settingsSectionGap {
@@ -2256,6 +2459,180 @@
   font-weight: 400;
   opacity: 0.55;
   margin-top: 2px;
+}
+
+/* Bordered button (macOS Form spec): 24px tall, 6px radius, translucent fill. */
+.settingsSmallBtn {
+  height: 24px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.settingsSmallBtn:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.settingsSmallBtn:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* macOS segmented control (spec's bordered control family). */
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.segmentedItem {
+  height: 22px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 6px;
+  cursor: default;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmentedItem:hover:not(:disabled) {
+  color: #fff;
+}
+
+.segmentedItemActive {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.segmentedItem:disabled {
+  opacity: 0.4;
+}
+
+/* Settings → Appearance → Color: the eight macOS Tahoe accent swatches. */
+.accentRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px;
+}
+
+.accentSwatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.accentSwatch:hover {
+  transform: scale(1.12);
+}
+
+.accentSwatchActive {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(255, 255, 255, 0.35);
+}
+
+/* macOS Checkbox (spec: 16px, 5.5px radius, blue tint when on). */
+.macCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: default;
+}
+
+.macCheckboxBox {
+  width: 16px;
+  height: 16px;
+  border-radius: 5.5px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.macCheckboxOn .macCheckboxBox {
+  background: #0091ff;
+  border-color: #0091ff;
+}
+
+/* macOS Radio Button (spec: 16px circle, blue tint, 4.8px white dot). */
+.macRadioGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.macRadio {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: default;
+}
+
+.macRadioOuter {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.macRadioOn .macRadioOuter {
+  background: #0091ff;
+  border-color: #0091ff;
+}
+
+.macRadioDot {
+  width: 4.8px;
+  height: 4.8px;
+  border-radius: 50%;
+  background: #fff;
 }
 
 /* Storage pane — macOS segmented bar chart + legend. */
@@ -2585,12 +2962,13 @@
 }
 
 /* Settings toggle (mirrors the Control Center switch) */
+/* macOS Switch (spec: 36×16 track, blue accent when on, 21×13 white knob). */
 .setToggle {
-  width: 38px;
-  height: 22px;
+  width: 36px;
+  height: 16px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(120, 120, 128, 0.32);
   position: relative;
   cursor: default;
   flex-shrink: 0;
@@ -2599,23 +2977,23 @@
 }
 
 .setToggleOn {
-  background: #30d158;
+  background: #0091ff;
 }
 
 .setThumb {
   position: absolute;
-  left: 2px;
-  top: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  left: 1.5px;
+  top: 1.5px;
+  width: 21px;
+  height: 13px;
+  border-radius: 999px;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
   transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .setThumbOn {
-  transform: translateX(16px);
+  transform: translateX(12px);
 }
 
 /* ------------------------------------------------------------------ */
@@ -2624,10 +3002,98 @@
 
 .website {
   flex: 1;
+  /* min-width: 0 lets the whole app shrink below the bookmarks bar's
+     intrinsic width — without it the Favorites row (all bookmarks laid out
+     flat) forces the browser to ~1053px minimum, clipping the page instead
+     of reflowing it when the window shrinks. */
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #1e1e20;
+  /* Safari chrome: transparent glass over the window, not a solid slab. */
+  background: transparent;
+}
+
+/* Safari tab strip (macOS Tahoe) — tabs are fully-rounded SUNKEN PILLS in
+   a glass slot above the page, not paper-folder tabs. The slot itself is
+   more translucent than the toolbar so the wallpaper reads through it. */
+.safariTabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  min-height: 34px;
+}
+
+.safariTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 220px;
+  height: 24px;
+  padding: 0 6px 0 10px;
+  /* Tahoe: fully rounded pill — the active tab reads as a sunken capsule. */
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: rgba(245, 245, 247, 0.95);
+  font-size: 12px;
+}
+
+.safariTabTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.safariTabClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: rgba(245, 245, 247, 0.6);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.safariTabClose:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.safariTabNew {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: rgba(245, 245, 247, 0.75);
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.safariTabNew:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .websiteToolbar {
@@ -2635,8 +3101,12 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: rgba(40, 40, 42, 0.92);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* Tahoe glass toolbar — the wallpaper bleeds through a blur + saturation. */
+  background: var(--glass-bg, rgba(30, 32, 42, 0.32));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -2676,16 +3146,18 @@
   gap: 6px;
   height: 28px;
   padding: 0 10px;
+  /* Safari smart field — a translucent pill that inverts to white on focus. */
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.14);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   cursor: text;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .websiteAddrFocused {
   background: #fff;
-  border-color: rgba(10, 132, 255, 0.5);
+  border-color: rgba(var(--accent-rgb, 10, 132, 255), 0.5);
 }
 
 .websiteAddrLock {
@@ -2739,6 +3211,56 @@
   border: none;
 }
 
+/* Safari-style right-click menu on the page area. */
+.websiteCtxBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+}
+
+.websiteCtxMenu {
+  position: absolute;
+  z-index: 41;
+  min-width: 190px;
+  padding: 5px;
+  border-radius: 10px;
+  background: var(--glass-bg, rgba(38, 40, 50, 0.62));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  animation: popIn 0.12s ease-out both;
+}
+
+.websiteCtxItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.websiteCtxItem:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.85);
+  color: #fff;
+}
+
+.websiteCtxItem:disabled {
+  opacity: 0.35;
+}
+
+.websiteCtxSep {
+  height: 1px;
+  margin: 4px 8px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
 /* Proxy (network) menu — daedalOS's answer to sites that block iframes */
 
 .websiteProxyWrap {
@@ -2746,7 +3268,7 @@
 }
 
 .websiteProxyActive {
-  background: rgba(10, 132, 255, 0.35);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.35);
   color: #fff;
 }
 
@@ -2760,11 +3282,11 @@
   overflow-y: auto;
   padding: 8px;
   border-radius: 12px;
-  background: rgba(30, 30, 32, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass-bg, rgba(38, 40, 50, 0.6));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
 }
 
 .websiteProxyGroup + .websiteProxyGroup {
@@ -2805,11 +3327,11 @@
   overflow-y: auto;
   padding: 6px;
   border-radius: 12px;
-  background: rgba(30, 30, 32, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass-bg, rgba(38, 40, 50, 0.6));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
 }
 
 .websiteHistoryItem {
@@ -2894,7 +3416,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #0a84ff;
+  background: var(--accent, #0a84ff);
 }
 
 .websiteProxyHint {
@@ -2915,12 +3437,25 @@
   align-items: center;
   justify-content: flex-start;
   gap: 16px;
-  padding: 20px;
+  padding: 22px;
   overflow: auto;
   color: #f5f5f7;
-  background:
-    radial-gradient(1100px 520px at 50% -10%, rgba(90, 120, 220, 0.16), transparent 60%),
-    radial-gradient(800px 420px at 50% 110%, rgba(60, 40, 120, 0.12), transparent 60%);
+}
+
+/* macOS Tahoe full-window game — the standard titlebar is the chrome, so the
+   game fills the whole window edge to edge with no custom bar or padding. */
+.gameFullWindow {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.gameFullWindow .gameEmuFrame {
+  max-width: none;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 .gameBar {
@@ -2929,12 +3464,11 @@
   gap: 10px;
   width: 100%;
   max-width: 460px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Back button — a filled circle, accent-tinted on hover. */
@@ -2942,20 +3476,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
   color: #fff;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .gameBack:hover {
-  background: color-mix(in srgb, var(--accent, #7aa2ff) 32%, transparent);
-  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 60%, transparent);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.34);
   transform: translateX(-1px);
 }
 
@@ -2994,10 +3528,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -3007,8 +3541,8 @@
 }
 
 .gameBtn:hover {
-  background: color-mix(in srgb, var(--accent, #7aa2ff) 26%, rgba(255, 255, 255, 0.08));
-  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 55%, rgba(255, 255, 255, 0.24));
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
 .gameHint {
@@ -3029,13 +3563,11 @@
   width: min(92%, 380px);
   aspect-ratio: 1;
   padding: 10px;
-  border-radius: 18px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
   position: relative;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .game2048Cell {
@@ -3142,7 +3674,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  width: min(92%, 520px);
+  width: min(94%, 660px);
   margin-top: 8px;
 }
 
@@ -3150,20 +3682,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   color: #fff;
-  background: linear-gradient(135deg, #7aa2ff, #5b8cff 55%, #7c5cff);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 8px 20px rgba(90, 120, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
 }
 
 .gameLauncherTitle {
   margin: 0;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -3177,122 +3707,98 @@
 
 .gameLauncherGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 14px;
-  width: min(92%, 520px);
+  width: min(94%, 660px);
 }
 
+/* macOS-style game tile: a clean glass card with a big centered icon and
+   a hairline ring — no gradients, no glow, no lift on hover. */
 .gameCard {
-  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
-  padding: 18px;
+  padding: 18px 14px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  background: rgba(255, 255, 255, 0.055);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
   color: #f5f5f7;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   font-family: inherit;
-  overflow: hidden;
-  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
-}
-
-.gameCard::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    340px 140px at 20% -20%,
-    color-mix(in srgb, var(--accent, #7aa2ff) 22%, transparent),
-    transparent 65%
-  );
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-.gameCard:hover::after {
-  opacity: 1;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .gameCard:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-color: color-mix(in srgb, var(--accent, #7aa2ff) 45%, rgba(255, 255, 255, 0.13));
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.24);
 }
 
 .gameCardIcon {
-  position: relative;
-  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   color: #fff;
-  background: linear-gradient(
-    150deg,
-    color-mix(in srgb, var(--accent, #7aa2ff) 78%, #fff 10%),
-    color-mix(in srgb, var(--accent, #7aa2ff) 55%, #000 18%)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 6px 16px color-mix(in srgb, var(--accent, #7aa2ff) 40%, transparent);
-  margin-bottom: 2px;
+  background: color-mix(in srgb, var(--accent, #7aa2ff) 62%, #000 8%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  margin-bottom: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .gameCardTitle {
-  position: relative;
-  z-index: 1;
-  font-size: 14.5px;
+  font-size: 13.5px;
+  font-weight: 600;
   letter-spacing: -0.01em;
+  line-height: 1.3;
+  max-width: 100%;
 }
 
 .gameCardDesc {
-  position: relative;
-  z-index: 1;
-  font-size: 12px;
-  opacity: 0.7;
-  line-height: 1.45;
+  font-size: 11.5px;
+  opacity: 0.65;
+  line-height: 1.4;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .gameCardFoot {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   width: 100%;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .gameCardKeys {
   display: inline-flex;
   align-items: center;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
 }
 
 .gameCardPlay {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--accent, #7aa2ff) 85%, #fff 15%);
-  transition: gap 0.15s ease;
+  gap: 4px;
+  text-transform: none;
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.75);
 }
 
 .gameCard:hover .gameCardPlay {
-  gap: 8px;
+  color: #fff;
 }
 
 /* Live-project embed inside the arcade (the piano, browser AI, etc.) */
@@ -3320,10 +3826,7 @@
 .gameShell[data-game="emu"] {
   padding: 12px;
   gap: 10px;
-  background:
-    radial-gradient(900px 480px at 50% -10%, rgba(60, 90, 200, 0.18), transparent 60%),
-    radial-gradient(700px 420px at 50% 110%, rgba(120, 30, 40, 0.12), transparent 60%),
-    #0a0a0c;
+  background: #0c0d10;
 }
 
 .gameShell[data-game="emu"] .gameBar {
@@ -3339,8 +3842,8 @@
   border-radius: 14px;
   overflow: hidden;
   background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .gameEmuLoading {
@@ -3382,8 +3885,12 @@
   align-items: center;
   gap: 4px;
   padding: 4px 10px 6px;
-  background: rgba(32, 32, 34, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  /* Safari Favorites bar — the same glass as the toolbar, a touch lighter. */
+  background: var(--glass-bg, rgba(30, 32, 42, 0.22));
+  backdrop-filter: blur(var(--glass-blur, 36px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 36px)) saturate(var(--glass-sat, 200%)) brightness(var(--glass-bright, 1.06));
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
   overflow-x: auto;
 }
@@ -3520,7 +4027,7 @@
 }
 
 .gamePongP1 {
-  background: linear-gradient(180deg, #2997ff, #0a84ff);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent, #0a84ff) 70%, #fff), var(--accent, #0a84ff));
   box-shadow: 0 0 12px rgba(41, 151, 255, 0.7);
 }
 
@@ -3552,10 +4059,10 @@
   grid-template-rows: repeat(8, 1fr);
   width: min(92%, 420px);
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .chessSquare {
@@ -3602,7 +4109,6 @@
   font-size: clamp(24px, 6vw, 40px);
   line-height: 1;
   user-select: none;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
   pointer-events: none;
 }
 
@@ -3734,7 +4240,7 @@
 }
 
 .chessPgnBtn:hover:not(:disabled) {
-  background: rgba(10, 132, 255, 0.55);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.55);
 }
 
 .chessPgnBtn:disabled {
@@ -3835,7 +4341,7 @@
   background: #ff5f57;
 }
 
-.mineNum1 { color: #0a84ff; }
+.mineNum1 { color: var(--accent, #0a84ff); }
 .mineNum2 { color: #30d158; }
 .mineNum3 { color: #ff3b30; }
 .mineNum4 { color: #5856d6; }
@@ -3889,7 +4395,7 @@
   height: 440px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   background: #0c0e16;
 }
 
@@ -3999,7 +4505,7 @@
 .paintCanvas {
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   max-width: 100%;
   height: auto;
   touch-action: none;
@@ -4120,7 +4626,7 @@
 }
 
 .texteditBtnActive {
-  background: rgba(10, 132, 255, 0.35);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.35);
   color: #fff;
 }
 
@@ -4149,23 +4655,29 @@
 
 .texteditPre {
   margin: 0;
-  padding: 14px 0 26px;
+  padding: 14px 18px 26px 82px;
   font-family: "SF Mono", Menlo, Consolas, monospace;
   font-size: 12.5px;
   line-height: 1.6;
   color: #abb2bf;
-  min-width: max-content;
+  /* Text wraps to the window (like TextEdit) — no more cut-off lines you
+     can't scroll to. The gutter is absolutely positioned so the code
+     starts at the same 82px as the textarea, keeping wrap points aligned. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   pointer-events: none;
   user-select: none;
 }
 
 .texteditLine {
-  display: flex;
-  padding-right: 18px;
+  position: relative;
+  display: block;
 }
 
 .texteditGutter {
-  flex-shrink: 0;
+  position: absolute;
+  left: -64px;
+  top: 0;
   width: 46px;
   padding-right: 12px;
   text-align: right;
@@ -4175,7 +4687,8 @@
 
 .texteditCode {
   font-family: inherit;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .texteditArea {
@@ -4183,23 +4696,26 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  padding: 14px 18px 26px 76px;
+  padding: 14px 18px 26px 82px;
   border: none;
   outline: none;
   resize: none;
   background: transparent;
   color: transparent;
-  caret-color: #0a84ff;
+  caret-color: var(--accent, #0a84ff);
   font-family: "SF Mono", Menlo, Consolas, monospace;
   font-size: 12.5px;
   line-height: 1.6;
-  white-space: pre;
+  /* Wrap exactly like the highlight layer — same padding, same width — so
+     the caret tracks the visible text on wrapped lines. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   overflow: hidden;
   tab-size: 2;
 }
 
 .texteditArea::selection {
-  background: rgba(10, 132, 255, 0.35);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.35);
   color: transparent;
 }
 
@@ -4336,7 +4852,7 @@
 
 .gameBreakoutCanvas {
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
   cursor: default;
   touch-action: none;
   max-width: 100%;
@@ -4344,12 +4860,14 @@
 
 /* ---- Chess mode switcher ---- */
 
+/* macOS-style segmented control for mode/side switchers. */
 .chessModeSwitcher {
   display: flex;
-  gap: 2px;
+  gap: 0;
   padding: 2px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
 }
 
 .chessModeBtn {
@@ -4358,9 +4876,10 @@
   color: rgba(245, 245, 247, 0.65);
   font-size: 11px;
   font-family: inherit;
-  padding: 3px 10px;
+  padding: 3px 11px;
   border-radius: 6px;
   cursor: default;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .chessModeBtn:hover {
@@ -4368,8 +4887,9 @@
 }
 
 .chessModeBtnActive {
-  background: rgba(10, 132, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Toolbar above the board — mode/side/skill + actions. */
@@ -4382,9 +4902,10 @@
   gap: 8px;
   width: min(92%, 460px);
   padding: 8px 10px;
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 0.5px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .chessSkillLabel {
@@ -4443,7 +4964,7 @@
 }
 
 .emuHostDrag {
-  outline: 2px dashed #0a84ff;
+  outline: 2px dashed var(--accent, #0a84ff);
   outline-offset: -3px;
 }
 
@@ -4484,7 +5005,7 @@
 }
 
 .emuDrop svg {
-  color: rgba(10, 132, 255, 0.8);
+  color: rgba(var(--accent-rgb, 10, 132, 255), 0.8);
   margin-bottom: 6px;
 }
 
@@ -4630,9 +5151,922 @@
 
 .gameDinoCanvas {
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   cursor: default;
   touch-action: none;
   max-width: 100%;
   background: #f7f7f2;
+}
+
+/* ================= VLC media player ================= */
+
+.vlcWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  color: #f5f5f7;
+}
+
+.vlcStage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.vlcVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.vlcBigPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.vlcBigPlay:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.vlcBar {
+  flex-shrink: 0;
+  padding: 10px 16px 12px;
+  background: rgba(20, 22, 30, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vlcTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.vlcTitle strong {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vlcTitle span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.vlcSeekRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vlcTime {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.65);
+  min-width: 34px;
+}
+
+.vlcSeek {
+  flex: 1;
+  accent-color: #f08300;
+  height: 4px;
+  cursor: pointer;
+}
+
+.vlcControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.vlcControlsLeft,
+.vlcControlsRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vlcBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
+  transition: background 0.15s ease;
+}
+
+.vlcBtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.vlcVolume {
+  width: 80px;
+  accent-color: #f08300;
+  height: 4px;
+  cursor: pointer;
+}
+
+/* ================= Vim ================= */
+
+.vimWrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #101014;
+  display: flex;
+  flex-direction: column;
+}
+
+.vimContainer {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.vimCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  cursor: text;
+  outline: none;
+}
+
+.vimStatus {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #9ef01a;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 6px;
+  padding: 4px 10px;
+  pointer-events: none;
+}
+
+/* ================= DevTools (eruda) ================= */
+
+.devTools {
+  flex: 1;
+  min-height: 0;
+  background: #2b2b2b;
+  overflow: hidden;
+}
+
+.devTools :global(.eruda-container),
+.devTools :global(.eruda-entry-btn) {
+  font-family: inherit;
+}
+
+/* ================= OpenType font viewer ================= */
+
+.openType {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  font-size: 13px;
+  color: #222;
+  background: #fff;
+  padding: 14px 16px 20px;
+}
+
+.openTypeDrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 14px;
+}
+
+.openTypeMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dcdcdc;
+  margin-bottom: 10px;
+}
+
+.openTypeSpecimenRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.openTypeSpecimenRow span {
+  color: rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.openTypeSpecimenInput {
+  flex: 1;
+  border: 1px solid #c8c8c8;
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.openTypeSamples {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.openTypeSample {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 2px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.openTypeSampleSize {
+  min-width: 42px;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.openTypeCanvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* ================= Monaco Editor ================= */
+
+.monaco {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  position: relative;
+}
+
+.monacoToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  background: rgba(30, 30, 30, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.monacoFile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #e8e8e8;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monacoDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #007acc;
+  flex-shrink: 0;
+}
+
+.monacoToolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.monacoLang {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.monacoSaveBtn {
+  font-size: 12px;
+  color: #e8e8e8;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.monacoSaveBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.monacoStatus {
+  font-size: 11.5px;
+  color: #7eca4f;
+}
+
+.monacoBody {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.monacoStatusbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 26px;
+  padding: 0 12px;
+  background: #007acc;
+  color: #fff;
+  font-size: 11.5px;
+  flex-shrink: 0;
+}
+
+.monacoStatusbarSpacer {
+  flex: 1;
+}
+
+.monacoStatusbarRight {
+  opacity: 0.75;
+}
+
+/* ================= TinyMCE rich-text editor ================= */
+
+.tinymce {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.tinymceBody {
+  flex: 1;
+  min-height: 0;
+}
+
+.tinymceStatus {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-size: 12px;
+  color: #9ef01a;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+/* ================= IRC (KiwiIRC) ================= */
+
+.irc {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #101014;
+}
+
+.ircFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.ircLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  background: #101014;
+  z-index: 2;
+}
+
+/* ================= BoxedWine ================= */
+
+.boxedwine {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.boxedwineBody {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.boxedwineConsole {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  max-height: 40%;
+  width: 260px;
+  overflow: auto;
+  margin: 0;
+  padding: 8px 12px;
+  list-style: none;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #9ef01a;
+  background: rgba(0, 0, 0, 0.82);
+  border-radius: 0 0 0 10px;
+}
+
+.boxedwineLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  background: #000;
+  z-index: 2;
+}
+
+.boxedwineLoading em {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: normal;
+}
+
+/* ================= Virtual x86 ================= */
+
+.v86 {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #000;
+}
+
+.v86Body {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.v86Body canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.v86Loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  background: #000;
+  z-index: 2;
+}
+
+/* ================= Messenger (Nostr) ================= */
+
+.messenger {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  background: #18191b;
+  color: #e4e6eb;
+}
+
+.messengerContacts {
+  width: 230px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: #202124;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.messengerHeader {
+  padding: 14px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.messengerHeader strong {
+  font-size: 14px;
+}
+
+.messengerStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messengerDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #31a24c;
+  flex-shrink: 0;
+}
+
+.messengerProfileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.messengerAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1877f2, #6a5af9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.messengerAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.messengerInitial {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.messengerProfileInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.messengerProfileInfo strong {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messengerCopy {
+  background: none;
+  border: none;
+  color: #1877f2;
+  font-size: 10.5px;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+
+.messengerTo {
+  padding: 10px 12px;
+}
+
+.messengerInput {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #e4e6eb;
+  font-size: 12px;
+  padding: 7px 12px;
+  outline: none;
+}
+
+.messengerInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.messengerInput:focus {
+  border-color: #1877f2;
+}
+
+.messengerContactList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.messengerContact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: none;
+  background: none;
+  color: #e4e6eb;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.messengerContact:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.messengerContactActive {
+  background: rgba(24, 119, 242, 0.2);
+}
+
+.messengerContactText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.messengerContactText strong {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messengerContactText span {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.messengerUnread {
+  background: #1877f2;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.messengerChat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.messengerChatHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.messengerChatHeader strong {
+  font-size: 13px;
+}
+
+.messengerChatHint {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messengerLog {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.messengerDay {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.messengerDayLabel {
+  align-self: center;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.messengerBubble {
+  max-width: 70%;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 14px 14px 14px 4px;
+  padding: 7px 11px;
+}
+
+.messengerBubble p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.messengerBubble span {
+  display: block;
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 3px;
+}
+
+.messengerBubbleMine {
+  align-self: flex-end;
+  background: #1877f2;
+  border-radius: 14px 14px 4px 14px;
+}
+
+.messengerBubbleMine span {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.messengerComposer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.messengerComposer .messengerInput {
+  flex: 1;
+}
+
+.messengerSend {
+  background: #1877f2;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.messengerSend:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.messengerEmpty {
+  margin: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  padding: 30px 0;
+}
+
+.messengerEmptyPane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 30px;
+}
+
+.messengerEmptyIcon {
+  font-size: 40px;
+}
+
+.messengerEmptyPane strong {
+  font-size: 15px;
+}
+
+.messengerEmptyPane p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.messengerKeyHint {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+/* DX-Ball — the classic block breaker, ported from daedalOS. */
+.gameShell[data-game="dxball"] {
+  padding: 12px;
+  gap: 10px;
+  background: #0c0d10;
+}
+
+.gameShell[data-game="dxball"] .gameBar {
+  max-width: 760px;
+}
+
+.gameBarHint {
+  font-style: normal;
+  margin-left: auto;
+  opacity: 0.45;
+  font-size: 12px;
+}
+
+.dxballMount {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dxballMount canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  display: block;
+}
+
+.settingsRowNote {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
 }

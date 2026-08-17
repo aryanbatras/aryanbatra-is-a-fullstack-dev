@@ -26,11 +26,10 @@ export const WIDGET_META: Record<WidgetId, { label: string; icon: string }> = {
   clock: { label: "Clock", icon: "clock" },
   weather: { label: "Weather", icon: "cloud-sun" },
   calendar: { label: "Calendar", icon: "calendar" },
-  stats: { label: "Aryan Stats", icon: "rocket" },
 };
 
 /**
- * macOS Tahoe widget cards (clock / weather / calendar / stats). Rendered by
+ * macOS Tahoe widget cards (clock / weather / calendar). Rendered by
  * the desktop column (ordered + editable), the lock-screen widget panel, and
  * the Notification Center Smart Stack. Client-only — live time is
  * hydration-safe because these mount after the desktop boots.
@@ -131,26 +130,6 @@ export default function WidgetStack({
             <div className={styles.widgetCalDay}>{dayNum}</div>
             <div className={styles.widgetCalInfo}>
               {weekday} · {monthYear}
-            </div>
-          </div>
-        );
-      case "stats":
-        return (
-          <div className={styles.widget}>
-            <p className={styles.widgetLabel}>Aryan Stats</p>
-            <div className={styles.widgetStats}>
-              <span>
-                <Glyph id="rocket" size={12} /> 20+ projects shipped
-              </span>
-              <span>
-                <Glyph id="coffee" size={12} /> 4 yrs of building
-              </span>
-              <span>
-                <Glyph id="settings" size={12} /> 50+ Spring Boot APIs
-              </span>
-              <span>
-                <Glyph id="brain" size={12} /> 5,000 LOC ray tracer
-              </span>
             </div>
           </div>
         );

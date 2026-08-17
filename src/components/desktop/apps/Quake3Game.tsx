@@ -64,10 +64,11 @@ const QUAKE3_CONFIG: EmscriptenGameConfig = {
 
 interface Quake3GameProps {
   onExit: () => void;
+  fullWindow?: boolean;
 }
 
 /** Quake III Arena — full 3D FPS with bots, running in the browser. */
-export default function Quake3Game({ onExit }: Quake3GameProps) {
+export default function Quake3Game({ onExit, fullWindow }: Quake3GameProps) {
   return (
     <EmscriptenGame
       {...QUAKE3_CONFIG}
@@ -77,6 +78,7 @@ export default function Quake3Game({ onExit }: Quake3GameProps) {
       keys="WASD — move · Mouse — look · Space — jump · Ctrl — crouch · Tab — scores"
       hint="Fight the bots. Click the game to capture the mouse, Esc releases it."
       onExit={onExit}
+      fullWindow={fullWindow}
     />
   );
 }

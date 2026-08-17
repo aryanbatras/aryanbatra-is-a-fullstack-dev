@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import ShapeBlur from "@/components/desktop/ShapeBlur";
+import { Eye, EyeOff } from "lucide-react";
+import LiquidGlass from "@/components/desktop/LiquidGlass";
 import WidgetStack from "@/components/desktop/WidgetStack";
 import { sounds } from "@/utils/sounds";
 import type { ClockStyle, WidgetStyle } from "@/constants/desktop";
@@ -14,7 +15,20 @@ interface LockScreenProps {
   /** Tahoe Icon & Widget Style — forwarded to the lock-screen widgets. */
   widgetStyle?: WidgetStyle;
   tint?: WallpaperTint | null;
+  /** Power menu (top-right of the real lock screen). */
+  onSleep?: () => void;
+  onRestart?: () => void;
+  onShutDown?: () => void;
+  /** Display brightness 0-100 — clicking the screen after Sleep wakes it. */
+  brightness?: number;
+  onWake?: () => void;
 }
+
+const OWNER = {
+  id: "aryan",
+  name: "Aryan Batra",
+  avatar: "/images/aryan.jpeg",
+};
 
 /** Analog clock face with live hour/minute/second hands. */
 function AnalogClock({ now }: { now: Date }) {
@@ -70,19 +84,31 @@ function AnalogClock({ now }: { now: Date }) {
   );
 }
 
-/** macOS-style lock screen: clock (four Tahoe appearances), date, password. */
+/**
+ * macOS-style lock screen: a big thin clock + date at the top of the screen,
+ * the user avatar (with a liquid-glass ring), name and password field centred
+ * lower down — exactly how macOS lays it out. The top bar holds the
+ * user-switching chevron (left) and the power menu (right). Clicking the
+ * clock or anywhere on the wallpaper reveals the lock-screen widgets.
+ */
 export default function LockScreen({
   wallpaperSrc,
   onUnlock,
   clockStyle = "default",
   widgetStyle = "default",
   tint = null,
+  onSleep,
+  onRestart,
+  onShutDown,
+  brightness = 100,
+  onWake,
 }: LockScreenProps) {
   const [now, setNow] = useState(new Date());
   const [pw, setPw] = useState("");
   const [shake, setShake] = useState(false);
   const [showWidgets, setShowWidgets] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [powerOpen, setPowerOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -103,9 +129,8 @@ export default function LockScreen({
     }
   };
 
-  // The machine is a portfolio prop — nobody should be locked out of it.
-  // Guests can skip the password (the lock still exists for the owner).
-  const guest = () => {
+  // One-click Log In — enters the desktop directly (password optional).
+  const loginAsGuest = () => {
     sounds.unlock();
     onUnlock();
   };
@@ -130,11 +155,73 @@ export default function LockScreen({
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
+      onClick={() => {
+        // First click after Sleep wakes the display (like a real Mac).
+        if (brightness === 0) {
+          onWake?.();
+          return;
+        }
+        setShowWidgets((v) => !v);
+      }}
     >
-      <div
-        className={`${styles.lockContent} ${shake ? styles.lockShake : ""}`}
-      >
-        {/* Click the clock to reveal/hide lock-screen widgets (as on real macOS). */}
+      {/* Gentle scrim so the clock and user block stay legible on bright
+          wallpaper — macOS never frosts the lock-screen wallpaper itself. */}
+      <div className={styles.lockScrim} aria-hidden />
+
+      {/* Top bar — power menu on the right, like the real lock screen. */}
+      <div className={styles.lockTopBar}>
+        {/* Top-right: power menu (Sleep / Restart / Shut Down). */}
+        <div className={styles.lockPowerWrap} onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className={styles.lockTopBtn}
+            onClick={() => setPowerOpen((v) => !v)}
+            aria-label="Power options"
+          >
+            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+              <path d="M8 1.8v5.4" />
+              <path d="M12.4 3.6a6 6 0 1 1-8.8 0" />
+            </svg>
+          </button>
+          {powerOpen && (
+            <div className={styles.lockPowerMenu}>
+              <button
+                type="button"
+                className={styles.lockPowerItem}
+                onClick={() => {
+                  setPowerOpen(false);
+                  onSleep?.();
+                }}
+              >
+                Sleep
+              </button>
+              <button
+                type="button"
+                className={styles.lockPowerItem}
+                onClick={() => {
+                  setPowerOpen(false);
+                  onRestart?.();
+                }}
+              >
+                Restart…
+              </button>
+              <button
+                type="button"
+                className={styles.lockPowerItem}
+                onClick={() => {
+                  setPowerOpen(false);
+                  onShutDown?.();
+                }}
+              >
+                Shut Down…
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Big thin clock + date near the top of the screen. */}
+      <div className={styles.lockClockArea} onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
           className={`${styles.lockClockBtn} ${
@@ -164,41 +251,38 @@ export default function LockScreen({
           )}
           <span className={styles.lockDate}>{dateLabel}</span>
         </button>
+      </div>
 
-        {/* Liquid-glass ShapeBlur behind the avatar — a morphing glass
-            squircle that follows the mouse, straight from React Bits. */}
-        <div className={styles.lockAvatarWrap}>
-          <div className={styles.lockAvatarShape} aria-hidden>
-            <ShapeBlur
-              variation={0}
-              shapeSize={0.85}
-              roundness={0.9}
-              borderSize={0.045}
-              circleSize={0.5}
-              circleEdge={0.35}
-            />
-          </div>
+      {/* User block — avatar ring, name, password. macOS lock screen shows
+          the owner here; guest is a button below, not a second user you
+          switch to by clicking the avatar. */}
+      <div
+        className={`${styles.lockUserArea} ${shake ? styles.lockShake : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={styles.lockAvatar} aria-hidden>
+          {/* Liquid glass ring behind the avatar — refractive squircle rim
+              refracting the wallpaper (Chrome), blurred fallback elsewhere. */}
+          <LiquidGlass
+            id="lg-lock-avatar"
+            radius={46}
+            bezel={15}
+            surface="squircle"
+            thickness={4.5}
+            maxShift={9}
+            highlight={0.8}
+            className={styles.lockAvatarShape}
+          />
           <img
-            src="/images/aryan.jpeg"
-            alt="Aryan Batra"
+            src={OWNER.avatar}
+            alt=""
             className={styles.lockAvatarImg}
+            draggable={false}
           />
         </div>
-        <span className={styles.lockName}>Aryan Batra</span>
-        <span className={styles.lockMachine}>Aryan&apos;s MacBook Pro</span>
+        <span className={styles.lockName}>{OWNER.name}</span>
 
         <div className={styles.lockPwWrap}>
-          {/* Subtle ShapeBlur morph behind the password field. */}
-          <div className={styles.lockPwShape} aria-hidden>
-            <ShapeBlur
-              variation={0}
-              shapeSize={1.7}
-              roundness={0.5}
-              borderSize={0.05}
-              circleSize={0.6}
-              circleEdge={0.5}
-            />
-          </div>
           <input
             ref={inputRef}
             className={styles.lockInput}
@@ -219,30 +303,26 @@ export default function LockScreen({
             onClick={() => setShowPw((v) => !v)}
             aria-label={showPw ? "Hide password" : "Show password"}
           >
-            {showPw ? (
-              <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-                <path d="M1.5 8s2.4-4 6.5-4 6.5 4 6.5 4-2.4 4-6.5 4S1.5 8 1.5 8Z" />
-                <path d="M6.5 8a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0Z" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-                <path d="M1.5 8s2.4-4 6.5-4 6.5 4 6.5 4-2.4 4-6.5 4S1.5 8 1.5 8Z" />
-                <path d="M10.5 2.7A6.9 6.9 0 0 0 8 2.3C3.9 2.3 1.5 6.3 1.5 6.3" />
-                <path d="M14.5 8s-.3.6-.9 1.3" />
-                <path d="M3.4 12.3 1 15" />
-                <path d="M10.7 6.2A2.5 2.5 0 0 0 7.6 9.4" />
-              </svg>
-            )}
+            {/* Hidden → an eye that reveals; visible → an eye-off that hides
+                (lucide renders crisply at every size — the old hand-drawn
+                SVGs looked broken). */}
+            {showPw ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
           </button>
         </div>
-        <span className={styles.lockHint}>password: aryan</span>
-        <button type="button" className={styles.lockGuest} onClick={guest}>
-          Enter as guest →
+
+        {/* Log In — one click and you're in (no password required). The
+            password field stays for realism, but this is the primary path. */}
+        <button
+          type="button"
+          className={styles.lockLoginBtn}
+          onClick={loginAsGuest}
+        >
+          Log In
         </button>
       </div>
 
       {showWidgets && (
-        <div className={styles.lockWidgets}>
+        <div className={styles.lockWidgets} onClick={(e) => e.stopPropagation()}>
           <WidgetStack widgetStyle={widgetStyle} tint={tint} />
         </div>
       )}

@@ -11,6 +11,8 @@ interface ChessGameProps {
   pgnName?: string;
   /** PGN source text — falls back to a storage lookup by name. */
   pgnContent?: string;
+  /** Full-window mode: standard macOS titlebar is the chrome. */
+  fullWindow?: boolean;
 }
 
 type ChessMode = "ai" | "2p" | "watch";
@@ -50,7 +52,7 @@ const cloneGame = (g: Chess): Chess => {
   return fresh;
 };
 
-export default function ChessGame({ onExit, pgnName, pgnContent }: ChessGameProps) {
+export default function ChessGame({ onExit, pgnName, pgnContent, fullWindow }: ChessGameProps) {
   const [game, setGame] = useState(() => new Chess());
   const [selected, setSelected] = useState<string | null>(null);
   const [legal, setLegal] = useState<string[]>([]);
@@ -374,14 +376,16 @@ export default function ChessGame({ onExit, pgnName, pgnContent }: ChessGameProp
   }, [game]);
 
   return (
-    <div className={styles.gameShell} data-game="chess" style={{ "--accent": "#5b8cff" } as React.CSSProperties}>
-      <div className={styles.gameBar}>
-        <button type="button" className={styles.gameBack} onClick={onExit} aria-label="Back to arcade">
-          <span aria-hidden>←</span>
-        </button>
-        <span className={styles.gameTitle}>Chess</span>
-        <span className={styles.gameScore}>{status}</span>
-      </div>
+    <div className={`${styles.gameShell} ${fullWindow ? styles.gameFullWindow : ""}`} data-game="chess" style={{ "--accent": "#5b8cff" } as React.CSSProperties}>
+      {!fullWindow && (
+        <div className={styles.gameBar}>
+          <button type="button" className={styles.gameBack} onClick={onExit} aria-label="Back to arcade">
+            <span aria-hidden>←</span>
+          </button>
+          <span className={styles.gameTitle}>Chess</span>
+          <span className={styles.gameScore}>{status}</span>
+        </div>
+      )}
 
       <div className={styles.chessToolbar}>
         <div className={styles.chessModeSwitcher}>

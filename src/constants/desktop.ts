@@ -10,6 +10,29 @@ export type ClockStyle = "default" | "numeric" | "analog" | "world";
 /** macOS Tahoe: Settings → Appearance → Icon & Widget Style. */
 export type WidgetStyle = "default" | "dark" | "tinted";
 
+/** Settings → Appearance → Color (macOS Tahoe: the eight theme accents). */
+export type AccentColorId =
+  | "blue"
+  | "purple"
+  | "pink"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "graphite";
+
+/** Theme accent colours (Tahoe presets, dark-mode variants). */
+export const ACCENT_COLORS: Record<AccentColorId, { swatch: string; rgb: string }> = {
+  blue: { swatch: "#0a84ff", rgb: "10, 132, 255" },
+  purple: { swatch: "#bf5af2", rgb: "191, 90, 242" },
+  pink: { swatch: "#ff375f", rgb: "255, 55, 95" },
+  red: { swatch: "#ff453a", rgb: "255, 69, 58" },
+  orange: { swatch: "#ff9f0a", rgb: "255, 159, 10" },
+  yellow: { swatch: "#ffd60a", rgb: "255, 214, 10" },
+  green: { swatch: "#30d158", rgb: "48, 209, 88" },
+  graphite: { swatch: "#8e8e93", rgb: "142, 142, 147" },
+};
+
 export type DockPosition = "bottom" | "left" | "right";
 
 export type MinimizeEffect = "genie" | "scale";
@@ -27,8 +50,8 @@ export interface SpaceConfig {
 
 export const DEFAULT_SPACES: SpaceConfig[] = [
   { id: 1, name: "Desktop 1", wallpaperIndex: 0 },
-  { id: 2, name: "Desktop 2", wallpaperIndex: 4 },
-  { id: 3, name: "Desktop 3", wallpaperIndex: 6 },
+  { id: 2, name: "Desktop 2", wallpaperIndex: 1 },
+  { id: 3, name: "Desktop 3", wallpaperIndex: 5 },
 ];
 
 /** Hot Corner actions (Desktop & Dock → Hot Corners…). */
@@ -62,11 +85,14 @@ export interface NotifPref {
 export const DEFAULT_NOTIF_PREF: NotifPref = { allow: true, style: "banners" };
 
 /** Desktop widgets available for the right-column stack (Settings → Wallpaper → Widgets). */
-export const WIDGET_IDS = ["clock", "weather", "calendar", "stats"] as const;
+export const WIDGET_IDS = ["clock", "weather", "calendar"] as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
-/** Ordered ids of the visible desktop widgets — editable + draggable. */
+/** Ordered ids of the visible desktop widgets — editable + draggable.
+ *  macOS Tahoe ships with default desktop widgets (clock, weather, calendar)
+ *  right on the wallpaper — users remove them via Edit Widgets… if they
+ *  prefer a clean desktop. */
 export const DEFAULT_WIDGETS: WidgetId[] = ["clock", "weather", "calendar"];
 
 /** Control Center tile ids in their default order (Settings → Control Center).
@@ -100,8 +126,13 @@ export interface SystemState {
   brightness: number;
   /** Lock-screen clock appearance (macOS Tahoe: Settings → Wallpaper → Clock). */
   clockStyle: ClockStyle;
+  /** Menu-bar clock source: device local time, or NTP server time (daedalOS). */
+  clockSource: "local" | "ntp";
   /** Tahoe accessibility: replaces Liquid Glass with near-solid fills. */
   reduceTransparency: boolean;
+  /** Settings → Appearance → Color (accent): drives selection, buttons and
+   *  highlights system-wide. One of the eight macOS theme colors. */
+  accentColor: AccentColorId;
   /** Desktop widgets (top-right column, like real macOS). */
   showWidgets: boolean;
   /** Rotate through the real wallpapers automatically (daedalOS slideshow). */
@@ -124,6 +155,10 @@ export interface SystemState {
   minimizeEffect: MinimizeEffect;
   /** Desktop & Dock: automatically hide and show the Dock. */
   dockAutoHide: boolean;
+  /** Desktop & Dock: automatically hide and show the menu bar (hover the top edge). */
+  autoHideMenuBar: boolean;
+  /** Settings → Wallpaper → Menu bar: transparent (Tahoe) vs semi-transparent (Sequoia). */
+  menuBarStyle: "transparent" | "semi";
   /** Stage Manager — focused app front and center, others in the side strip. */
   stageManager: boolean;
   /** Settings → Battery: show the percentage in the menu bar. */
@@ -142,6 +177,74 @@ export interface SystemState {
   spaces: SpaceConfig[];
   /** Desktop & Dock → Hot Corners: corner → action. */
   hotCorners: Record<CornerId, HotCornerAction>;
+  /** Trackpad & Mouse → Gestures: pinch (two fingers) opens Launchpad. */
+  pinchLaunchpad: boolean;
+  /** Trackpad & Mouse → Gestures: swipe up (two fingers) opens Mission Control. */
+  swipeMissionControl: boolean;
+  /** Desktop → View: icon sort mode. None = grid order. */
+  desktopSort: "name" | "kind" | "date" | "none";
+  /** Desktop → View: icon size in px (drives the grid pitch too). */
+  desktopIconSize: number;
+  /** Desktop → View: bump to reset all icon positions to the grid. */
+  desktopIconReset: number;
+  /** Launchpad: ordered items (app ids + folder markers). */
+  launchpadItems: LaunchpadItem[];
+  /** Launchpad: user folders with their app ids. */
+  launchpadFolders: LaunchpadFolder[];
+  /** Launchpad: app ids hidden by the user (edit mode ×). */
+  launchpadHidden: string[];
+  /** Wallpaper: user-created folders (right-click → New Folder). */
+  desktopFolders: DesktopFolder[];
+}
+
+/** One slot in the Launchpad grid — an app or a folder. */
+export interface LaunchpadItem {
+  kind: "app" | "folder";
+  id: string;
+}
+
+/** A user-created folder on the wallpaper (right-click → New Folder).
+ *  macOS Tahoe lets you tint folders and add an emoji badge — both optional. */
+export interface DesktopFolder {
+  id: string;
+  name: string;
+  /** macOS folder color id ("blue" | "gray" | "green" | "orange" | "pink" | "purple" | "red" | "yellow"). */
+  color?: string;
+  /** Optional emoji badge shown on the folder (Tahoe folder emoji). */
+  emoji?: string;
+}
+
+/** macOS Tahoe folder colors (Finder right-click → Color). */
+export const FOLDER_COLORS = [
+  "blue",
+  "gray",
+  "green",
+  "orange",
+  "pink",
+  "purple",
+  "red",
+  "yellow",
+] as const;
+
+export type FolderColor = (typeof FOLDER_COLORS)[number];
+
+/** The dominant fill for each macOS folder color. */
+export const FOLDER_COLOR_FILL: Record<string, string> = {
+  blue: "#2e7cf6",
+  gray: "#8e8e93",
+  green: "#2fbd4f",
+  orange: "#f29100",
+  pink: "#f0558c",
+  purple: "#9b59d0",
+  red: "#e5484d",
+  yellow: "#f2c029",
+};
+
+/** A user-made Launchpad folder (drag one app onto another). */
+export interface LaunchpadFolder {
+  id: string;
+  name: string;
+  apps: string[];
 }
 
 export interface DesktopAppConfig {
@@ -164,32 +267,59 @@ export interface DesktopAppConfig {
 
 export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "finder", title: "Finder", icon: "folder", iconUrl: "/aryan/icons/finder.png", width: 720, height: 500, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
-  { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: true, inDock: true },
+  { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: false, inDock: false },
   { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: true, inDock: true },
   { id: "projects", title: "Projects", icon: "folder", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "notes", title: "Notes", icon: "sticky-note", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
-  { id: "photos", title: "Photos", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "notes", title: "Notes", icon: "sticky-note", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: false, inDock: false },
+  { id: "photos", title: "Photos", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   { id: "videos", title: "Videos", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "maps", title: "Maps", icon: "map", iconUrl: "/aryan/icons/maps.png", width: 720, height: 520, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
-  { id: "readme", title: "Read Me", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 600, height: 460, minWidth: 440, minHeight: 340, onDesktop: true, inDock: true },
+  { id: "maps", title: "Maps", icon: "map", iconUrl: "/aryan/icons/maps.png", width: 720, height: 520, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "readme", title: "Read Me", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 600, height: 460, minWidth: 440, minHeight: 340, onDesktop: false, inDock: false },
   { id: "terminal", title: "Terminal", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 620, height: 400, minWidth: 440, minHeight: 280, onDesktop: false, inDock: true },
-  { id: "textedit", title: "TextEdit", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 560, height: 500, minWidth: 420, minHeight: 360, onDesktop: true, inDock: true },
-  { id: "paint", title: "Paint", icon: "image", iconUrl: "/aryan/icons/paint.png", width: 760, height: 560, minWidth: 560, minHeight: 420, onDesktop: true, inDock: true },
-  { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: true },
+  { id: "textedit", title: "TextEdit", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 720, height: 600, minWidth: 520, minHeight: 440, onDesktop: true, inDock: true },
+  { id: "paint", title: "Paint", icon: "image", iconUrl: "/aryan/icons/paint.png", width: 760, height: 560, minWidth: 560, minHeight: 420, onDesktop: false, inDock: false },
+  { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: false },
+  // VLC — dark media player for the film library and Finder movies.
+  { id: "vlc", title: "VLC", icon: "film", iconUrl: "/aryan/icons/vlc.png", width: 720, height: 520, minWidth: 480, minHeight: 340, onDesktop: false, inDock: true },
+  // Vim — the real vim.js editor (daedalOS).
+  { id: "vim", title: "Vim", icon: "terminal", iconUrl: "/aryan/icons/vim.png", width: 700, height: 480, minWidth: 460, minHeight: 320, onDesktop: false, inDock: false },
+  // DevTools — eruda (console, elements, network, resources, sources).
+  { id: "devtools", title: "DevTools", icon: "terminal", iconUrl: "/aryan/icons/eruda.png", width: 720, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  // OpenType — font viewer for .otf/.ttf/.woff files (daedalOS).
+  { id: "opentype", title: "OpenType", icon: "file-text", iconUrl: "/aryan/icons/opentype.png", width: 640, height: 520, minWidth: 460, minHeight: 380, onDesktop: false, inDock: false },
+  // Monaco — the real VS Code editor (daedalOS). Code files open here.
+  { id: "monaco", title: "Monaco", icon: "file-text", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  // TinyMCE — rich-text editor for .rtf / .whtml files (daedalOS).
+  { id: "tinymce", title: "TinyMCE", icon: "file-text", iconUrl: "/aryan/icons/tinymce.png", width: 720, height: 540, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  // IRC — KiwiIRC web chat client (daedalOS).
+  { id: "irc", title: "IRC", icon: "message-square", iconUrl: "/aryan/icons/kiwiirc.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // TIC-80 — the fantasy computer (daedalOS). .tic carts open here.
+  { id: "tic80", title: "TIC-80", icon: "emulator", iconUrl: "/aryan/icons/tic80.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // ClassiCube — Minecraft Classic client (daedalOS).
+  { id: "classicube", title: "ClassiCube", icon: "gamepad", iconUrl: "/aryan/icons/classicube.png", width: 800, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // BoxedWine — runs real 16/32-bit Windows programs (.exe / .zip, daedalOS).
+  { id: "boxedwine", title: "BoxedWine", icon: "terminal", iconUrl: "/aryan/icons/boxedwine.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  // Virtual x86 — full x86 PC emulator (.img / .iso, daedalOS).
+  { id: "v86", title: "Virtual x86", icon: "hard-drive", iconUrl: "/aryan/icons/v86.png", width: 800, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // Messenger — encrypted direct messaging over Nostr (NIP-04, daedalOS).
+  { id: "messenger", title: "Messenger", icon: "message-square", iconUrl: "/aryan/icons/messenger.png", width: 760, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // Console emulator (EmulatorJS) — drop a ROM and play (daedalOS).
-  { id: "emulator", title: "Emulator", icon: "emulator", iconUrl: "/aryan/icons/emulator.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "emulator", title: "Emulator", icon: "emulator", iconUrl: "/aryan/icons/emulator.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // Flash player (Ruffle) — .swf files play in the browser.
-  { id: "ruffle", title: "Ruffle", icon: "ruffle", iconUrl: "/aryan/icons/ruffle.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: true },
+  { id: "ruffle", title: "Ruffle", icon: "ruffle", iconUrl: "/aryan/icons/ruffle.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // DOSBox (js-dos) — .jsdos/.exe/.zip DOS games.
-  { id: "jsdos", title: "DOS", icon: "jsdos", iconUrl: "/aryan/icons/jsdos.png", width: 760, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: true },
-  { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: false, inDock: true },
-  // The classic portfolio website, rendered as a web page inside the machine.
-  { id: "website", title: "Portfolio", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 960, height: 640, minWidth: 640, minHeight: 460, onDesktop: true, inDock: true },
+  { id: "jsdos", title: "DOS", icon: "jsdos", iconUrl: "/aryan/icons/jsdos.png", width: 760, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: true, inDock: true },
+  // Safari — the machine's browser. Opens Google by default (daedalOS-style
+  // basic-HTML Google works in an iframe); the portfolio is a bookmark.
+  { id: "website", title: "Safari", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 960, height: 640, minWidth: 640, minHeight: 460, onDesktop: true, inDock: true },
   // Hidden helper app: renders a PDF document (Finder Downloads etc.).
   { id: "pdf", title: "PDF", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // Hidden helper app: renders a .md file (daedalOS Marked).
   { id: "markdown", title: "Markdown", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+  // DX-Ball — the classic block breaker (daedalOS).
+  { id: "dxball", title: "DX-Ball", icon: "pinball", iconUrl: "/aryan/icons/dxball.png", width: 720, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -204,9 +334,10 @@ export interface Wallpaper {
 }
 
 export const WALLPAPERS: Wallpaper[] = [
-  { id: "windows11", name: "Windows 11", src: "/aryan/wallpapers/windows11.jpg" },
-  { id: "tahoe-dark", name: "Tahoe Dark", src: "/aryan/wallpapers/tahoe-dark.jpg" },
-  { id: "tahoe-light", name: "Tahoe Light", src: "/aryan/wallpapers/tahoe-light.jpg" },
+  // Windows 11 — the original Bloom wallpaper (by Six N. Five): blue fabric
+  // folded like a rose over a soft blue field. The user's choice.
+  { id: "windows11-bloom", name: "Windows 11 — Bloom", src: "/aryan/wallpapers/windows11-bloom.jpg" },
+  // The Tahoe dynamic beach series (the real macOS Tahoe wallpapers).
   { id: "tahoe-beach-dawn", name: "Tahoe Beach — Dawn", src: "/aryan/wallpapers/tahoe-beach-Dawn.jpg" },
   { id: "tahoe-beach-day", name: "Tahoe Beach — Day", src: "/aryan/wallpapers/tahoe-beach-Day.jpg" },
   { id: "tahoe-beach-dusk", name: "Tahoe Beach — Dusk", src: "/aryan/wallpapers/tahoe-beach-Dusk.jpg" },
@@ -690,11 +821,12 @@ WHAT'S HERE
   · Finder        — the file browser; every file on this machine is real.
                     Drop a .zip or .iso on the desktop and double-click to
                     browse inside it (read-only) or Extract Here to a folder,
-                    select files and right-click → Add to Archive to pack a
-                    .zip, drag files to arrange them (or onto a folder to
-                    move them in), and sort by name/kind/size/date in either
-                    direction — your sort + arrangement are remembered per
-                    folder
+                    and extract 7z / tar / gz / xz / bz2 / rar archives too
+                    (7-Zip compiled to WASM, running locally); select files
+                    and right-click → Add to Archive to pack a .zip, drag
+                    files to arrange them (or onto a folder to move them
+                    in), and sort by name/kind/size/date in either direction
+                    — your sort + arrangement are remembered per folder
   · About Me      — who I am and what I care about
   · Resume        — experience, education, skills
   · Projects      — a few things I've shipped
@@ -704,11 +836,12 @@ WHAT'S HERE
   · Maps          — where I work, think and wander
   · TextEdit      — a real code editor: syntax highlighting, line numbers
                     and ⌘S saving (try notes.md and its Preview mode)
-  · Portfolio     — a real browser: Google search works (basic-HTML mode),
-                    real favicons, back/forward history dropdowns (right-
-                    click or the caret), and a proxy menu — AllOrigins,
-                    Wayback Machine, and Old Net (1996–2012) that opens
-                    sites which refuse iframes
+  · Safari        — the machine's browser, opens Google right away:
+                    Google search works (basic-HTML mode), real favicons,
+                    back/forward history dropdowns (right-click or the
+                    caret), and a proxy menu — AllOrigins, Wayback Machine,
+                    and Old Net (1996–2012) that opens sites which refuse
+                    iframes
   · Emulator      — a console emulator right in the browser: drop an NES,
                     SNES, Game Boy, GBA, N64 or Sega ROM and it plays with
                     the right core picked automatically
@@ -719,22 +852,82 @@ WHAT'S HERE
   · Winamp        — the real Winamp (Webamp) in the browser: drop an .mp3
                     on the desktop or open one in Finder, play URLs and .m3u
                     playlists, save your playlist, even load .wsz skins
+  · VLC           — a proper dark VLC-style media player: the showreel films
+                    with custom controls, and any .mp4/.mov/.webm opened from
+                    Finder
+  · Vim           — the real vim.js (the actual Vim, compiled for the
+                    browser): open any text file from Finder and edit it with
+                    real vim keys; :w saves straight back to the file system
+  · Monaco        — the real VS Code editor (Monaco) right in the browser:
+                    code files (.ts/.tsx/.js/.json/.py/…) open here from
+                    Finder with full syntax highlighting, IntelliSense and
+                    ⌘S saving — the runtime is served locally, fully offline
+  · DevTools      — eruda, a real developer console: Console, Elements,
+                    Network, Resources and Sources panels for the machine
+                    itself (⌥⌘I or the Apple menu)
+  · OpenType      — font viewer: drop an .otf/.ttf/.woff font and inspect
+                    it — name, version, outline type — with a specimen at
+                    every point size drawn from the font's own vector paths
+  · TinyMCE       — the real WYSIWYG rich-text editor: open any .rtf or
+                    .whtml document from Finder and edit it visually — bold,
+                    headings, links, images — ⌘S saves back to the file system
+  · IRC           — KiwiIRC, a real IRC chat client: connects over WebSockets
+                    to Libera.Chat, ErgoTestnet and InspIRCd's testnet
+  · BoxedWine     — a real Windows-in-the-browser emulator: drop an .exe or
+                    .zip Windows program and it runs (Wine 1.7.55 served
+                    locally, ~60MB)
+  · Virtual x86   — a full x86 PC emulator: drop an .img disk image or .iso
+                    CD and it boots in a real virtual machine (V86)
+  · Messenger     — encrypted direct messaging over Nostr (NIP-04, the
+                    daedalOS protocol): your keypair is generated locally,
+                    messages are end-to-end encrypted, and it connects to
+                    the same public relay pool
   · Games         — mini arcade: 2048, Memory, Heap Worm, Binary Pong,
                     Breakout, Offline Dino, Chess (REAL Stockfish engine,
                     skill 0-20, play as White or Black, and opening a .pgn
                     file from Finder reviews it move-by-move), Minesweeper,
                     Tetris and a real Online Piano — plus the full WASM
                     games ported from daedalOS (Space Cadet Pinball, Quake
-                    III Arena) and my live projects to play
+                    III Arena)                    and my live projects to play — plus TIC-80 (the fantasy
+                    computer: a .tic cart dropped in Finder boots straight
+                    into it), ClassiCube (a Minecraft Classic-compatible
+                    client with a singleplayer world) and DX-Ball (the
+                    classic break-out block breaker, ported from daedalOS)
   · Terminal      — type 'help' and see what happens (weather is live,
-                    pipes work, \`open <app>\` and \`edit <file>\` launch apps)
+                    pipes work, \`open <app>\` and \`edit <file>\` launch apps,
+                    and \`python <code>\` runs a REAL CPython 3 interpreter —
+                    Pyodide, served locally, fully offline)
+  · The desktop responds to URLs, just like daedalOS: /?app=notes opens an
+                    app, /?url=https://github.com opens the Browser at a
+                    site, and /?app=browser&url=… launches the Browser with
+                    a page loaded
 
 TIPS
 ----
   · ⌘K or ⌘Space  — Spotlight search
   · F3 or ⌃↑      — Mission Control
-  · F4            — Launchpad
+  · F4            — Launchpad (drag apps to rearrange, drop one on another
+                    to make a folder, long-press an icon to edit — wiggle +
+                    × to remove, double-click a folder name to rename,
+                    drag apps to the bottom strip to pull them out of a
+                    folder)
   · ⌃⌘Q           — Lock the screen
+  · Apple menu → Restart… / Log Out… — the daedalOS Power menu: clears your
+                    session (files, settings, everything) and starts fresh
+  · Two-finger pinch — Launchpad (Settings → Trackpad & Mouse, replaces
+                    the browser's zoom)
+  · Two-finger swipe up over the wallpaper — Mission Control
+  · Right-click the desktop — Clean Up / Sort By (icons snap to a grid
+                    and never overlap; drag an icon and it snaps into place),
+                    Capture Screen… to record a video of the machine
+                    (saved to Documents), and Spawn a Sheep — the classic
+                    eSheep desktop pet wanders your desktop (or run
+                    \`esheep\` in the Run dialog / Terminal)
+  · Hover a running app's Dock icon — a live peek preview of its windows
+                    appears above the shelf (daedalOS's taskbar peek)
+  · Settings → Wallpaper → Menu Bar Clock — NTP Time syncs the clock to a
+                    network time server (daedalOS ntp.js); hover the clock for
+                    the full date, and click it for Notification Center
   · Esc           — close the machine (or dismiss the topmost surface)
   · ⌃⌘Space       — Emoji & Symbols
   · ⌃⌘F           — Enter / exit full screen
@@ -749,7 +942,8 @@ TIPS
   · Right-click a Finder folder — New Folder / New Text Document
   · Drag files from your computer onto the desktop — images go to Photos,
     .txt / .md documents go to Documents
-  · Settings → Wallpaper — turn on the slideshow to rotate wallpapers
+  · Settings → Wallpaper — rotate the macOS Tahoe wallpapers (Liquid Glass,
+    Tahoe Dark/Light and the Tahoe Beach dynamic series) with the slideshow
   · Settings → Desktop & Dock — Screen Saver: try Flurry, Aerial, Clock,
     Matrix or Pipes
   · Finder — right-click for New Folder / New Text Document / Open Terminal
@@ -880,6 +1074,11 @@ export const TERMINAL_COMMANDS: TerminalCommand[] = [
     name: "echo",
     help: "Echo text back — e.g. echo hello",
     run: (raw: string) => raw.split(/\s+/).slice(1).join(" "),
+  },
+  {
+    name: "python",
+    help: "Run code through a real Python 3 interpreter (Pyodide) — e.g. python 2+2",
+    run: () => "python: booting…",
   },
   {
     name: "uname",

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Archive,
   ArrowUp,
@@ -7,12 +8,19 @@ import {
   ChevronLeft,
   ChevronRight,
   Clipboard,
+  Clock,
+  Cloud,
   Download,
   FilePlus2,
+  Folder,
+  FolderOpen,
   FolderPlus,
+  HardDrive,
+  Image as ImageIcon,
   Info,
   LayoutGrid,
   List,
+  Monitor,
   PackageOpen,
   Pencil,
   Search,
@@ -22,10 +30,19 @@ import {
   X,
 } from "lucide-react";
 import { DESKTOP_APPS, README_TEXT, RESUME, WEB_SHORTCUTS } from "@/constants/desktop";
+import { projects } from "@/data/projects";
 import AppIcon from "@/components/desktop/AppIcon";
+import FolderIcon from "@/components/desktop/FolderIcon";
 import Glyph from "@/components/desktop/Glyph";
 import {
   BINARY_KINDS,
+  BOXEDWINE_KINDS,
+  FONT_KINDS,
+  MONACO_KINDS,
+  TIC80_KINDS,
+  TINYMCE_KINDS,
+  V86_KINDS,
+  VLC_KINDS,
   WEBAMP_KINDS,
   addFile,
   addFolder,
@@ -36,6 +53,7 @@ import {
   downloadText,
   downloadUrl,
   moveFileToFolder,
+  moveFolderTo,
   readFiles,
   readFolders,
   renameFile,
@@ -57,6 +75,7 @@ import {
   zipEntries,
   type ArchiveEntry,
 } from "@/utils/archives";
+import { unarchive } from "@/utils/unarchive";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 export interface FinderFile {
@@ -77,6 +96,10 @@ export interface FinderFile {
   custom?: boolean;
   /** Custom folder id when this file lives inside one. */
   folderId?: string;
+  /** macOS Tahoe folder color id (custom folders). */
+  color?: string;
+  /** Tahoe folder emoji badge (custom folders). */
+  emoji?: string;
   /** Entry inside a mounted zip/iso (read-only, not in storage). */
   archive?: boolean;
   /** Id of the custom archive file this entry lives in. */
@@ -149,8 +172,36 @@ const FILE_SETS: Record<string, FinderFile[]> = {
   ],
 };
 
-const FAVOURITES = ["Recents", "Applications", "Desktop", "Documents", "Downloads"];
+const FAVOURITES = ["Recents", "Applications", "Desktop", "Documents", "Downloads", "Projects"];
 const LOCATIONS = ["Pictures", "Aryan SSD", "Aryan Cloud"];
+
+/** Sidebar icons — the real Finder draws each location with a system icon. */
+const SIDEBAR_ICONS: Record<string, React.ReactNode> = {
+  Recents: <Clock size={13} />,
+  Applications: <LayoutGrid size={13} />,
+  Desktop: <Monitor size={13} />,
+  Documents: <FolderOpen size={13} />,
+  Downloads: <Download size={13} />,
+  Projects: <Folder size={13} />,
+  Pictures: <ImageIcon size={13} />,
+  "Aryan SSD": <HardDrive size={13} />,
+  "Aryan Cloud": <Cloud size={13} />,
+};
+
+// Projects is a real folder in the Finder: each project is an Internet
+// Location file that opens the live site (or GitHub) in the Browser.
+FILE_SETS["Projects"] = projects
+  .filter((p) => p.liveUrl || p.githubUrl)
+  .map((p) => ({
+    id: `proj-${p.id}`,
+    name: `${p.title}.url`,
+    kind: "Internet Location",
+    icon: "globe",
+    size: "--",
+    appId: "website",
+    url: p.liveUrl ?? p.githubUrl ?? "",
+    createdAt: p.sortDate ? `${p.sortDate}T00:00:00Z` : undefined,
+  }));
 
 // Showreel frames as real image files (right-click → Set as Wallpaper).
 FILE_SETS["Pictures"] = Array.from({ length: 32 }, (_, i) => ({
@@ -276,7 +327,7 @@ function fileToFinder(f: CustomFile): FinderFile {
         ? "chess"
         : kind === "Zip Archive"
           ? "archive"
-          : kind === "Disk Image"
+          : kind === "Disk Image" || kind === "Disc Image"
             ? "hard-drive"
             : kind === "Image"
               ? "image"
@@ -285,16 +336,25 @@ function fileToFinder(f: CustomFile): FinderFile {
                 : kind === "Flash Movie"
                   ? "ruffle"
                   : kind === "DOS Game" || kind === "DOS Program"
-                    ? "jsdos"
-                    : WEBAMP_KINDS.has(kind)
+                    ? "jsdos"                    : WEBAMP_KINDS.has(kind)
                       ? "webamp"
-                      : "file-text";
+                      : VLC_KINDS.has(kind)
+                        ? "film"
+                        : FONT_KINDS.has(kind)
+                          ? "file-text"
+                          : TINYMCE_KINDS.has(kind)
+                            ? "file-text"
+                            : TIC80_KINDS.has(kind)
+                              ? "emulator"
+                              : MONACO_KINDS.has(kind)
+                                ? "file-text"
+                                : "file-text";
   const appId =
     kind === "Markdown"
       ? "markdown"
       : kind === "PGN Game"
         ? "chess"
-        : kind === "Zip Archive" || kind === "Disk Image"
+        : kind === "Zip Archive" || kind === "Disc Image"
           ? "finder"
           : kind === "Image"
             ? "quicklook"
@@ -302,11 +362,25 @@ function fileToFinder(f: CustomFile): FinderFile {
               ? "emulator"
               : kind === "Flash Movie"
                 ? "ruffle"
-                : kind === "DOS Game" || kind === "DOS Program"
-                  ? "jsdos"
-                  : WEBAMP_KINDS.has(kind)
-                    ? "webamp"
-                    : "textedit";
+                : BOXEDWINE_KINDS.has(kind)
+                  ? "boxedwine"
+                  : V86_KINDS.has(kind)
+                    ? "v86"
+                    : kind === "DOS Game" || kind === "DOS Program"
+                      ? "jsdos"
+                      : WEBAMP_KINDS.has(kind)
+                        ? "webamp"
+                        : VLC_KINDS.has(kind)
+                          ? "vlc"
+                          : FONT_KINDS.has(kind)
+                            ? "opentype"
+                            : TINYMCE_KINDS.has(kind)
+                              ? "tinymce"
+                              : TIC80_KINDS.has(kind)
+                                ? "tic80"
+                                : MONACO_KINDS.has(kind)
+                                  ? "monaco"
+                                  : "textedit";
   return {
     id: f.id,
     name: f.name,
@@ -330,6 +404,9 @@ function folderToFinder(f: CustomFolder): FinderFile {
     appId: "folder",
     createdAt: f.createdAt,
     custom: true,
+    color: f.color,
+    emoji: f.emoji,
+    folderId: f.folderId,
   };
 }
 
@@ -339,6 +416,8 @@ interface FinderAppProps {
   onQuickLook: (file: FinderFile) => void;
   /** daedalOS “Set as wallpaper”: images can become the desktop background. */
   onSetWallpaper?: (src: string, name: string) => void;
+  /** Open this window at a location (e.g. the Projects folder). */
+  initialLocation?: string;
 }
 
 /** A working Finder: navigation, search, sort, context menus and a real
@@ -348,6 +427,7 @@ export default function FinderApp({
   onLaunchpad,
   onQuickLook,
   onSetWallpaper,
+  initialLocation,
 }: FinderAppProps) {
   const [bump, setBump] = useState(0);
   const customFiles = useMemo(() => readFiles(), [bump]);
@@ -356,7 +436,7 @@ export default function FinderApp({
 
   // Navigation history — back / forward / up, like a real file browser.
   const [nav, setNav] = useState<{ stack: string[]; index: number }>({
-    stack: ["Recents"],
+    stack: [initialLocation && FILE_SETS[initialLocation] ? initialLocation : "Recents"],
     index: 0,
   });
   const current = nav.stack[nav.index];
@@ -426,7 +506,10 @@ export default function FinderApp({
       ? current.slice("folder:".length)
       : undefined;
     if (clip.mode === "cut") {
-      moveFileToFolder(clip.id, folderId);
+      // Folders cut+paste as folders; files move into the target folder.
+      const isFolder = customFolders.some((f) => f.id === clip.id);
+      if (isFolder) moveFolderTo(clip.id, folderId);
+      else moveFileToFolder(clip.id, folderId);
       setCutId(null);
       flashClip(`Moved “${clip.name}” here`);
     } else {
@@ -441,7 +524,10 @@ export default function FinderApp({
 
   // Focus the rename input just after the creating click settles, so the
   // browser's default post-click focus can't steal it (which would fire an
-  // immediate blur and drop the rename state).
+  // immediate blur and drop the rename state). The dependency is the rename
+  // TARGET id — keying on the whole `renaming` object would re-run this on
+  // every keystroke and re-select the text 40ms later, silently wiping each
+  // typed character (the “can't type more than 2-3 letters” bug).
   useEffect(() => {
     if (!renaming) return;
     const t = window.setTimeout(() => {
@@ -449,7 +535,8 @@ export default function FinderApp({
       renameRef.current?.select();
     }, 40);
     return () => window.clearTimeout(t);
-  }, [renaming]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [renaming?.id]);
 
   const go = (loc: string) => {
     if (loc === current) return;
@@ -463,8 +550,12 @@ export default function FinderApp({
   const forward = () =>
     nav.index < nav.stack.length - 1 && setNav({ ...nav, index: nav.index + 1 });
   const up = () => {
-    if (current.startsWith("folder:")) go("Documents");
-    else {
+    // macOS: Up from inside a folder goes to its PARENT folder (or Documents).
+    if (current.startsWith("folder:")) {
+      const fid = current.slice("folder:".length);
+      const parent = customFolders.find((f) => f.id === fid)?.folderId;
+      go(parent ? `folder:${parent}` : "Documents");
+    } else {
       const arc = parseArchiveLoc(current);
       if (arc) {
         const parent = arc.path.includes("/")
@@ -537,13 +628,17 @@ export default function FinderApp({
     if (current === "Documents") {
       return [
         ...staticSet,
-        ...customFolders.map(folderToFinder),
+        ...customFolders.filter((f) => !f.folderId).map(folderToFinder),
         ...customFiles.filter((f) => !f.folderId).map(fileToFinder),
       ];
     }
     if (current.startsWith("folder:")) {
       const folderId = current.slice("folder:".length);
-      return customFiles.filter((f) => f.folderId === folderId).map(fileToFinder);
+      // A folder shows its nested folders AND files (real Finder behavior).
+      return [
+        ...customFolders.filter((f) => f.folderId === folderId).map(folderToFinder),
+        ...customFiles.filter((f) => f.folderId === folderId).map(fileToFinder),
+      ];
     }
     return staticSet;
   }, [current, customFiles, customFolders]);
@@ -616,6 +711,11 @@ export default function FinderApp({
   };
 
   const openFile = (file: FinderFile) => {
+    // Built-in folders (Projects, Pictures…) are real Finder locations.
+    if (file.kind === "Folder" && FILE_SETS[file.name]) {
+      go(file.name);
+      return;
+    }
     if (file.kind === "Folder" && file.custom) {
       go(`folder:${file.id}`);
       return;
@@ -661,11 +761,15 @@ export default function FinderApp({
   /* --------------------------- context menu --------------------------- */
 
   const menuNewFolder = () => {
-    const folder = addFolder("untitled folder");
+    // macOS: New Folder creates in the CURRENT location — the folder you're
+    // inside, or Documents when browsing a top-level location.
+    const inFolder = current.startsWith("folder:");
+    const folderId = inFolder ? current.slice("folder:".length) : undefined;
+    const folder = addFolder("untitled folder", folderId);
     originalNameRef.current = folder.name;
     refresh();
-    // New items live in Documents — jump there so the rename input is visible.
-    if (!current.startsWith("folder:")) go("Documents");
+    // Only land on Documents when we weren't already inside a folder.
+    if (!inFolder && current !== "Documents") go("Documents");
     setCtx(null);
     setRenaming({ id: folder.id, name: folder.name });
   };
@@ -729,8 +833,36 @@ export default function FinderApp({
   };
 
   // daedalOS Extract: materialize a zip/iso into a real folder of files.
-  const menuExtract = (file: FinderFile) => {
+  const menuExtract = async (file: FinderFile) => {
     setCtx(null);
+    // 7z / tar / gz / xz / bz2 / rar — extract straight from the stored
+    // bytes via the 7-Zip WASM engine (ported from daedalOS).
+    if (file.kind === "Archive" && file.custom) {
+      const src = customFiles.find((f) => f.id === file.id);
+      if (!src) return;
+      let files: Record<string, Uint8Array> = {};
+      try {
+        files = await unarchive(src.name, dataUrlToBytes(src.content));
+      } catch {
+        flashClip("Extract failed — is the archive valid?");
+        return;
+      }
+      const folder = addFolder(src.name.replace(/\.[^.]+$/, ""));
+      let count = 0;
+      for (const [path, bytes] of Object.entries(files)) {
+        const base = path.split("/").pop() || path;
+        addFile(
+          base,
+          isTextEntry(base) ? bytesToStr(bytes) : bytesToDataUrl(bytes, mimeOf(base)),
+          folder.id,
+        );
+        count++;
+      }
+      flashClip(`Extracted ${count} file${count === 1 ? "" : "s"} into “${folder.name}”`);
+      refresh();
+      go(`folder:${folder.id}`);
+      return;
+    }
     const entries = file.archiveId ? archiveCache.current.get(file.archiveId) : undefined;
     if (!entries?.length) return;
     const folder = addFolder(file.name.replace(/\.(zip|iso)$/i, ""));
@@ -801,6 +933,14 @@ export default function FinderApp({
     refresh();
   };
 
+  // The root container must be focusable so keyboard shortcuts keep routing
+  // through the Finder after a rename input unmounts (Escape/Enter) —
+  // otherwise focus falls to <body> and F5/Delete/arrows hit the browser.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const refocusRoot = () => {
+    window.setTimeout(() => rootRef.current?.focus(), 0);
+  };
+
   // Remember the name at the start of a rename, so blur-without-change is a
   // no-op instead of a silent rename.
   const originalNameRef = useRef<string | null>(null);
@@ -817,11 +957,68 @@ export default function FinderApp({
       refresh();
     }
     setRenaming(null);
+    refocusRoot();
   };
 
   /* ----------------------------- keyboard ----------------------------- */
 
+  // daedalOS arrow navigation: probe the grid with elementFromPoint so the
+  // selection follows the actual on-screen layout (works in grid AND list).
+  const selectByArrow = (e: React.KeyboardEvent) => {
+    if (!visible.length) return;
+    e.preventDefault();
+    const dir = e.key as "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight";
+    const from = selected.length
+      ? visible.findIndex((f) => f.id === selected[selected.length - 1])
+      : -1;
+    if (from === -1) {
+      setSelected([visible[0].id]); // nothing selected → start at the first
+      return;
+    }
+    const fromFile = visible[from];
+    const targetEl = document.querySelector<HTMLElement>(
+      `[data-finder-id="${CSS.escape(fromFile.id)}"]`,
+    );
+    if (!targetEl) return;
+    const { x, y, width, height } = targetEl.getBoundingClientRect();
+    const probe =
+      dir === "ArrowUp" || dir === "ArrowDown"
+        ? [x + width / 2, y + height / 2 + (dir === "ArrowUp" ? -height : height)]
+        : [x + width / 2 + (dir === "ArrowLeft" ? -width : width), y + height / 2];
+    const hit = document.elementFromPoint(probe[0], probe[1]);
+    const row = hit?.closest<HTMLElement>("[data-finder-id]");
+    const nextId = row?.dataset.finderId;
+    if (!nextId) return; // edge of the grid
+    if (e.shiftKey) {
+      // Shift+arrow extends the selection from the anchor to the target.
+      const anchor = visible.findIndex((f) => f.id === selected[0]);
+      const to = visible.findIndex((f) => f.id === nextId);
+      if (to === -1) return;
+      const lo = Math.min(anchor === -1 ? from : anchor, to);
+      const hi = Math.max(anchor === -1 ? from : anchor, to);
+      setSelected(visible.slice(lo, hi + 1).map((f) => f.id));
+    } else {
+      setSelected([nextId]);
+    }
+    row.scrollIntoView({ block: "nearest" });
+  };
+
   const onKeyDown = (e: React.KeyboardEvent) => {
+    // Esc with a menu open closes the menu (macOS) — and must NOT fall
+    // through to the desktop's global Esc (which would quit the machine).
+    if (e.key === "Escape" && (ctx || sortOpen)) {
+      e.stopPropagation();
+      setCtx(null);
+      setSortOpen(false);
+      return;
+    }
+    // F5 / ⌘R refresh — prevent the browser's default reload even when the
+    // focus is inside a Finder input (otherwise pressing F5 nukes the page).
+    if (e.key === "F5" || (e.metaKey && e.key.toLowerCase() === "r")) {
+      e.preventDefault();
+      refresh();
+      return;
+    }
     const t = e.target as HTMLElement;
     if (t.tagName === "INPUT" || t.tagName === "TEXTAREA") return;
     if (e.key === " " && selectedFile) {
@@ -830,6 +1027,8 @@ export default function FinderApp({
     } else if (e.key === "Enter" && selectedFile) {
       e.preventDefault();
       openFile(selectedFile);
+    } else if (e.key.startsWith("Arrow")) {
+      selectByArrow(e);
     } else if (e.key === "Delete" && selected.length) {
       e.preventDefault();
       const anyCustom = selected.some(
@@ -913,11 +1112,12 @@ export default function FinderApp({
     if (file.kind === "Folder" && file.custom) {
       let moved = 0;
       ids.forEach((id) => {
+        if (id === file.id) return;
         const f = visible.find((x) => x.id === id);
-        if (f?.custom && f.kind !== "Folder") {
-          moveFileToFolder(id, file.id);
-          moved += 1;
-        }
+        if (!f?.custom) return;
+        if (f.kind === "Folder") moveFolderTo(id, file.id);
+        else moveFileToFolder(id, file.id);
+        moved += 1;
       });
       if (moved) flashClip(`Moved ${moved} item${moved > 1 ? "s" : ""} into “${file.name}”`);
       refresh();
@@ -980,7 +1180,13 @@ export default function FinderApp({
   }, [current, customFiles]);
 
   return (
-    <div className={styles.finder} data-app="finder" onKeyDown={onKeyDown}>
+    <div
+      ref={rootRef}
+      tabIndex={0}
+      className={styles.finder}
+      data-app="finder"
+      onKeyDown={onKeyDown}
+    >
       {/* toolbar */}
       <div className={styles.finderToolbar}>
         <span className={styles.finderNav}>
@@ -1048,6 +1254,37 @@ export default function FinderApp({
           </button>
         )}
         <span className={styles.finderToolbarRight}>
+          <button
+            type="button"
+            className={styles.finderToolbarBtn}
+            onClick={menuNewFolder}
+            title="New Folder"
+          >
+            <FolderPlus size={13} /> New Folder
+          </button>
+          <button
+            type="button"
+            className={styles.finderToolbarBtn}
+            onClick={menuNewDoc}
+            title="New Text Document"
+          >
+            <FilePlus2 size={13} /> New Document
+          </button>
+          {/* Move to Trash — a visible delete for selected custom items,
+              exactly like Finder's toolbar trash. Disabled until something
+              deletable is selected. */}
+          <button
+            type="button"
+            className={`${styles.finderToolbarBtn} ${styles.finderTrashBtn}`}
+            onClick={menuDeleteMany}
+            title="Move to Trash"
+            disabled={
+              selected.length === 0 ||
+              !selected.some((id) => visible.find((x) => x.id === id)?.custom)
+            }
+          >
+            <Trash2 size={13} /> Move to Trash
+          </button>
           <div className={styles.finderSortWrap}>
             <button
               type="button"
@@ -1180,6 +1417,9 @@ export default function FinderApp({
               }`}
               onClick={() => openSidebar(item)}
             >
+              <span className={styles.finderSidebarIcon} aria-hidden>
+                {SIDEBAR_ICONS[item]}
+              </span>
               {item}
             </button>
           ))}
@@ -1195,6 +1435,9 @@ export default function FinderApp({
                   }`}
                   onClick={() => go(`folder:${f.id}`)}
                 >
+                  <span className={styles.finderSidebarIcon} aria-hidden>
+                    <Folder size={13} />
+                  </span>
                   {f.name}
                 </button>
               ))}
@@ -1210,6 +1453,9 @@ export default function FinderApp({
               }`}
               onClick={() => go(item)}
             >
+              <span className={styles.finderSidebarIcon} aria-hidden>
+                {SIDEBAR_ICONS[item]}
+              </span>
               {item}
             </button>
           ))}
@@ -1217,7 +1463,9 @@ export default function FinderApp({
 
         {/* file grid */}
         <div
-          className={styles.finderFiles}
+          className={`${styles.finderFiles} ${
+            view === "list" ? styles.finderFilesList : ""
+          }`}
           onContextMenu={(e) => {
             e.preventDefault();
             setCtx({ x: e.clientX, y: e.clientY });
@@ -1258,6 +1506,7 @@ export default function FinderApp({
                 <button
                   key={file.id}
                   type="button"
+                  data-finder-id={file.id}
                   draggable={canArrange && !file.archive}
                   className={`${styles.finderFile} ${
                     selected.includes(file.id) ? styles.finderFileSelected : ""
@@ -1297,7 +1546,9 @@ export default function FinderApp({
                   onDrop={(e) => onDropItem(file, e)}
                   onDragEnd={clearDrag}
                 >
-                  {(file.custom || file.archive) && file.icon ? (
+                  {file.custom && file.kind === "Folder" ? (
+                    <FolderIcon size={40} color={file.color} emoji={file.emoji} />
+                  ) : (file.custom || file.archive) && file.icon ? (
                     <Glyph id={file.icon} size={40} />
                   ) : app && file.kind !== "Folder" ? (
                     <AppIcon app={app} size={40} />
@@ -1321,10 +1572,14 @@ export default function FinderApp({
                       }
                       onFocus={(e) => e.target.select()}
                       onKeyDown={(e) => {
+                        e.stopPropagation();
                         // Commit only on an explicit Enter — a stray blur can
                         // never drop the rename state mid-edit.
                         if (e.key === "Enter") commitRename();
-                        if (e.key === "Escape") setRenaming(null);
+                        if (e.key === "Escape") {
+                          setRenaming(null);
+                          refocusRoot();
+                        }
                       }}
                       onClick={(e) => e.stopPropagation()}
                       aria-label="Rename file"
@@ -1378,6 +1633,7 @@ export default function FinderApp({
                     key={file.id}
                     role="button"
                     tabIndex={0}
+                    data-finder-id={file.id}
                     draggable={canArrange && !file.archive}
                     className={`${styles.finderListRow} ${
                       selected.includes(file.id) ? styles.finderFileSelected : ""
@@ -1407,7 +1663,9 @@ export default function FinderApp({
                     onDragEnd={clearDrag}
                   >
                     <span className={styles.finderListName}>
-                      {(file.custom || file.archive) && file.icon ? (
+                      {file.custom && file.kind === "Folder" ? (
+                        <FolderIcon size={18} color={file.color} emoji={file.emoji} />
+                      ) : (file.custom || file.archive) && file.icon ? (
                         <Glyph id={file.icon} size={18} />
                       ) : app && file.kind !== "Folder" ? (
                         <AppIcon app={app} size={18} />
@@ -1432,7 +1690,10 @@ export default function FinderApp({
                           onKeyDown={(e) => {
                             e.stopPropagation();
                             if (e.key === "Enter") commitRename();
-                            if (e.key === "Escape") setRenaming(null);
+                            if (e.key === "Escape") {
+                              setRenaming(null);
+                              refocusRoot();
+                            }
                           }}
                           onClick={(e) => e.stopPropagation()}
                           aria-label="Rename file"
@@ -1477,7 +1738,7 @@ export default function FinderApp({
             </div>
             <div className={styles.finderInfoThumb}>
               {info.kind === "Folder" ? (
-                <img src="/aryan/icons/folder.png" alt="" width={56} height={56} />
+                <FolderIcon size={56} color={info.color} emoji={info.emoji} />
               ) : (
                 <AppIcon
                   app={DESKTOP_APPS.find((a) => a.id === info.appId) ?? DESKTOP_APPS[0]}
@@ -1519,9 +1780,11 @@ export default function FinderApp({
         )}
       </div>
 
-      {/* context menu */}
-      {ctx && (
-        <>
+      {/* context menu — portaled to <body>: the window's transform would
+          otherwise make this fixed menu land offset from the cursor */}
+      {ctx &&
+        createPortal(
+          <>
           <div
             className={styles.finderCtxBackdrop}
             onClick={() => setCtx(null)}
@@ -1587,7 +1850,7 @@ export default function FinderApp({
                       <Trash2 size={12} /> Move to Trash
                     </button>
                     <div className={styles.finderCtxSep} />
-                    {(ctx.file.kind === "Zip Archive" || ctx.file.kind === "Disk Image") && (
+                    {(ctx.file.kind === "Zip Archive" || ctx.file.kind === "Disk Image" || ctx.file.kind === "Disc Image" || ctx.file.kind === "Archive") && (
                       <button type="button" className={styles.finderCtxItem} onClick={() => menuExtract(ctx.file!)}>
                         <PackageOpen size={12} /> Extract Here
                       </button>
@@ -1710,8 +1973,27 @@ export default function FinderApp({
               </>
             )}
           </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
+
+      {/* status bar — “X items” plus the selection count, like the real
+          Finder's View → Show Status Bar */}
+      <div className={styles.finderStatusbar}>
+        <span className={styles.finderStatusItem}>
+          {visible.length} item{visible.length === 1 ? "" : "s"}
+        </span>
+        {selected.length > 0 && (
+          <span className={styles.finderStatusItem}>
+            {selected.length} selected
+          </span>
+        )}
+        {archiveOwner && (
+          <span className={styles.finderStatusItem}>
+            Inside {archiveOwner.name}
+          </span>
+        )}
+      </div>
 
       {/* clipboard status (path bar left of the breadcrumbs) */}
       {clipMsg && <div className={styles.finderClipToast}>{clipMsg}</div>}

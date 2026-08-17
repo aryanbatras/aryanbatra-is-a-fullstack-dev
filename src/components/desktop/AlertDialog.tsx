@@ -39,8 +39,10 @@ export default function AlertDialog({ alert, onClose }: AlertDialogProps) {
         role="alertdialog"
         aria-label={alert.title}
       >
-        <h3 className={styles.alertTitle}>{alert.title}</h3>
-        <p className={styles.alertMessage}>{alert.message}</p>
+        <div className={styles.alertTitleWrap}>
+          <h3 className={styles.alertTitle}>{alert.title}</h3>
+          <p className={styles.alertMessage}>{alert.message}</p>
+        </div>
         <div className={styles.alertActions}>
           <button
             ref={cancelRef}

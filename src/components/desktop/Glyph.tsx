@@ -19,6 +19,7 @@ import {
   Folder,
   Gamepad2,
   Globe,
+  Grid3x3,
   HardDrive,
   Image,
   Info,
@@ -90,6 +91,15 @@ const IMAGES: Record<string, string> = {
   emulator: "/aryan/icons/emulator.png",
   ruffle: "/aryan/icons/ruffle.png",
   jsdos: "/aryan/icons/jsdos.png",
+  monaco: "/aryan/icons/monaco.png",
+  tinymce: "/aryan/icons/tinymce.png",
+  kiwiirc: "/aryan/icons/kiwiirc.png",
+  tic80: "/aryan/icons/tic80.png",
+  classicube: "/aryan/icons/classicube.png",
+  boxedwine: "/aryan/icons/boxedwine.png",
+  v86: "/aryan/icons/v86.png",
+  messenger: "/aryan/icons/messenger.png",
+  dxball: "/aryan/icons/dxball.png",
 };
 
 const LUCIDE: Record<string, LucideIcon> = {
@@ -111,6 +121,7 @@ const LUCIDE: Record<string, LucideIcon> = {
   folder: Folder,
   gamepad: Gamepad2,
   globe: Globe,
+  grid: Grid3x3,
   "hard-drive": HardDrive,
   image: Image,
   info: Info,

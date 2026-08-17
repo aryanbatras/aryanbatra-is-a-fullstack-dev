@@ -23,6 +23,12 @@ export interface CustomFolder {
   id: string;
   name: string;
   createdAt: string;
+  /** macOS Tahoe folder color id (blue / gray / green / orange / pink / purple / red / yellow). */
+  color?: string;
+  /** Optional emoji badge (Tahoe folder emoji). */
+  emoji?: string;
+  /** Parent custom folder id — folders nest like real Finder (undefined = Documents). */
+  folderId?: string;
 }
 
 export interface DroppedPhoto {
@@ -65,22 +71,29 @@ function uid(prefix: string) {
 /* ----------------------------- files/folders ----------------------------- */
 
 export function readFolders(): CustomFolder[] {
-  return read<CustomFolder[]>(FS_KEY, []).filter((f) => f && f.name);
+  // Folders and files share one localStorage array — disambiguate by id
+  // prefix, otherwise every dropped file also shows up as a phantom folder.
+  return read<CustomFolder[]>(FS_KEY, []).filter(
+    (f) => f && typeof f.id === "string" && f.id.startsWith("folder-"),
+  );
 }
 
 export function readFiles(): CustomFile[] {
-  return read<CustomFile[]>(FS_KEY, []).filter((f) => f && f.name);
+  return read<CustomFile[]>(FS_KEY, []).filter(
+    (f) => f && typeof f.id === "string" && f.id.startsWith("file-"),
+  );
 }
 
 function saveAll(folders: CustomFolder[], files: CustomFile[]) {
   write(FS_KEY, [...folders, ...files]);
 }
 
-export function addFolder(name: string): CustomFolder {
+export function addFolder(name: string, folderId?: string): CustomFolder {
   const folder: CustomFolder = {
     id: uid("folder"),
     name,
     createdAt: new Date().toISOString(),
+    folderId,
   };
   saveAll([...readFolders(), folder], readFiles());
   return folder;
@@ -121,6 +134,20 @@ export function moveFileToFolder(id: string, folderId?: string) {
   saveAll(readFolders(), files);
 }
 
+/** Move a folder into another folder (undefined = Documents root). Prevents
+ *  a folder from becoming its own descendant. */
+export function moveFolderTo(id: string, folderId?: string) {
+  if (folderId === id) return;
+  const all = readFolders();
+  // Walk up the chain — if moving INTO this folder's own subtree, refuse.
+  let cursor = folderId;
+  while (cursor) {
+    if (cursor === id) return;
+    cursor = all.find((f) => f.id === cursor)?.folderId;
+  }
+  saveAll(all.map((f) => (f.id === id ? { ...f, folderId } : f)), readFiles());
+}
+
 /** Duplicate a file into a folder (daedalOS copy). */
 export function copyFileTo(id: string, folderId?: string) {
   const src = readFiles().find((f) => f.id === id);
@@ -135,7 +162,7 @@ export function copyFileTo(id: string, folderId?: string) {
   saveAll(readFolders(), [...readFiles(), copy]);
 }
 
-/** Duplicate a folder and everything inside it. */
+/** Duplicate a folder and everything inside it (files + nested folders). */
 export function copyFolderTo(id: string, folderId?: string) {
   const src = readFolders().find((f) => f.id === id);
   if (!src) return;
@@ -144,11 +171,35 @@ export function copyFolderTo(id: string, folderId?: string) {
     id: uid("folder"),
     name: copyName(src.name),
     createdAt: new Date().toISOString(),
+    folderId,
   };
+  // Copy nested folders recursively, remapping each child's parent to the copy.
+  const idMap = new Map<string, string>([[src.id, copy.id]]);
+  const allFolders = readFolders();
+  const nested = allFolders.filter((f) => f.folderId === src.id);
+  const copies: CustomFolder[] = [copy];
+  const clone = (parent: CustomFolder) => {
+    allFolders
+      .filter((f) => f.folderId === parent.id)
+      .forEach((child) => {
+        const childCopy: CustomFolder = {
+          ...child,
+          id: uid("folder"),
+          createdAt: new Date().toISOString(),
+          folderId: idMap.get(parent.id),
+        };
+        idMap.set(child.id, childCopy.id);
+        copies.push(childCopy);
+        clone(childCopy);
+      });
+  };
+  if (nested.length) clone(src);
   const files = readFiles().map((f) =>
-    f.folderId === id ? { ...f, folderId: copy.id } : f,
+    f.folderId && idMap.has(f.folderId)
+      ? { ...f, folderId: idMap.get(f.folderId) }
+      : f,
   );
-  saveAll([...readFolders(), copy], files);
+  saveAll([...allFolders, ...copies], files);
 }
 
 export function renameFile(id: string, name: string) {
@@ -163,14 +214,35 @@ export function deleteFile(id: string) {
 }
 
 export function deleteFolder(id: string) {
+  // Delete the folder, its nested folders, and everything inside them.
+  const allFolders = readFolders();
+  const doomed = new Set<string>([id]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const f of allFolders) {
+      if (f.folderId && doomed.has(f.folderId) && !doomed.has(f.id)) {
+        doomed.add(f.id);
+        grew = true;
+      }
+    }
+  }
   saveAll(
-    readFolders().filter((f) => f.id !== id),
-    readFiles().filter((f) => f.folderId !== id),
+    allFolders.filter((f) => !doomed.has(f.id)),
+    readFiles().filter((f) => !(f.folderId && doomed.has(f.folderId))),
   );
 }
 
 export function renameFolder(id: string, name: string) {
   const folders = readFolders().map((f) => (f.id === id ? { ...f, name } : f));
+  saveAll(folders, readFiles());
+}
+
+/** Set a folder's Tahoe color / emoji badge (kept in sync with the wallpaper). */
+export function setFolderStyle(id: string, style: { color?: string; emoji?: string }) {
+  const folders = readFolders().map((f) =>
+    f.id === id ? { ...f, ...style } : f,
+  );
   saveAll(folders, readFiles());
 }
 
@@ -193,17 +265,37 @@ export function kindOf(name: string): string {
     c: "C",
     cpp: "C++",
     pgn: "PGN Game",
+    tic: "TIC Cart",
+    rtf: "Rich Text",
+    whtml: "Rich Text",
     mp3: "MP3 Audio",
     wav: "Audio",
     ogg: "Audio",
     flac: "Audio",
     m4a: "Audio",
     aac: "Audio",
+    mp4: "Movie",
+    mov: "Movie",
+    m4v: "Movie",
+    webm: "Movie",
+    mkv: "Movie",
+    avi: "Movie",
+    otf: "Font",
+    ttf: "Font",
+    woff: "Font",
+    woff2: "Font",
     m3u: "Playlist",
     m3u8: "Playlist",
     wsz: "Winamp Skin",
     zip: "Zip Archive",
-    iso: "Disk Image",
+    "7z": "Archive",
+    tar: "Archive",
+    tgz: "Archive",
+    gz: "Archive",
+    xz: "Archive",
+    bz2: "Archive",
+    rar: "Archive",
+    iso: "Disc Image",
     png: "Image",
     jpg: "Image",
     jpeg: "Image",
@@ -215,7 +307,11 @@ export function kindOf(name: string): string {
     swf: "Flash Movie",
     spl: "Flash Movie",
     jsdos: "DOS Game",
-    exe: "DOS Program",
+    exe: "Windows Application",
+    dsk: "Disk Image",
+    bin: "Disk Image",
+    vhd: "Disk Image",
+    vfd: "Disk Image",
     nes: "ROM Game",
     smc: "ROM Game",
     sfc: "ROM Game",
@@ -262,8 +358,11 @@ export const BINARY_KINDS = new Set([
   "Audio",
   "Winamp Skin",
   "Zip Archive",
+  "Archive",
   "Disk Image",
   "Image",
+  "Movie",
+  "Font",
   "ROM Game",
   "Flash Movie",
   "DOS Game",
@@ -276,6 +375,40 @@ export const WEBAMP_KINDS = new Set([
   "Audio",
   "Playlist",
   "Winamp Skin",
+]);
+
+/** True for kinds that open in the VLC media player (movies). */
+export const VLC_KINDS = new Set(["Movie"]);
+
+/** True for kinds that open in the OpenType font viewer. */
+export const FONT_KINDS = new Set(["Font"]);
+
+/** True for kinds that open in the BoxedWine Windows emulator (daedalOS). */
+export const BOXEDWINE_KINDS = new Set(["Windows Application"]);
+
+/** True for kinds that open in the Virtual x86 emulator (daedalOS). */
+export const V86_KINDS = new Set(["Disk Image"]);
+
+/** True for kinds that open in the TinyMCE rich-text editor (daedalOS). */
+export const TINYMCE_KINDS = new Set(["Rich Text"]);
+
+/** True for kinds that open in the TIC-80 fantasy computer (daedalOS). */
+export const TIC80_KINDS = new Set(["TIC Cart"]);
+
+/** True for kinds that open in the Monaco code editor (daedalOS). */
+export const MONACO_KINDS = new Set([
+  "JavaScript",
+  "JavaScript React",
+  "TypeScript",
+  "TypeScript React",
+  "JSON",
+  "HTML",
+  "CSS",
+  "Java",
+  "Python",
+  "Shell Script",
+  "C",
+  "C++",
 ]);
 
 /** Language id for the TextEdit highlighter. */

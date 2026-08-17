@@ -8,9 +8,13 @@ html, body {
        the system UI fallbacks for every surface that reads overlays/desktop. */
     --font-ui: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display",
         "SF Pro Text", "Helvetica Neue", "Segoe UI", Inter, Roboto, Arial, sans-serif;
+    /* The site's signature red arrow cursor — one definition, shared by the
+       main site AND the desktop (which must not override it back to the
+       boring default arrow, or the red mouse disappears when the OS boots). */
+    --os-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="darkred"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>'), auto;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
         "Helvetica Neue", "Segoe UI", Inter, Roboto, Arial, sans-serif;
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="darkred"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>'), auto;
+    cursor: var(--os-cursor);
     overflow-x: hidden;
     width: 100%;
 }

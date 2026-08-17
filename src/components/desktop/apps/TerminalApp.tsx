@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DESKTOP_APPS, TERMINAL_COMMANDS } from "@/constants/desktop";
+import { spawnSheep } from "@/utils/sheep";
+import { getPyodide, runPython } from "@/utils/pyodide";
 import { WEATHER_DESC } from "@/hooks/useLiveWeather";
 import useSystemInfo from "@/hooks/useSystemInfo";
 import styles from "@/styles/components/desktop/apps.module.css";
@@ -30,12 +32,165 @@ const APP_ALIASES: Record<string, string> = {
   chess: "games",
   minesweeper: "games",
   tetris: "games",
+  monaco: "monaco",
+  code: "monaco",
+  tinymce: "tinymce",
+  irc: "irc",
+  tic80: "tic80",
+  classicube: "classicube",
+  boxedwine: "boxedwine",
+  wine: "boxedwine",
+  v86: "v86",
+  vm: "v86",
+  messenger: "messenger",
+  nostr: "messenger",
 };
 
 interface Line {
   text: string;
   prompt?: boolean;
   error?: boolean;
+}
+
+/* ----- macOS Tahoe Terminal refresh: 24-bit ANSI colour rendering. ----- */
+
+interface AnsiSpan {
+  text: string;
+  fg?: string;
+  bg?: string;
+  bold?: boolean;
+  underline?: boolean;
+}
+
+const ANSI_RE =
+  /\u001b\[(\d+(?:;\d+)*)m/g;
+
+/** Parse an ANSI SGR stream into plain spans with inline styles (24-bit). */
+function parseAnsi(text: string): AnsiSpan[] {
+  const out: AnsiSpan[] = [];
+  let last = 0;
+  let fg: string | undefined;
+  let bg: string | undefined;
+  let bold = false;
+  let underline = false;
+  let m: RegExpExecArray | null;
+  let current = "";
+  const flush = () => {
+    if (current) {
+      out.push({ text: current, fg, bg, bold, underline });
+      current = "";
+    }
+  };
+  const reset = () => {
+    flush();
+    fg = undefined;
+    bg = undefined;
+    bold = false;
+    underline = false;
+  };
+  ANSI_RE.lastIndex = 0;
+  while ((m = ANSI_RE.exec(text)) !== null) {
+    current += text.slice(last, m.index);
+    const codes = m[1].split(";").map(Number);
+    for (let i = 0; i < codes.length; i++) {
+      const c = codes[i];
+      if (c === 0) {
+        reset();
+      } else if (c === 1) {
+        flush();
+        bold = true;
+      } else if (c === 4) {
+        flush();
+        underline = true;
+      } else if (c === 22) {
+        flush();
+        bold = false;
+      } else if (c === 24) {
+        flush();
+        underline = false;
+      } else if (c >= 30 && c <= 37) {
+        flush();
+        fg = ["#1a1a1a", "#cc0000", "#4e9a06", "#c4a000", "#3465a4", "#75507b", "#06989a", "#d3d7cf"][c - 30];
+      } else if (c >= 90 && c <= 97) {
+        flush();
+        fg = ["#555753", "#ef2929", "#8ae234", "#fce94f", "#729fcf", "#ad7fa8", "#34e2e2", "#eeeeec"][c - 90];
+      } else if (c === 38 || c === 48) {
+        // 38;5;n (256-colour) or 38;2;r;g;b (24-bit true colour).
+        const isFg = c === 38;
+        const next = codes[i + 1];
+        if (next === 5 && codes[i + 2] !== undefined) {
+          const n = codes[i + 2];
+          const hex = n < 16 ? ANSI_REBASED[n] : n < 232 ? cubeToHex(n) : grayToHex(n);
+          flush();
+          if (isFg) fg = hex;
+          else bg = hex;
+          i += 2;
+        } else if (next === 2 && codes[i + 4] !== undefined) {
+          const hex = `#${codes[i + 2].toString(16).padStart(2, "0")}${codes[i + 3]
+            .toString(16)
+            .padStart(2, "0")}${codes[i + 4].toString(16).padStart(2, "0")}`;
+          flush();
+          if (isFg) fg = hex;
+          else bg = hex;
+          i += 4;
+        }
+      } else if (c === 39) {
+        flush();
+        fg = undefined;
+      } else if (c === 49) {
+        flush();
+        bg = undefined;
+      }
+    }
+    last = ANSI_RE.lastIndex;
+  }
+  current += text.slice(last);
+  flush();
+  return out;
+}
+
+const ANSI_REBASED: string[] = [
+  "#000000", "#cc0000", "#4e9a06", "#c4a000", "#3465a4", "#75507b", "#06989a", "#d3d7cf",
+  "#555753", "#ef2929", "#8ae234", "#fce94f", "#729fcf", "#ad7fa8", "#34e2e2", "#eeeeec",
+];
+
+function cubeToHex(n: number): string {
+  const cube = n - 16;
+  const r = Math.floor(cube / 36);
+  const g = Math.floor((cube % 36) / 6);
+  const b = cube % 6;
+  const val = (v: number) => [0, 95, 135, 175, 215, 255][v];
+  return `#${val(r).toString(16).padStart(2, "0")}${val(g).toString(16).padStart(2, "0")}${val(b)
+    .toString(16)
+    .padStart(2, "0")}`;
+}
+
+function grayToHex(n: number): string {
+  const v = 8 + (n - 232) * 10;
+  return `#${v.toString(16).padStart(2, "0")}${v.toString(16).padStart(2, "0")}${v.toString(16).padStart(2, "0")}`;
+}
+
+/** Render a possibly-ANSI string as coloured <span>s. */
+function AnsiText({ text }: { text: string }) {
+  if (!text.includes("\u001b")) return <>{text}</>;
+  const spans = parseAnsi(text);
+  return (
+    <>
+      {spans.map((s, i) => (
+        <span
+          key={i}
+          style={{
+            color: s.fg,
+            backgroundColor: s.bg,
+            fontWeight: s.bold ? 700 : undefined,
+            textDecoration: s.underline ? "underline" : undefined,
+          }}
+        >
+          {s.text}
+        </span>
+      ))}
+    </>
+  );
 }
 
 interface TerminalAppProps {
@@ -122,11 +277,16 @@ export default function TerminalApp({ onOpenApp }: TerminalAppProps) {
   };
 
   const cmdMatrix = () => {
+    // Tahoe Terminal: green-on-black rain, 24-bit colour.
     const chars = "アイウエオカキクケコサシスセソ01ABCDEF";
     const rows = Array.from({ length: 10 }, () =>
       Array.from({ length: 34 }, () => {
         const c = chars[Math.floor(Math.random() * chars.length)];
-        return Math.random() < 0.12 ? " " : c;
+        const bright = Math.random() < 0.18;
+        return (Math.random() < 0.12 ? " " : c)
+          .replace(/./, (ch) =>
+            ch === " " ? " " : `\u001b[38;2;${bright ? "0;255;90" : "0;170;60"}m${ch}`,
+          );
       }).join(""),
     );
     push({ text: rows.join("\n") });
@@ -137,13 +297,38 @@ export default function TerminalApp({ onOpenApp }: TerminalAppProps) {
       push({ text: "usage: banner <text>", error: true });
       return;
     }
+    // Tahoe Terminal: a cyan 24-bit banner.
     const inner = ` ${text} `;
     const border = "─".repeat(inner.length);
-    push({ text: `┌${border}┐\n│${inner}│\n└${border}┘` });
+    const line = (s: string) => `\u001b[38;2;102;217;255m${s}\u001b[0m`;
+    push({ text: `${line(`┌${border}┐`)}\n${line(`│${inner}│`)}\n${line(`└${border}┘`)}` });
   };
 
   const cmdSudo = () => {
     push({ text: "aryan is not in the sudoers file. This incident will be reported.", error: true });
+  };
+
+  /** Real Python 3 (Pyodide) — served locally, ported from daedalOS. */
+  const pythonBooted = useRef(false);
+  const cmdPython = async (code: string) => {
+    if (!pythonBooted.current) {
+      push({ text: "python: booting Pyodide (a real CPython 3 interpreter in the browser)…" });
+      try {
+        await getPyodide();
+        pythonBooted.current = true;
+      } catch {
+        push({ text: "python: failed to boot Pyodide.", error: true });
+        return;
+      }
+    }
+    if (!code) {
+      push({
+        text:
+          "usage: python <code> — e.g. python 2+2, python 'print(1+1)', python version",
+      });
+      return;
+    }
+    await runPython(code, (out) => push({ text: out }));
   };
 
   /* ----------------------------- pipe support ----------------------------- */
@@ -217,6 +402,22 @@ export default function TerminalApp({ onOpenApp }: TerminalAppProps) {
     if (name === "sudo") {
       setLines(next);
       cmdSudo();
+      return;
+    }
+    // eSheep — daedalOS's desktop pet (also in the Run dialog / context menu).
+    if (name === "sheep" || name === "esheep") {
+      setLines(next);
+      spawnSheep(true)
+        .then(() =>
+          push({ text: "A sheep has joined your desktop. Right-click the desktop for more." }),
+        )
+        .catch(() => push({ text: "eSheep failed to load.", error: true }));
+      return;
+    }
+    // Python 3 (Pyodide) — a real interpreter, ported from daedalOS.
+    if (name === "python" || name === "python3" || name === "py") {
+      setLines(next);
+      cmdPython(headCmd.split(/\s+/).slice(1).join(" "));
       return;
     }
 
@@ -294,7 +495,7 @@ export default function TerminalApp({ onOpenApp }: TerminalAppProps) {
                   : styles.termLine
             }
           >
-            {l.text}
+            <AnsiText text={l.text} />
           </div>
         ))}
         <div className={styles.termInputLine}>

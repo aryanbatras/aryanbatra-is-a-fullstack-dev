@@ -24,7 +24,9 @@ export default function Navbar() {
 
   // The home page IS the fullscreen showreel + desktop — no chrome at all.
   // /new is an alias that redirects here, so both are chrome-free.
-  if (router.pathname === "/" || router.pathname === "/new") return null;
+  // /desktop is the standalone test route — it boots the OS fullscreen, so
+  // the site chrome stays out of the way there too.
+  if (router.pathname === "/" || router.pathname === "/new" || router.pathname === "/desktop") return null;
 
   // /legacy is the classic site embedded inside the desktop's Portfolio app.
   // The showreel routes would load the whole machine inside the iframe, so

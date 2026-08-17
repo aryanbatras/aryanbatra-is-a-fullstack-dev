@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DESKTOP_APPS } from "@/constants/desktop";
+import { spawnSheep } from "@/utils/sheep";
 import { sounds } from "@/utils/sounds";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
 
@@ -11,8 +12,8 @@ const RUN_HISTORY_KEY = "aryanos.run.history";
 const APP_ALIASES: Record<string, string> = {
   cmd: "terminal",
   terminal: "terminal",
-  code: "textedit",
-  monaco: "textedit",
+  code: "monaco",
+  monaco: "monaco",
   explorer: "finder",
   finder: "finder",
   mspaint: "paint",
@@ -25,6 +26,17 @@ const APP_ALIASES: Record<string, string> = {
   browser: "website",
   games: "games",
   chess: "games",
+  classicube: "classicube",
+  tic80: "tic80",
+  tinymce: "tinymce",
+  irc: "irc",
+  boxedwine: "boxedwine",
+  wine: "boxedwine",
+  v86: "v86",
+  virtualx86: "v86",
+  vm: "v86",
+  messenger: "messenger",
+  nostr: "messenger",
   settings: "settings",
   notes: "notes",
   photos: "photos",
@@ -87,6 +99,16 @@ export default function RunDialog({ onClose, onOpenApp }: RunDialogProps) {
   const run = () => {
     const raw = value.trim();
     if (!raw) return;
+    // daedalOS special case: `esheep` / `sheep` spawn a desktop pet.
+    if (/^esheep|sheep$/i.test(raw)) {
+      const next = [raw, ...history.filter((h) => h !== raw)];
+      setHistory(next);
+      saveHistory(next);
+      sounds.pop();
+      spawnSheep(true).catch(() => setError("eSheep failed to load."));
+      onClose();
+      return;
+    }
     const match = resolveApp(raw);
     if (!match) {
       setError(`“${raw}” is not an app on this machine.`);
@@ -137,7 +159,7 @@ export default function RunDialog({ onClose, onOpenApp }: RunDialogProps) {
                 if (e.key === "Enter") run();
                 if (e.key === "Escape") onClose();
               }}
-              placeholder="e.g. Finder, cmd, explorer, mspaint…"
+              placeholder="e.g. Finder, cmd, esheep, mspaint…"
               autoComplete="off"
               spellCheck={false}
               aria-label="App to open"

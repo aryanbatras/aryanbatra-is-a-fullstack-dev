@@ -20,8 +20,9 @@
   flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* macOS uses the arrow cursor on everything, including buttons */
-  cursor: default;
+  /* The site's red arrow cursor — shared with the main site, so the custom
+     mouse never disappears inside the OS. Text fields switch to caret. */
+  cursor: var(--os-cursor);
   touch-action: manipulation; /* no double-tap zoom on mobile */
   overscroll-behavior: none; /* never chain scroll to the page behind */
 }
@@ -37,7 +38,7 @@
 .desktop button,
 .desktop a,
 .desktop [role="button"] {
-  cursor: default;
+  cursor: var(--os-cursor);
 }
 
 .desktop input,
@@ -54,17 +55,48 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 14px 0 8px;
-  /* Tahoe: the menu bar is fully transparent — just a whisper of gradient at
-     the very top for legibility over bright wallpapers. */
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.24), transparent);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: blur(40px) saturate(190%);
-  color: rgba(245, 245, 247, 0.96);
+  /* Tahoe liquid glass menu bar: COMPLETELY transparent by default — no
+     colored fill, just a faint blur + brightness so the wallpaper reads
+     through. Legibility comes from the blur alone, exactly like macOS 26. */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 255, 255, 0.015) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  backdrop-filter: blur(38px) saturate(165%) brightness(1.12);
+  -webkit-backdrop-filter: blur(38px) saturate(165%) brightness(1.12);
+  color: rgba(245, 245, 247, 0.97);
   font-size: 13px;
-  position: relative;
+  /* Overlay at the very top (macOS). Windows and the wallpaper run right
+     up underneath it; the bar itself is pure glass. */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 3000;
   border-bottom: 0.5px solid rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0.35, 1);
+}
+
+/* Settings → Wallpaper → Menu bar: Semi-transparent — the Sequoia-style
+   frosted fill that macOS 26 offers alongside the default transparent bar. */
+.menuBarSemi {
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 32, 42, 0.42),
+    rgba(30, 32, 42, 0.28)
+  );
+  backdrop-filter: blur(40px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.04);
+}
+
+/* Auto-hide (macOS): slides up off-screen; hover the top edge to bring it
+   back. Pointer events are off while hidden so nothing traps the cursor. */
+.menuBarHidden {
+  transform: translateY(-100%);
+  pointer-events: none;
 }
 
 .menuLeft {
@@ -74,6 +106,7 @@
 }
 
 .appName {
+  /* Spec: the app name is the heavy member of the menu bar (SF Pro Semibold). */
   font-weight: 700;
   font-size: 13px;
   padding: 0 14px 0 8px;
@@ -96,12 +129,13 @@
   display: flex;
   align-items: center;
   cursor: default;
-  border-radius: 5px;
+  /* Spec: menu-bar items are pill-shaped with a translucent selection. */
+  border-radius: 999px;
 }
 
 .appleMenu:hover,
 .appleMenu:focus-visible {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
   outline: none;
 }
 
@@ -110,19 +144,20 @@
   border: none;
   color: inherit;
   font-size: 13px;
-  padding: 0 11px;
+  font-weight: 590;
+  padding: 0 10px;
   height: 100%;
   cursor: default;
-  border-radius: 5px;
+  border-radius: 999px;
 }
 
 .menuTitle:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .menuTitleOpen {
   background: rgba(255, 255, 255, 0.16);
-  border-radius: 5px 5px 0 0;
+  border-radius: 999px;
 }
 
 .dropdown {
@@ -130,15 +165,19 @@
   top: calc(100% - 4px);
   left: 0;
   min-width: 240px;
-  background: var(--glass-bg, rgba(36, 38, 50, 0.52));
-  backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 10px;
+  /* macOS menu glass — the spec's Fill + Shadow over the Glass Effect:
+     a dark vibrant fill, 12px radius, a 0.5px neutral ring and an inset
+     top highlight instead of a hard border. */
+  background: var(--glass-bg, rgba(48, 48, 54, 0.58));
+  backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 220%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 220%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   padding: 5px;
   box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(166, 166, 166, 0.35),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
   color: #f5f5f7;
   animation: popIn 0.14s ease-out both;
 }
@@ -149,20 +188,24 @@
   align-items: center;
   gap: 24px;
   width: 100%;
+  height: 24px;
   text-align: left;
   background: none;
   border: none;
   color: inherit;
   font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 6px;
+  font-weight: 500;
+  padding: 0 10px 0 12px;
+  border-radius: 8px;
   cursor: default;
   font-family: inherit;
 }
 
 .dropdownItem:hover:not(:disabled),
 .dropdownItem:focus-visible {
-  background: rgba(10, 132, 255, 0.85);
+  /* Spec: hovered menu item fills with the selection blue (#0069F9). */
+  background: var(--accent, #0069f9);
+  color: #fff;
   outline: none;
 }
 
@@ -179,7 +222,7 @@
 }
 
 .dropdownShortcut {
-  color: rgba(245, 245, 247, 0.55);
+  color: rgba(255, 255, 255, 0.35);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -190,18 +233,17 @@
 
 .dropdownSeparator {
   height: 1px;
-  background: rgba(255, 255, 255, 0.13);
-  margin: 5px 10px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 4px 12px;
 }
 
 .menuRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   height: 100%;
   position: relative;
-  /* leave room for the absolute clock button at the far right */
-  padding-right: 176px;
+  flex-shrink: 0;
 }
 
 .statusBtn {
@@ -287,7 +329,7 @@
   backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   border: 0.5px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   display: flex;
   flex-direction: column;
@@ -416,8 +458,6 @@
 }
 
 .clockBtn {
-  position: absolute;
-  right: 14px;
   background: none;
   border: none;
   color: inherit;
@@ -427,6 +467,9 @@
   padding: 4px 8px;
   border-radius: 5px;
   white-space: nowrap;
+  /* sits in-flow at the far right of the bar — no more dead gap between
+     the status icons and the clock (Tahoe keeps the date + time together) */
+  margin-left: 4px;
 }
 
 .clockBtn:hover {
@@ -445,10 +488,13 @@
   background: var(--glass-bg, rgba(36, 38, 50, 0.5));
   backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
   border-radius: 18px;
   padding: 10px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.05),
+    0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   animation: popIn 0.16s ease-out both;
   z-index: 3100;
@@ -585,7 +631,7 @@
 
 /* Toggled-on tiles get the tinted iOS-style icon well. */
 .ccTileOn .ccTileIcon {
-  background: #0a84ff;
+  background: var(--accent, #0a84ff);
 }
 
 .ccTileLabel {
@@ -902,11 +948,45 @@
   cursor: default;
 }
 
+/* Launchpad button in the Dock — the real macOS Launchpad icon: a soft
+   gray-blue tile holding a grid of tiny app squares. */
+.launchpadTile {
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #d3d9e8, #9aa6c2);
+  border: 0.5px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px rgba(60, 70, 110, 0.25),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+}
+
+.launchpadGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  width: 60%;
+  height: 60%;
+}
+
+.launchpadCell {
+  border-radius: 2.5px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
 /* ================= Wallpaper + desktop icons ================= */
 
 .wallpaper {
   position: absolute;
-  inset: 28px 0 0 0;
+  /* Cover the full screen INCLUDING the menu-bar strip, so the menu bar's
+     backdrop blur reads the actual wallpaper (liquid glass, not a black
+     bar). The menu bar sits on top with its own translucent glass fill. */
+  inset: 0;
   animation: wallpaperIn 0.5s ease both;
 }
 
@@ -914,18 +994,65 @@
   position: absolute;
   top: 0;
   left: 0;
+  /* One fixed cell per icon — centres icons on the grid so columns align
+     cleanly, exactly like Finder's desktop grid. */
+  width: var(--cell, 93px);
+  height: var(--cell, 93px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #fff;
+  font-family: inherit;
+  will-change: transform;
+  z-index: 1;
+}
+
+/* Content hugs the icon + label; the selection highlight lives here so it
+   wraps the item tightly (macOS behaviour), not the whole grid cell. */
+.desktopIconBox {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  background: none;
-  border: none;
-  color: #fff;
-  padding: 8px 12px 6px;
-  border-radius: 10px;
-  font-family: inherit;
-  will-change: transform;
-  z-index: 1;
+  padding: 8px 10px 6px;
+  border-radius: 12px;
+}
+
+/* The featured Resume icon — pinned to the top-left of the wallpaper, set
+   apart from the right-anchored grid with an accent ring + soft glow so it
+   reads as the portfolio's centrepiece. */
+.desktopIconFeatured .desktopIconBox {
+  border-radius: 16px;
+  padding: 10px 14px 8px;
+  background: radial-gradient(
+    120% 120% at 30% 20%,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.05) 70%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.desktopIconFeatured .desktopIconLabel {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.desktopIconFeatured::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 20px;
+  border: 1.5px solid var(--accent, rgba(10, 132, 255, 0.9));
+  box-shadow:
+    0 0 18px var(--accent, rgba(10, 132, 255, 0.9)),
+    inset 0 0 14px rgba(255, 255, 255, 0.12);
+  pointer-events: none;
 }
 
 .desktopIconDragging {
@@ -933,42 +1060,52 @@
   transform-origin: center;
 }
 
-.desktopIconDragging .desktopIconLabel {
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 6px;
-  padding: 1px 6px;
+.desktopIconDragging .desktopIconBox {
+  opacity: 0.85;
 }
 
 .desktopIconSelected {
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* macOS icon selection: a soft rounded-rect highlight behind the icon and
+     label — a translucent fill with a hairline ring, never a blur. */
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .desktopIconLabel {
   font-size: 12px;
+  white-space: nowrap;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
   letter-spacing: -0.01em;
 }
 
-/* .url web-shortcut tiles on the desktop — a Liquid Glass squircle with
-   the site's emoji, like a real internet-location file icon. */
-.desktopWebTile {
-  width: 58px;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.07));
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 10px 24px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+/* Wallpaper folders use the REAL macOS folder icon — same treatment as
+   AppIcon (squircle radius + soft drop shadow) so they match the app icons
+   beside them and the Finder's folders. */
+.folderIcon {
+  display: block;
+  border-radius: 22.37%;
+  pointer-events: none;
   user-select: none;
+  -webkit-user-select: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+}
+
+/* Inline folder rename on the wallpaper (macOS: name is pre-selected). */
+.desktopRenameInput {
+  width: 110px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1c1c1e;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 0 2.5px rgba(var(--accent-rgb, 10, 132, 255), 0.4);
 }
 
 /* ================= Dock (liquid glass) ================= */
@@ -985,23 +1122,46 @@
   pointer-events: none;
 }
 
+/* The row of icons. FIXED height — the macOS dock bar never grows taller;
+   magnified icons pop up out of the top of it. Only the inner art scales
+   (a transform), so this box — and the shelf around it — stays put. */
 .dockInner {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 7px;
-  /* Liquid Glass shelf — wallpaper colours bleed through the strong blur. */
-  background: var(--glass-bg, rgba(26, 28, 40, 0.4));
-  backdrop-filter: blur(var(--glass-blur, 44px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.1));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 44px)) saturate(var(--glass-sat, 230%)) brightness(var(--glass-bright, 1.1));
-  border: 0.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 9px 11px 7px;
-  box-shadow:
-    0 14px 44px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  /* Bar is just the icon height + modest padding — like the real dock,
+     not a tall slab. Magnified icons pop up out of the top. */
+  height: calc(var(--dock-size, 56px) + 16px);
+  box-sizing: border-box;
+  padding: 0 12px 6px;
   pointer-events: auto;
 }
 
+/* The glass shelf — absolutely positioned behind the icons. Its height is
+   the row's fixed height; its left/right edges (bottom dock) or top/bottom
+   edges (side docks) are spring-driven so the bar hugs the row as icons
+   magnify and spread — it never grows taller. */
+.dockShelf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--glass-bg, rgba(28, 30, 42, 0.26));
+  backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.12));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.12));
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+/* Fixed-size icon cell. The layout box NEVER changes — magnification is a
+   transform on the inner art (.dockScale), so the row and the shelf stay
+   exactly where they are while the art grows up out of the bar. */
 .dockItem {
   position: relative;
   display: flex;
@@ -1014,8 +1174,17 @@
   border: none;
   padding: 0;
   cursor: default;
-  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform-origin: bottom center;
+  flex-shrink: 0;
+}
+
+/* Inner art — scaled + nudged by framer-motion springs (the transform
+   origin is set inline, bottom-centre on the bottom dock). */
+.dockScale {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   will-change: transform;
 }
 
@@ -1040,11 +1209,9 @@
 .dockRight .dockInner {
   flex-direction: column;
   align-items: center;
-}
-
-.dockLeft .dockItem,
-.dockRight .dockItem {
-  transform-origin: center;
+  height: auto;
+  width: calc(var(--dock-size, 56px) + 16px);
+  padding: 6px 0;
 }
 
 .dockLeft .dockLabel {
@@ -1118,9 +1285,11 @@
   opacity: 1;
 }
 
+/* The label pops above the magnified icon — macOS shows it above the
+   grown art, so it sits at the magnified height, not the base height. */
 .dockLabel {
   position: absolute;
-  bottom: calc(100% + 12px);
+  bottom: calc(var(--dock-magnify, 88px) + 14px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(48, 48, 56, 0.85);
@@ -1134,7 +1303,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .dockItem:hover .dockLabel {
@@ -1191,10 +1360,13 @@
   background: var(--glass-bg, rgba(36, 38, 50, 0.52));
   backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 10px;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
   padding: 5px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.22),
+    0 0 0 0.5px rgba(166, 166, 166, 0.35),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
   color: #f5f5f7;
   animation: popIn 0.14s ease-out both;
 }
@@ -1214,7 +1386,65 @@
 }
 
 .contextItem:hover {
-  background: rgba(10, 132, 255, 0.85);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.85);
+}
+
+.contextItemChecked {
+  color: var(--accent, #0a84ff);
+}
+
+.contextItemChecked:hover {
+  color: #fff;
+}
+
+.contextSubLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.45);
+  padding: 8px 10px 2px;
+}
+
+/* Context item that opens a submenu (Tahoe folder Color / Emoji). */
+.contextItemWithArrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contextSubArrow {
+  color: rgba(245, 245, 247, 0.45);
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Inline color row — the 8 macOS folder colors, right inside the menu. */
+.folderColorPicker {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px 8px;
+}
+
+.folderColorSwatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: var(--swatch);
+  padding: 0;
+  cursor: default;
+  transition: transform 0.12s ease;
+}
+
+.folderColorSwatch:hover {
+  transform: scale(1.18);
+}
+
+.folderColorActive {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 4px rgba(var(--accent-rgb, 10, 132, 255), 0.75);
 }
 
 /* ================= Wallpaper picker ================= */
@@ -1231,7 +1461,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.18);
   border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   animation: popIn 0.2s ease-out both;
   z-index: 3600;
@@ -1287,7 +1517,7 @@
 }
 
 .wallpaperThumbActive .wallpaperThumbArt {
-  outline: 2.5px solid #0a84ff;
+  outline: 2.5px solid var(--accent, #0a84ff);
   outline-offset: 2px;
 }
 
@@ -1317,7 +1547,7 @@
   border-radius: 16px;
   background: rgba(32, 32, 36, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   padding: 18px 20px 16px;
@@ -1384,8 +1614,8 @@
 }
 
 .runInput:focus {
-  border-color: rgba(10, 132, 255, 0.6);
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+  border-color: rgba(var(--accent-rgb, 10, 132, 255), 0.6);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 10, 132, 255), 0.2);
 }
 
 .runInput::placeholder {
@@ -1469,16 +1699,16 @@
 }
 
 .runBtnPrimary {
-  background: rgba(10, 132, 255, 0.35);
-  border-color: rgba(10, 132, 255, 0.55);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.35);
+  border-color: rgba(var(--accent-rgb, 10, 132, 255), 0.55);
 }
 
 .runBtnPrimary:hover:not(:disabled) {
-  background: rgba(10, 132, 255, 0.5);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.5);
 }
 
 .runBtnPrimary:hover {
-  background: rgba(10, 132, 255, 0.5);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.5);
 }
 
 /* ================= Spotlight ================= */
@@ -1502,12 +1732,16 @@
   left: 50%;
   transform: translateX(-50%);
   width: min(560px, 92vw);
-  background: rgba(46, 46, 54, 0.72);
-  backdrop-filter: blur(60px) saturate(200%);
-  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  /* Tahoe glass: wallpaper bleeds through a strong blur + saturation. */
+  background: rgba(28, 30, 42, 0.55);
+  backdrop-filter: blur(60px) saturate(220%) brightness(1.08);
+  -webkit-backdrop-filter: blur(60px) saturate(220%) brightness(1.08);
   border: 0.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   overflow: hidden;
   animation: spotlightIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -1534,7 +1768,7 @@
   color: #fff;
   font-size: 20px;
   font-family: inherit;
-  caret-color: #0a84ff;
+  caret-color: var(--accent, #0a84ff);
   padding: 0;
 }
 
@@ -1564,7 +1798,7 @@
 }
 
 .spotlightItemActive {
-  background: rgba(10, 132, 255, 0.85);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.85);
 }
 
 .spotlightGlyph {
@@ -1602,6 +1836,87 @@
 .spotlightEnter {
   color: rgba(245, 245, 247, 0.4);
   font-size: 13px;
+}
+
+/* macOS Tahoe browse-mode chips — Apps / Files / Actions / Clipboard. */
+.spotlightModes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.spotlightMode {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 245, 247, 0.85);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.spotlightMode:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.spotlightModeActive {
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.85);
+  border-color: rgba(var(--accent-rgb, 10, 132, 255), 0.85);
+  color: #fff;
+}
+
+/* Clipboard panel rows. */
+.spotlightClipText {
+  font-weight: 400 !important;
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.spotlightClipDelete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(245, 245, 247, 0.45);
+  flex-shrink: 0;
+}
+
+.spotlightClipDelete:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.spotlightClearClip {
+  display: block;
+  width: calc(100% - 12px);
+  margin: 6px;
+  padding: 7px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(245, 245, 247, 0.7);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.spotlightClearClip:hover {
+  background: rgba(200, 40, 50, 0.55);
+  color: #fff;
 }
 
 .spotlightEmpty {
@@ -1744,7 +2059,7 @@
   height: 102px;
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
@@ -1807,7 +2122,7 @@
   justify-content: center;
   gap: 26px;
   padding: 30px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.26);
 }
 
 .mcCurrent::before {
@@ -1835,7 +2150,7 @@
   border-radius: 12px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 16px 44px rgba(0, 0, 0, 0.5);
+    0 6px 22px rgba(0, 0, 0, 0.26);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1851,7 +2166,7 @@
   transform: translate(var(--mcX, 0px), var(--mcY, 0px)) scale(1.04);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 24px 60px rgba(0, 0, 0, 0.6);
+    0 8px 26px rgba(0, 0, 0, 0.3);
 }
 
 .mcTitlebar {
@@ -1960,7 +2275,7 @@
   backdrop-filter: blur(var(--glass-blur, 56px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1));
   -webkit-backdrop-filter: blur(var(--glass-blur, 56px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1));
   border-left: 0.5px solid rgba(255, 255, 255, 0.16);
-  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.45);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
   color: #f5f5f7;
   animation: ncIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
   z-index: 3660;
@@ -1992,6 +2307,18 @@
   border: 0.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -16px 26px -22px rgba(255, 255, 255, 0.08);
+}
+
+/* The notifications card is transparent — its children are standalone
+   liquid-glass cards (per the Tahoe spec), so no card-in-card. */
+.ncCardList {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 .ncCardTitle {
@@ -2071,18 +2398,34 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 0;
-  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 10px;
+  /* Liquid Glass Notification — same translucent wallpaper-tinted fill as
+     the banner and every other Tahoe surface, never a solid #1A1A1A slab. */
+  background: var(--glass-bg, rgba(42, 42, 52, 0.5));
+  backdrop-filter: blur(var(--glass-blur, 36px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1.1));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 36px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1.1));
+  border-radius: 20px;
+  box-shadow:
+    0 3px 16px rgba(0, 0, 0, 0.12),
+    0 0 0 0.5px rgba(219, 219, 219, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -16px 26px -22px rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
 }
 
 .ncNotif:first-of-type {
-  border-top: none;
-  padding-top: 2px;
+  margin-top: 2px;
 }
 
 .ncNotifIcon {
-  font-size: 18px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .ncNotifText {
@@ -2092,14 +2435,17 @@
 
 .ncNotifText strong {
   font-size: 13px;
+  font-weight: 700;
   display: block;
+  line-height: 16px;
 }
 
 .ncNotifText p {
   margin: 2px 0 0;
-  font-size: 12px;
-  color: rgba(245, 245, 247, 0.6);
-  line-height: 1.4;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 245, 247, 0.65);
+  line-height: 1.35;
 }
 
 .ncNotifTime {
@@ -2114,19 +2460,22 @@
   position: fixed;
   inset: 0;
   z-index: 3400;
+  /* The dock itself is pointer-events: none — menus must opt back in. */
+  pointer-events: auto;
 }
 
 .dockMenu {
   position: fixed;
   z-index: 3450;
   min-width: 200px;
+  pointer-events: auto;
   background: var(--glass-bg, rgba(36, 38, 50, 0.52));
   backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 50px)) saturate(var(--glass-sat, 240%)) brightness(var(--glass-bright, 1.08));
   border: 0.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
   padding: 5px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   animation: popIn 0.14s ease-out both;
 }
@@ -2164,7 +2513,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 30px 34px 26px;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   text-align: center;
   animation: sheetIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -2239,11 +2588,11 @@
   display: block;
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #0a84ff, #64b2ff);
+  background: linear-gradient(90deg, var(--accent, #0a84ff), color-mix(in srgb, var(--accent, #0a84ff) 60%, #fff));
 }
 
 .aboutMoreBtn {
-  background: #0a84ff;
+  background: var(--accent, #0a84ff);
   border: none;
   color: #fff;
   font-size: 13px;
@@ -2252,7 +2601,7 @@
   padding: 8px 18px;
   border-radius: 8px;
   cursor: default;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(10, 132, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(var(--accent-rgb, 10, 132, 255), 0.4);
 }
 
 .aboutMoreBtn:hover {
@@ -2293,7 +2642,7 @@
   font-size: 13px;
   padding: 9px 18px;
   border-radius: 999px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
   z-index: 3900;
   animation: toastIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -2361,13 +2710,17 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(14, 14, 18, 0.72);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 0.5px solid rgba(255, 255, 255, 0.18);
-  border-radius: 18px;
+  /* Tahoe glass: wallpaper bleeds through a strong blur + saturation. */
+  background: rgba(26, 28, 40, 0.5);
+  backdrop-filter: blur(56px) saturate(220%) brightness(1.1);
+  -webkit-backdrop-filter: blur(56px) saturate(220%) brightness(1.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
   padding: 14px 16px 12px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   animation: switcherIn 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -2396,7 +2749,8 @@
 .switcherItemActive {
   opacity: 1;
   transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .switcherLabel {
@@ -2477,6 +2831,41 @@
   overflow-y: auto;
 }
 
+/* macOS Tahoe App Library — a scrollable, categorized Applications view. */
+.appLibraryScroll {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  overflow-y: auto;
+  padding: 30px 20px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.appLibrarySection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.appLibraryHeading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(245, 245, 247, 0.55);
+  text-transform: uppercase;
+  padding-left: 6px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.appLibraryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 22px 12px;
+}
+
 .launchpadItem {
   display: flex;
   flex-direction: column;
@@ -2498,6 +2887,201 @@
 .launchpadLabel {
   font-size: 12.5px;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.launchpadIconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Edit mode — icons wiggle (macOS long-press). */
+.launchpadItemEditing {
+  animation: launchpadWiggle 0.9s ease-in-out infinite;
+}
+
+.launchpadItemEditing:hover {
+  transform: none;
+}
+
+@keyframes launchpadWiggle {
+  0%,
+  100% {
+    transform: rotate(-2.2deg);
+  }
+  50% {
+    transform: rotate(2.2deg);
+  }
+}
+
+/* The × badge that removes an app / folder in edit mode. */
+.launchpadX {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(28, 30, 36, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.launchpadX:hover {
+  background: rgba(200, 40, 50, 0.95);
+}
+
+.launchpadDragging {
+  opacity: 0.35;
+}
+
+.launchpadDropTarget {
+  background: rgba(255, 255, 255, 0.16);
+  outline: 2px dashed rgba(255, 255, 255, 0.45);
+  outline-offset: 2px;
+}
+
+/* Folder tiles — a glass squircle with a mini icon stack. */
+.launchpadFolderTile {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 12px 28px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.launchpadFolderStack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.launchpadFolderStack img {
+  margin: 0 -8px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+.launchpadFolderEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Open-folder page — back bar at the top. */
+.launchpadFolderBar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(245, 245, 247, 0.9);
+  margin-top: 6px;
+}
+
+.launchpadFolderBack {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.launchpadFolderBack:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.launchpadFolderTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.launchpadFolderCount {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+.launchpadRename {
+  width: 120px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12.5px;
+  font-family: inherit;
+  text-align: center;
+  padding: 2px 6px;
+  outline: none;
+}
+
+.launchpadDone {
+  background: rgba(255, 255, 255, 0.16);
+  border: 0.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+
+.launchpadDone:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.launchpadEmpty {
+  grid-column: 1 / -1;
+  color: rgba(245, 245, 247, 0.6);
+  font-size: 15px;
+  text-align: center;
+  padding: 60px 0;
+}
+
+.launchpadHint {
+  padding-bottom: 18px;
+  color: rgba(245, 245, 247, 0.55);
+  font-size: 12px;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Drag-out zone at the bottom of an open folder (macOS). */
+.launchpadFolderOut {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(245, 245, 247, 0.65);
+  font-size: 13px;
+  background: rgba(10, 10, 16, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.15s ease;
+}
+
+.launchpadFolderOut:hover {
+  background: rgba(10, 10, 16, 0.5);
 }
 
 /* ================= Keyframes ================= */
@@ -2624,30 +3208,133 @@
   inset: 0;
   z-index: 99000;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   color: #fff;
-  animation: lockIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: lockIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.lockScreen::after {
-  content: "";
+/* macOS keeps the lock-screen wallpaper sharp — just a gentle scrim so the
+   clock and user block stay legible, never the iOS-style frost. */
+.lockScrim {
   position: absolute;
   inset: 0;
-  background: rgba(8, 10, 22, 0.42);
-  backdrop-filter: blur(46px) saturate(150%);
-  -webkit-backdrop-filter: blur(46px) saturate(150%);
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.24),
+      rgba(0, 0, 0, 0.06) 24%,
+      rgba(0, 0, 0, 0.06) 76%,
+      rgba(0, 0, 0, 0.26)
+    ),
+    radial-gradient(120% 100% at 50% 18%, rgba(0, 0, 0, 0) 58%, rgba(0, 0, 0, 0.2));
 }
 
-.lockContent {
+/* Top bar — power menu on the right, like the real lock screen. */
+.lockTopBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54px;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 22px;
+}
+
+.lockTopBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  color: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: background 0.15s ease;
+}
+
+.lockTopBtn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.lockPowerWrap {
   position: relative;
-  z-index: 1;
+}
+
+.lockPowerMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 196px;
+  background: var(--glass-bg, rgba(48, 48, 54, 0.58));
+  backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 220%)) brightness(var(--glass-bright, 1.08));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 220%)) brightness(var(--glass-bright, 1.08));
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(166, 166, 166, 0.35),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
+  animation: popIn 0.14s ease-out both;
+}
+
+.lockPowerItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  height: 24px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 10px 0 12px;
+  border-radius: 8px;
+  cursor: default;
+  font-family: inherit;
+}
+
+.lockPowerItem:hover {
+  background: var(--accent, #0069f9);
+  color: #fff;
+}
+
+/* Clock + date near the top of the screen, exactly like macOS. */
+.lockClockArea {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(48px, 13vh, 120px);
+  display: flex;
+  justify-content: center;
+}
+
+.lockUserArea {
+  position: relative;
+  z-index: 2;
+  /* Centred in the space beneath the clock — the user block sits at the
+     vertical middle of the screen, exactly like macOS. */
+  margin-top: auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 13px;
   text-align: center;
-  user-select: none;
 }
 
 .lockClock {
@@ -2657,7 +3344,7 @@
 }
 
 .lockClockTime {
-  font-size: clamp(64px, 10vw, 116px);
+  font-size: clamp(60px, 9vw, 108px);
   font-weight: 200;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -2665,7 +3352,7 @@
 }
 
 .lockClockSec {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 300;
   opacity: 0.72;
   font-variant-numeric: tabular-nums;
@@ -2674,155 +3361,143 @@
 .lockDate {
   font-size: 17px;
   font-weight: 400;
-  opacity: 0.88;
-  margin-bottom: 14px;
-}
-
-.lockAvatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 25%, #7aa2ff, #3a5bd9 60%, #1f2f8f);
-  border: 3px solid rgba(255, 255, 255, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  opacity: 0.9;
 }
 
 .lockName {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 600;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
-.lockMachine {
-  font-size: 13px;
-  opacity: 0.72;
-  margin-top: -8px;
-}
-
-/* ShapeBlur (React Bits) liquid-glass backdrop behind the lock avatar. */
-.lockAvatarWrap {
+/* The owner's avatar — the Tahoe glass ring refracting the wallpaper. */
+.lockAvatar {
   position: relative;
-  z-index: 0;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  cursor: default;
 }
 
+/* Real liquid glass behind the lock avatar — the SVG displacement-map
+   technique: `backdrop-filter: url(#lg-lock-avatar)` refracts the wallpaper
+   in Chrome; the blur below is the layered fallback for other browsers. */
 .lockAvatarShape {
   position: absolute;
-  inset: -14px -22px;
-  border-radius: 30px;
+  inset: -11px;
+  border-radius: 50%;
   overflow: hidden;
-  opacity: 0.85;
   pointer-events: none;
-  filter: blur(1.5px) brightness(1.4) saturate(1.2);
-}
-
-.lockAvatarShape canvas {
-  display: block;
-  mix-blend-mode: screen;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 2px 10px rgba(255, 255, 255, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(16px) saturate(1.7) brightness(1.12);
+  -webkit-backdrop-filter: blur(16px) saturate(1.7) brightness(1.12);
 }
 
 .lockAvatarImg {
   position: relative;
   z-index: 1;
-  width: 84px;
-  height: 84px;
+  width: 86px;
+  height: 86px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
+/* Log In — the primary lock-screen action: one click and you're in.
+   Accent-tinted liquid glass (follows Settings → Appearance → Color). */
+.lockLoginBtn {
+  margin-top: 12px;
+  height: 34px;
+  padding: 0 34px;
+  border-radius: 12px;
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: var(--accent, rgba(10, 132, 255, 0.85));
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: default;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 22px rgba(0, 0, 0, 0.3);
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+
+.lockLoginBtn:hover {
+  filter: brightness(1.12);
+}
+
+.lockLoginBtn:active {
+  transform: scale(0.97);
+}
+
+/* Password field — the field itself is the glass, no extra pill wrapper. */
 .lockPwWrap {
   position: relative;
   display: flex;
   align-items: center;
+  margin-top: 3px;
 }
 
-/* Morphing glass behind the password input — stays behind the field, follows the mouse. */
-.lockPwShape {
-  position: absolute;
-  inset: -8px -14px;
-  border-radius: 18px;
-  overflow: hidden;
-  opacity: 0.6;
-  pointer-events: none;
-  filter: blur(0.5px) brightness(1.5) saturate(1.1);
+.lockInput {
+  width: 242px;
+  height: 32px;
+  padding: 0 34px 0 10px;
+  border-radius: 10px;
+  /* Liquid Glass password field — translucent, wallpaper-informed blur with
+     strong saturation, exactly like the other lock-screen controls. */
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(28px) saturate(220%) brightness(1.1);
+  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.1);
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.lockPwShape canvas {
-  display: block;
-  mix-blend-mode: screen;
+.lockInput::placeholder {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.lockInput:focus {
+  border-color: rgba(255, 255, 255, 0.66);
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .lockPwToggle {
   position: absolute;
-  right: 8px;
+  right: 5px;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.85);
-  cursor: pointer;
-  transition: background 0.15s ease;
+  background: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: default;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .lockPwToggle:hover {
-  background: rgba(255, 255, 255, 0.24);
-}
-
-.lockGuest {
-  margin-top: 10px;
-  padding: 5px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.lockGuest:hover {
   background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.lockInput {
-  width: 252px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.14);
   color: #fff;
-  font-size: 15px;
-  text-align: center;
-  outline: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  margin-top: 8px;
 }
 
-.lockInput::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
 
-.lockInput:focus {
-  border-color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.2);
-}
 
 .lockHint {
   font-size: 12px;
@@ -2832,11 +3507,9 @@
 @keyframes lockIn {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(46px) saturate(150%);
   }
 }
 
@@ -2918,21 +3591,22 @@
   background: var(--glass-bg, rgba(34, 36, 48, 0.46));
   backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 12px 30px rgba(0, 0, 0, 0.28);
+    inset 0 -16px 26px -22px rgba(255, 255, 255, 0.1),
+    0 4px 18px rgba(0, 0, 0, 0.16);
   color: #fff;
   user-select: none;
 }
 
 .widgetLabel {
-  font-size: 10px;
+  /* macOS widget title — a prominent card title, not a micro-caption. */
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+  opacity: 0.95;
+  margin-bottom: 10px;
 }
 
 .widgetClockTime {
@@ -3079,10 +3753,11 @@
 }
 
 .lockWidgets {
+  /* Lock-screen widgets live on the right edge — they never sit over the
+     clock or the password field (that's exactly how macOS shows them). */
   position: absolute;
-  bottom: 46px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 84px;
+  right: 24px;
   width: 236px;
   z-index: 2;
   animation: lockWidgetsIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -3091,11 +3766,11 @@
 @keyframes lockWidgetsIn {
   from {
     opacity: 0;
-    transform: translate(-50%, 18px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
 }
 
@@ -3156,7 +3831,7 @@
   font-weight: 500;
   font-family: inherit;
   cursor: default;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
   animation: chipIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -3166,6 +3841,46 @@
 
 .showDesktopChipArrow {
   opacity: 0.6;
+}
+
+/* Screen-capture recording indicator (top-center, like the Show Desktop chip). */
+.recordingChip {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(200, 30, 40, 0.85);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  animation: chipIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+
+.recordingDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  animation: recordingBlink 1.1s ease-in-out infinite;
+}
+
+@keyframes recordingBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
 }
 
 @keyframes chipIn {
@@ -3192,7 +3907,7 @@
   backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
   -webkit-backdrop-filter: blur(var(--glass-blur, 46px)) saturate(var(--glass-sat, 235%)) brightness(var(--glass-bright, 1.08));
   border: 0.5px solid rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 26px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.2);
   color: #f5f5f7;
   cursor: default;
   transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease;
@@ -3220,7 +3935,7 @@
   height: 18px;
   padding: 0 4px;
   border-radius: 9px;
-  background: #0a84ff;
+  background: var(--accent, #0a84ff);
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -3377,7 +4092,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
   padding: 12px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   display: flex;
   flex-direction: column;
@@ -3421,6 +4136,10 @@
 
 /* ================= Notification banner ================= */
 
+/* macOS notification banner — the 344px liquid-glass card: a translucent
+   wallpaper-tinted fill (like every other Tahoe surface, never solid black),
+   20px radius, a 0.5px neutral ring, an inset top highlight, and the
+   previous banner's edge stacked behind. */
 .banner {
   position: absolute;
   top: 48px;
@@ -3429,17 +4148,50 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  width: 320px;
-  padding: 12px 14px;
-  background: rgba(44, 46, 60, 0.8);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.18);
-  border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  width: 344px;
+  padding: 12px 14px 12px 10px;
+  background: var(--glass-bg, rgba(42, 42, 52, 0.5));
+  backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1.1));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 40px)) saturate(var(--glass-sat, 190%)) brightness(var(--glass-bright, 1.1));
+  border-radius: 20px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.18),
+    0 0 0 0.5px rgba(219, 219, 219, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -16px 26px -22px rgba(255, 255, 255, 0.14);
   color: #f5f5f7;
   cursor: default;
   animation: bannerIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stacked notification: the edge of the previous banner behind this one. */
+.banner::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -9px;
+  height: 10px;
+  border-radius: 0 0 20px 20px;
+  background: var(--glass-bg, rgba(30, 30, 38, 0.4));
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  z-index: -1;
+}
+
+.bannerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.bannerTime {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  color: rgba(245, 245, 247, 0.45);
 }
 
 .bannerClose {
@@ -3459,12 +4211,19 @@
 }
 
 .banner:hover {
-  background: rgba(54, 56, 72, 0.88);
+  background: var(--glass-bg, rgba(46, 46, 58, 0.56));
 }
 
 .bannerIcon {
-  font-size: 24px;
-  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .bannerText {
@@ -3472,18 +4231,21 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
 }
 
 .bannerText strong {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 16px;
 }
 
 .bannerText p {
-  font-size: 12px;
-  opacity: 0.75;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 245, 247, 0.85);
   margin: 0;
-  line-height: 1.35;
+  line-height: 16px;
 }
 
 @keyframes bannerIn {
@@ -3532,7 +4294,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
   color: #f5f5f7;
   animation: popIn 0.18s ease-out both;
 }
@@ -3583,7 +4345,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
   color: #f5f5f7;
   animation: popIn 0.18s ease-out both;
   display: flex;
@@ -3644,7 +4406,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
   padding: 10px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   display: flex;
   flex-direction: column;
@@ -3746,7 +4508,7 @@
   border: 0.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
   padding: 12px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
   display: flex;
   flex-direction: column;
@@ -3784,56 +4546,75 @@
 
 /* ================= Alert dialog ================= */
 
+/* macOS Tahoe liquid-glass alert — spec "Side-by-side": title + description on
+   top, then two equal-width pill buttons (Cancel | OK) below. Dark glass. */
 .alert {
-  width: min(360px, 90vw);
-  background: rgba(46, 46, 54, 0.85);
-  backdrop-filter: blur(50px) saturate(200%);
-  -webkit-backdrop-filter: blur(50px) saturate(200%);
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  width: min(300px, 90vw);
+  background: linear-gradient(0deg, rgba(191, 191, 191, 0.1), rgba(191, 191, 191, 0.1)),
+    rgba(30, 30, 32, 0.82);
+  background-blend-mode: overlay, normal;
+  backdrop-filter: blur(60px) saturate(210%) brightness(1.05);
+  -webkit-backdrop-filter: blur(60px) saturate(210%) brightness(1.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 22px;
+  padding: 20px 16px 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -40px 10px -40px rgba(255, 255, 255, 0.1),
+    0 6px 24px rgba(0, 0, 0, 0.24),
+    0 0 0 0.5px rgba(219, 219, 219, 0.25);
   color: #f5f5f7;
   animation: popIn 0.18s ease-out both;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   z-index: 3600;
 }
 
+.alertTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 2px;
+}
+
 .alertTitle {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   margin: 0;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .alertMessage {
-  font-size: 12.5px;
-  opacity: 0.8;
+  font-size: 11px;
+  opacity: 0.72;
   margin: 0;
-  line-height: 1.45;
+  line-height: 14px;
 }
 
 .alertActions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 6px;
 }
 
 .alertCancel,
 .alertConfirm {
+  flex: 1;
+  height: 32px;
   border: none;
-  border-radius: 7px;
-  padding: 6px 14px;
-  font-size: 12.5px;
+  border-radius: 100px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 510;
   font-family: inherit;
   cursor: default;
+  transition: background 0.12s ease, filter 0.12s ease;
 }
 
 .alertCancel {
   background: rgba(255, 255, 255, 0.12);
-  color: inherit;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .alertCancel:hover {
@@ -3841,12 +4622,12 @@
 }
 
 .alertConfirm {
-  background: #0a84ff;
+  background: #0088ff;
   color: #fff;
 }
 
 .alertConfirm:hover {
-  background: #2f96ff;
+  filter: brightness(1.1);
 }
 
 .alertConfirmDanger {
@@ -3854,7 +4635,7 @@
 }
 
 .alertConfirmDanger:hover {
-  background: #ff5148;
+  filter: brightness(1.08);
 }
 
 /* ================= Quick Look ================= */
@@ -3862,13 +4643,16 @@
 .quickLook {
   width: min(560px, 92vw);
   max-height: 82vh;
-  background: rgba(40, 42, 52, 0.9);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 16px;
+  background: rgba(26, 28, 40, 0.6);
+  backdrop-filter: blur(60px) saturate(210%) brightness(1.08);
+  -webkit-backdrop-filter: blur(60px) saturate(210%) brightness(1.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    0 10px 30px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   animation: popIn 0.18s ease-out both;
   display: flex;
@@ -3964,34 +4748,36 @@
 /* ================= On-screen display (F1/F2/F11/F12) ================= */
 
 .osd {
+  /* macOS Tahoe: the volume/brightness overlay is a SMALL, oblong pill in
+     the top-right under the menu bar — notification-style — not the old
+     big centered overlay. */
   position: fixed;
-  top: 12%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 36px;
+  right: 12px;
   z-index: 50000;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 22px;
-  background: rgba(46, 46, 54, 0.75);
+  gap: 9px;
+  padding: 7px 12px;
+  background: rgba(46, 46, 54, 0.82);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
   color: #f5f5f7;
-  animation: osdIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: osdIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .osdLabel {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  min-width: 66px;
+  min-width: 54px;
 }
 
 .osdBar {
-  width: 140px;
-  height: 6px;
+  width: 96px;
+  height: 5px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.18);
   overflow: hidden;
@@ -4007,11 +4793,11 @@
 @keyframes osdIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) scale(0.94);
+    transform: translateX(8px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) scale(1);
+    transform: translateX(0) scale(1);
   }
 }
 
@@ -4059,7 +4845,7 @@
   height: 138px;
   border-radius: 12px;
   border: 0.5px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
 }
 
 .mcDesktopLabel {
@@ -4222,7 +5008,10 @@
     --dock-size: 44px !important;
   }
 
+  /* No mouse on a phone — icons never magnify, so the row can wrap into
+     multiple rows and the shelf (absolute, top/bottom 0) hugs the wrap. */
   .dockInner {
+    height: auto;
     flex-wrap: wrap;
     justify-content: center;
     max-width: calc(100vw - 12px);
@@ -4275,10 +5064,10 @@
     gap: 10px;
   }
 
-  /* Lock-screen widgets: wider on phones, clear of the password field. */
+  /* Lock-screen widgets would sit on top of the clock/password on a phone —
+     macOS lock widgets only appear when there's room for them. */
   .lockWidgets {
-    bottom: 132px;
-    width: min(236px, 78vw);
+    display: none;
   }
 
   /* Mission Control: tighter spaces strip + fuller window area on phones. */
@@ -4482,8 +5271,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 132, 255, 0.12);
-  border: 3px dashed rgba(10, 132, 255, 0.8);
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.12);
+  border: 3px dashed rgba(var(--accent-rgb, 10, 132, 255), 0.8);
   border-radius: 18px;
   margin: 8px;
   pointer-events: none;
@@ -4500,7 +5289,7 @@
   border-radius: 18px;
   background: rgba(30, 30, 34, 0.75);
   color: #fff;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
 }
 
 .dropHint strong {
@@ -4510,4 +5299,62 @@
 .dropHint span {
   font-size: 12.5px;
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* Dock peek — macOS-style live window preview above the shelf (daedalOS). */
+.dockPeekCard {
+  position: fixed;
+  z-index: 2600;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(18, 18, 24, 0.55);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  pointer-events: auto;
+  cursor: default;
+  animation: dockPeekIn 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dockPeekIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dockPeekCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dockPeekTitle {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

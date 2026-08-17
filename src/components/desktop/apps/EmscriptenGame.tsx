@@ -54,6 +54,21 @@ export interface EmGameWindow extends Window {
   };
   AL?: { contexts: { ctx: AudioContext }[] };
   __pinballCanvas?: HTMLCanvasElement;
+  /** ClassiCube's Emscripten module (CCModule). */
+  CCModule?: {
+    canvas?: HTMLCanvasElement;
+    locateFile?: (path: string, prefix?: string) => string;
+    OnResize?: () => void;
+    arguments?: string[];
+    setCanvasSize?: (w: number, h: number) => void;
+    postRun?: Array<() => void>;
+    print?: () => void;
+    setStatus?: () => void;
+    windowElement?: HTMLElement;
+    exit?: () => void;
+    FS?: unknown;
+    [key: string]: unknown;
+  };
 }
 
 /** WebGL canvases are cleared after compositing — keep the drawing buffer so
@@ -86,6 +101,10 @@ interface EmscriptenGameProps extends EmscriptenGameConfig {
   /** Optional extra hint text under the frame. */
   hint?: string;
   onExit: () => void;
+  /** Full-window mode (macOS Tahoe): no custom game bar — the standard
+   *  window titlebar (3 traffic lights) is the chrome, and the game fills
+   *  the whole window. */
+  fullWindow?: boolean;
 }
 
 /** Shell for a WASM game: game bar + isolated iframe + loading overlay. */
@@ -99,6 +118,7 @@ export default function EmscriptenGame({
   onScriptLoaded,
   onShutdown,
   createsCanvas = false,
+  fullWindow = false,
   ...cfg
 }: EmscriptenGameProps) {
   const frameRef = useRef<HTMLDivElement>(null);
@@ -203,30 +223,32 @@ export default function EmscriptenGame({
 
   return (
     <div
-      className={styles.gameShell}
+      className={`${styles.gameShell} ${fullWindow ? styles.gameFullWindow : ""}`}
       data-game="emu"
       style={{ "--accent": accent } as React.CSSProperties}
     >
-      <div className={styles.gameBar}>
-        <button
-          type="button"
-          className={styles.gameBack}
-          onClick={onExit}
-          aria-label="Back to arcade"
-        >
-          <ArrowLeft size={15} />
-        </button>
-        <span className={styles.gameTitleIcon}>
-          <Glyph id={icon} size={15} />
-        </span>
-        <span className={styles.gameTitle}>{title}</span>
-        {!booted && !failed && (
-          <span className={styles.gameScore}>
-            <Loader2 size={11} className={styles.gameSpin} style={{ verticalAlign: -2 }} />{" "}
-            Loading {title}…
+      {!fullWindow && (
+        <div className={styles.gameBar}>
+          <button
+            type="button"
+            className={styles.gameBack}
+            onClick={onExit}
+            aria-label="Back to arcade"
+          >
+            <ArrowLeft size={15} />
+          </button>
+          <span className={styles.gameTitleIcon}>
+            <Glyph id={icon} size={15} />
           </span>
-        )}
-      </div>
+          <span className={styles.gameTitle}>{title}</span>
+          {!booted && !failed && (
+            <span className={styles.gameScore}>
+              <Loader2 size={11} className={styles.gameSpin} style={{ verticalAlign: -2 }} />{" "}
+              Loading {title}…
+            </span>
+          )}
+        </div>
+      )}
 
       <div className={styles.gameEmuFrame} ref={frameRef}>
         {!booted && (
@@ -251,14 +273,16 @@ export default function EmscriptenGame({
         )}
       </div>
 
-      {hint && (
+      {!fullWindow && hint && (
         <p className={styles.gameHint}>
           <Keyboard size={12} /> {hint}
         </p>
       )}
-      <p className={styles.gameHint}>
-        <Keyboard size={12} /> {keys} · click the game to focus it
-      </p>
+      {!fullWindow && (
+        <p className={styles.gameHint}>
+          <Keyboard size={12} /> {keys} · click the game to focus it
+        </p>
+      )}
     </div>
   );
 }

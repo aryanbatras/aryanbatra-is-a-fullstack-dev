@@ -9,8 +9,10 @@ import {
   HardDrive,
   Image,
   Info,
+  LayoutGrid,
   Moon,
   Wallpaper,
+  Palette,
   PanelsTopLeft,
   Sun,
   Volume2,
@@ -18,6 +20,12 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
+import {
+  ACCENT_COLORS,
+  CONTROL_TILE_IDS,
+  type AccentColorId,
+  type ControlTileId,
+} from "@/constants/desktop";
 import Glyph from "@/components/desktop/Glyph";
 import useSystemInfo, { formatBytes } from "@/hooks/useSystemInfo";
 import {
@@ -90,7 +98,9 @@ export default function SettingsApp({
     volume,
     brightness,
     darkMode,
+    accentColor,
     clockStyle,
+    clockSource,
     reduceTransparency,
     showWidgets,
     slideshow,
@@ -103,12 +113,19 @@ export default function SettingsApp({
     dockPosition,
     minimizeEffect,
     dockAutoHide,
+    autoHideMenuBar,
+    menuBarStyle,
     stageManager,
     showBatteryPct,
     screensaverStyle,
     screensaverDelay,
     notifPrefs,
     hotCorners,
+    pinchLaunchpad,
+    swipeMissionControl,
+    desktopSort,
+    desktopIconSize,
+    desktopIconReset,
   } = system;
 
   const CLOCK_STYLES: Array<{ id: ClockStyle; label: string }> = [
@@ -118,26 +135,66 @@ export default function SettingsApp({
     { id: "world", label: "World" },
   ];
 
-  const sections: Array<{ id: string; label: string; icon: React.ReactNode }> = [
+  /* macOS Tahoe System Settings sidebar — grouped into the same sections as
+     the real app (Network / Notifications & Focus / Sound / General), each
+     with a small section header above its icon rows. The real app also has
+     Apps + Internet Accounts groups; this machine's settings map to General. */
+  const sidebarGroups: Array<{
+    label: string;
+    items: Array<{ id: string; label: string; icon: React.ReactNode }>;
+  }> = [
     {
-      id: "network",
-      label: "Wi-Fi",
-      icon: real.online ? <Wifi size={15} /> : <WifiOff size={15} />,
+      label: "Network",
+      items: [
+        {
+          id: "network",
+          label: "Wi-Fi",
+          icon: real.online ? <Wifi size={15} /> : <WifiOff size={15} />,
+        },
+      ],
     },
     {
-      id: "sound",
+      label: "Notifications & Focus",
+      items: [{ id: "notifications", label: "Notifications", icon: <Bell size={15} /> }],
+    },
+    {
       label: "Sound",
-      icon: soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />,
+      items: [
+        {
+          id: "sound",
+          label: "Sound",
+          icon: soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />,
+        },
+      ],
     },
-    { id: "displays", label: "Displays", icon: <Sun size={15} /> },
-    { id: "wallpaper", label: "Wallpaper", icon: <Image size={15} /> },
-    { id: "desktop-dock", label: "Desktop & Dock", icon: <PanelsTopLeft size={15} /> },
-    { id: "storage", label: "Storage", icon: <HardDrive size={15} /> },
-    { id: "battery", label: "Battery", icon: <BatteryFull size={15} /> },
-    { id: "notifications", label: "Notifications", icon: <Bell size={15} /> },
-    { id: "accessibility", label: "Accessibility", icon: <Accessibility size={15} /> },
-    { id: "about", label: "About", icon: <Info size={15} /> },
+    {
+      label: "General",
+      items: [
+        { id: "appearance", label: "Appearance", icon: <Palette size={15} /> },
+        { id: "wallpaper", label: "Wallpaper", icon: <Image size={15} /> },
+        { id: "displays", label: "Displays", icon: <Sun size={15} /> },
+        { id: "desktop-dock", label: "Desktop & Dock", icon: <PanelsTopLeft size={15} /> },
+        { id: "trackpad", label: "Trackpad & Mouse", icon: <PanelsTopLeft size={15} /> },
+        { id: "control-center", label: "Control Center", icon: <LayoutGrid size={15} /> },
+        { id: "battery", label: "Battery", icon: <BatteryFull size={15} /> },
+        { id: "storage", label: "Storage", icon: <HardDrive size={15} /> },
+        { id: "accessibility", label: "Accessibility", icon: <Accessibility size={15} /> },
+        { id: "about", label: "About", icon: <Info size={15} /> },
+      ],
+    },
   ];
+
+  // Tahoe's sidebar search field — filters the groups live as you type.
+  const [sidebarQuery, setSidebarQuery] = useState("");
+  const query = sidebarQuery.trim().toLowerCase();
+  const filteredGroups = query
+    ? sidebarGroups
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((i) => i.label.toLowerCase().includes(query)),
+        }))
+        .filter((g) => g.items.length > 0)
+    : sidebarGroups;
 
   /* ---- real data helpers ---- */
 
@@ -169,20 +226,50 @@ export default function SettingsApp({
   return (
     <div className={styles.settings}>
       <div className={styles.settingsSidebar}>
-        <div className={styles.settingsSidebarTitle}>System Settings</div>
-        {sections.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            className={`${styles.settingsItem} ${
-              pane === s.id ? styles.settingsItemActive : ""
-            }`}
-            onClick={() => setPane(s.id)}
+        {/* Tahoe sidebar search — filters the grouped navigation as you type. */}
+        <div className={styles.settingsSearchWrap}>
+          <svg
+            viewBox="0 0 16 16"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            aria-hidden
           >
-            {s.icon}
-            <span>{s.label}</span>
-          </button>
+            <circle cx="6.8" cy="6.8" r="4.6" />
+            <path d="m10.2 10.2 3 3" />
+          </svg>
+          <input
+            className={styles.settingsSearch}
+            placeholder="Search"
+            value={sidebarQuery}
+            onChange={(e) => setSidebarQuery(e.target.value)}
+            aria-label="Search settings"
+          />
+        </div>
+        {filteredGroups.map((g) => (
+          <div key={g.label} className={styles.settingsGroup}>
+            <div className={styles.settingsGroupLabel}>{g.label}</div>
+            {g.items.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`${styles.settingsItem} ${
+                  pane === s.id ? styles.settingsItemActive : ""
+                }`}
+                onClick={() => setPane(s.id)}
+              >
+                {s.icon}
+                <span>{s.label}</span>
+              </button>
+            ))}
+          </div>
         ))}
+        {filteredGroups.length === 0 && (
+          <p className={styles.settingsNoResults}>No Results</p>
+        )}
       </div>
 
       <div className={styles.settingsContent}>
@@ -232,29 +319,31 @@ export default function SettingsApp({
           <>
             <h2>Sound</h2>
             <p className={styles.settingsSub}>Output volume and effects</p>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>Output volume</span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={volume}
-                className={styles.settingsSlider}
-                onChange={(e) => onSystemChange({ volume: Number(e.target.value) })}
-                aria-label="Output volume"
-              />
-              <span className={styles.settingsRowStatus}>{volume}%</span>
-            </div>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>Play sound effects</span>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${soundOn ? styles.setToggleOn : ""}`}
-                onClick={() => onSystemChange({ soundOn: !soundOn })}
-                aria-label="Toggle sound effects"
-              >
-                <span className={`${styles.setThumb} ${soundOn ? styles.setThumbOn : ""}`} />
-              </button>
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Output volume</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={volume}
+                  className={styles.settingsSlider}
+                  onChange={(e) => onSystemChange({ volume: Number(e.target.value) })}
+                  aria-label="Output volume"
+                />
+                <span className={styles.settingsRowStatus}>{volume}%</span>
+              </div>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Play sound effects</span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${soundOn ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ soundOn: !soundOn })}
+                  aria-label="Toggle sound effects"
+                >
+                  <span className={`${styles.setThumb} ${soundOn ? styles.setThumbOn : ""}`} />
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -277,29 +366,80 @@ export default function SettingsApp({
                 {real.gpu ? ` · ${real.gpu}` : ""}
               </p>
             </div>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>Brightness</span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={brightness}
-                className={styles.settingsSlider}
-                onChange={(e) => onSystemChange({ brightness: Number(e.target.value) })}
-                aria-label="Brightness"
-              />
-              <span className={styles.settingsRowStatus}>{brightness}%</span>
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Brightness</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={brightness}
+                  className={styles.settingsSlider}
+                  onChange={(e) => onSystemChange({ brightness: Number(e.target.value) })}
+                  aria-label="Brightness"
+                />
+                <span className={styles.settingsRowStatus}>{brightness}%</span>
+              </div>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Appearance</span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${darkMode ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ darkMode: !darkMode })}
+                  aria-label="Toggle appearance"
+                >
+                  <span className={`${styles.setThumb} ${darkMode ? styles.setThumbOn : ""}`} />
+                </button>
+              </div>
             </div>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>Appearance</span>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${darkMode ? styles.setToggleOn : ""}`}
-                onClick={() => onSystemChange({ darkMode: !darkMode })}
-                aria-label="Toggle appearance"
-              >
-                <span className={`${styles.setThumb} ${darkMode ? styles.setThumbOn : ""}`} />
-              </button>
+          </>
+        )}
+
+        {pane === "appearance" && (
+          <>
+            <h2>Appearance</h2>
+            <p className={styles.settingsSub}>
+              macOS Tahoe theme — pick the accent “Color” that drives buttons,
+              selections and highlights system-wide.
+            </p>
+
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Color</span>
+              </div>
+              <div className={styles.accentRow}>
+                {(Object.keys(ACCENT_COLORS) as AccentColorId[]).map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`${styles.accentSwatch} ${
+                      (accentColor ?? "blue") === id ? styles.accentSwatchActive : ""
+                    }`}
+                    style={{ backgroundColor: ACCENT_COLORS[id].swatch }}
+                    onClick={() => onSystemChange({ accentColor: id })}
+                    aria-label={`Accent color ${id}`}
+                    aria-pressed={(accentColor ?? "blue") === id}
+                    title={id.charAt(0).toUpperCase() + id.slice(1)}
+                  >
+                    {(accentColor ?? "blue") === id && <Check size={13} color="#fff" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.settingsSectionGap} />
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Appearance</span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${darkMode ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ darkMode: !darkMode })}
+                  aria-label="Toggle appearance"
+                >
+                  <span className={`${styles.setThumb} ${darkMode ? styles.setThumbOn : ""}`} />
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -329,7 +469,7 @@ export default function SettingsApp({
                   <span
                     className={styles.settingsThumbArt}
                     style={{
-                      backgroundImage: `url(${wp.src})`,
+                      backgroundImage: wp.src ? `url(${wp.src})` : undefined,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                     }}
@@ -339,50 +479,51 @@ export default function SettingsApp({
               ))}
             </div>
 
-            <div className={styles.settingsRow}>
-              <div className={styles.settingsRowText}>
-                <span className={styles.settingsRowLabel}>Wallpaper Slideshow</span>
-                <span className={styles.settingsRowSub}>
-                  Automatically rotate through the wallpapers
-                </span>
-              </div>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${slideshow ? styles.setToggleOn : ""}`}
-                onClick={() => onSystemChange({ slideshow: !slideshow })}
-                aria-label="Toggle wallpaper slideshow"
-              >
-                <span className={`${styles.setThumb} ${slideshow ? styles.setThumbOn : ""}`} />
-              </button>
-            </div>
-            {slideshow && (
+            <div className={styles.formGroup}>
               <div className={styles.settingsRow}>
-                <span className={styles.settingsRowLabel}>Change every</span>
-                <div className={styles.segmented}>
-                  {[10, 20, 30, 60].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className={`${styles.segmentedItem} ${
-                        slideshowInterval === s ? styles.segmentedItemActive : ""
-                      }`}
-                      onClick={() => onSystemChange({ slideshowInterval: s })}
-                    >
-                      {s}s
-                    </button>
-                  ))}
+                <div className={styles.settingsRowText}>
+                  <span className={styles.settingsRowLabel}>Wallpaper Slideshow</span>
+                  <span className={styles.settingsRowSub}>
+                    Automatically rotate through the wallpapers
+                  </span>
                 </div>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${slideshow ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ slideshow: !slideshow })}
+                  aria-label="Toggle wallpaper slideshow"
+                >
+                  <span className={`${styles.setThumb} ${slideshow ? styles.setThumbOn : ""}`} />
+                </button>
               </div>
-            )}
+              {slideshow && (
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsRowLabel}>Change every</span>
+                  <div className={styles.segmented}>
+                    {[10, 20, 30, 60].map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`${styles.segmentedItem} ${
+                          slideshowInterval === s ? styles.segmentedItemActive : ""
+                        }`}
+                        onClick={() => onSystemChange({ slideshowInterval: s })}
+                      >
+                        {s}s
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            <div className={styles.settingsRow}>
-              <div className={styles.settingsRowText}>
-                <span className={styles.settingsRowLabel}>Wallpaper Fit</span>
-                <span className={styles.settingsRowSub}>
-                  How the image fills the screen
-                </span>
-              </div>
-              <div className={styles.segmented}>
+              <div className={styles.settingsRow}>
+                <div className={styles.settingsRowText}>
+                  <span className={styles.settingsRowLabel}>Wallpaper Fit</span>
+                  <span className={styles.settingsRowSub}>
+                    How the image fills the screen
+                  </span>
+                </div>
+                <div className={styles.segmented}>
                 {(
                   [
                     ["fill", "Fill"],
@@ -403,6 +544,7 @@ export default function SettingsApp({
                     {label}
                   </button>
                 ))}
+                </div>
               </div>
             </div>
 
@@ -423,16 +565,71 @@ export default function SettingsApp({
               ))}
             </div>
 
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>Desktop Widgets</span>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${showWidgets ? styles.setToggleOn : ""}`}
-                onClick={() => onSystemChange({ showWidgets: !showWidgets })}
-                aria-label="Toggle desktop widgets"
-              >
-                <span className={`${styles.setThumb} ${showWidgets ? styles.setThumbOn : ""}`} />
-              </button>
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Menu Bar
+                  <em className={styles.settingsRowNote}>
+                    Transparent (macOS 26) or the frosted Sequoia look
+                  </em>
+                </span>
+              </div>
+              <div className={styles.segmented}>
+                {(
+                  [
+                    { id: "transparent", label: "Transparent" },
+                    { id: "semi", label: "Semi-transparent" },
+                  ] as const
+                ).map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`${styles.segmentedItem} ${
+                      menuBarStyle === s.id ? styles.segmentedItemActive : ""
+                    }`}
+                    onClick={() => onSystemChange({ menuBarStyle: s.id })}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Menu Bar Clock — NTP Time
+                  <em className={styles.settingsRowNote}>
+                    Sync the clock to an NTP server instead of your device
+                  </em>
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${clockSource === "ntp" ? styles.setToggleOn : ""}`}
+                  onClick={() =>
+                    onSystemChange({
+                      clockSource: clockSource === "ntp" ? "local" : "ntp",
+                    })
+                  }
+                  aria-label="Toggle NTP clock"
+                >
+                  <span className={`${styles.setThumb} ${clockSource === "ntp" ? styles.setThumbOn : ""}`} />
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>Desktop Widgets</span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${showWidgets ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ showWidgets: !showWidgets })}
+                  aria-label="Toggle desktop widgets"
+                >
+                  <span className={`${styles.setThumb} ${showWidgets ? styles.setThumbOn : ""}`} />
+                </button>
+              </div>
             </div>
 
             <div className={styles.settingsSectionGap} />
@@ -465,6 +662,7 @@ export default function SettingsApp({
           <>
             <h2>Desktop &amp; Dock</h2>
             <p className={styles.settingsSub}>Dock</p>
+            <div className={styles.formGroup}>
             <div className={styles.settingsRow}>
               <span className={styles.settingsRowLabel}>Size</span>
               <input
@@ -528,7 +726,7 @@ export default function SettingsApp({
             </div>
             <div className={styles.settingsRow}>
               <span className={styles.settingsRowLabel}>Minimize windows using</span>
-              <div className={styles.segmented}>
+              <div className={styles.macRadioGroup}>
                 {(
                   [
                     { id: "genie", label: "Genie" },
@@ -538,12 +736,15 @@ export default function SettingsApp({
                   <button
                     key={m.id}
                     type="button"
-                    className={`${styles.segmentedItem} ${
-                      minimizeEffect === m.id ? styles.segmentedItemActive : ""
+                    className={`${styles.macRadio} ${
+                      minimizeEffect === m.id ? styles.macRadioOn : ""
                     }`}
                     onClick={() => onSystemChange({ minimizeEffect: m.id })}
                   >
-                    {m.label}
+                    <span className={styles.macRadioOuter}>
+                      {minimizeEffect === m.id && <span className={styles.macRadioDot} />}
+                    </span>
+                    <span>{m.label}</span>
                   </button>
                 ))}
               </div>
@@ -561,9 +762,100 @@ export default function SettingsApp({
                 <span className={`${styles.setThumb} ${dockAutoHide ? styles.setThumbOn : ""}`} />
               </button>
             </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsRowLabel}>
+                Automatically hide and show the menu bar
+                <span className={styles.settingsRowHint}>
+                  Hover the top of the screen to reveal it
+                </span>
+              </span>
+              <button
+                type="button"
+                className={`${styles.setToggle} ${autoHideMenuBar ? styles.setToggleOn : ""}`}
+                onClick={() => onSystemChange({ autoHideMenuBar: !autoHideMenuBar })}
+                aria-label="Toggle auto-hide menu bar"
+              >
+                <span className={`${styles.setThumb} ${autoHideMenuBar ? styles.setThumbOn : ""}`} />
+              </button>
+            </div>
+            </div>
+
+            <div className={styles.settingsSectionGap} />
+            <h3 className={styles.settingsSectionTitle}>Desktop</h3>
+            <div className={styles.formGroup}>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsRowLabel}>
+                Icon size
+                <span className={styles.settingsRowHint}>
+                  Icon size on the wallpaper — the grid spacing scales with it
+                </span>
+              </span>
+              <input
+                type="range"
+                min={44}
+                max={84}
+                value={desktopIconSize}
+                className={styles.settingsSlider}
+                onChange={(e) =>
+                  onSystemChange({ desktopIconSize: Number(e.target.value) })
+                }
+                aria-label="Desktop icon size"
+              />
+              <span className={styles.settingsRowStatus}>{desktopIconSize}px</span>
+            </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsRowLabel}>
+                Sort icons by
+                <span className={styles.settingsRowHint}>
+                  Persisted per desktop; change it anytime from the wallpaper's
+                  right-click menu too
+                </span>
+              </span>
+              <div className={styles.segmented}>
+                {(
+                  [
+                    { id: "none", label: "Grid" },
+                    { id: "name", label: "Name" },
+                  ] as const
+                ).map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`${styles.segmentedItem} ${
+                      desktopSort === s.id ? styles.segmentedItemActive : ""
+                    }`}
+                    onClick={() => {
+                      onSystemChange({ desktopSort: s.id });
+                      onSystemChange({ desktopIconReset: desktopIconReset + 1 });
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsRowLabel}>
+                Clean Up
+                <span className={styles.settingsRowHint}>
+                  Return every icon to its grid cell
+                </span>
+              </span>
+              <button
+                type="button"
+                className={styles.settingsSmallBtn}
+                onClick={() =>
+                  onSystemChange({ desktopIconReset: desktopIconReset + 1 })
+                }
+              >
+                Clean Up Icons…
+              </button>
+            </div>
+            </div>
 
             <div className={styles.settingsSectionGap} />
             <h3 className={styles.settingsSectionTitle}>Windows</h3>
+            <div className={styles.formGroup}>
             <div className={styles.settingsRow}>
               <span className={styles.settingsRowLabel}>
                 Stage Manager
@@ -580,9 +872,11 @@ export default function SettingsApp({
                 <span className={`${styles.setThumb} ${stageManager ? styles.setThumbOn : ""}`} />
               </button>
             </div>
+            </div>
 
             <div className={styles.settingsSectionGap} />
             <h3 className={styles.settingsSectionTitle}>Screen Saver</h3>
+            <div className={styles.formGroup}>
             <div className={styles.settingsRow}>
               <span className={styles.settingsRowLabel}>Start after</span>
               <div className={styles.segmented}>
@@ -633,6 +927,7 @@ export default function SettingsApp({
                 ))}
               </div>
             </div>
+            </div>
 
             <div className={styles.settingsSectionGap} />
             <h3 className={styles.settingsSectionTitle}>Hot Corners</h3>
@@ -668,6 +963,52 @@ export default function SettingsApp({
           </>
         )}
 
+        {pane === "trackpad" && (
+          <>
+            <h2>Trackpad &amp; Mouse</h2>
+            <p className={styles.settingsSub}>Gestures</p>
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Pinch to show Launchpad
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${pinchLaunchpad ? styles.setToggleOn : ""}`}
+                  onClick={() => onSystemChange({ pinchLaunchpad: !pinchLaunchpad })}
+                  aria-label="Toggle pinch to Launchpad"
+                >
+                  <span
+                    className={`${styles.setThumb} ${pinchLaunchpad ? styles.setThumbOn : ""}`}
+                  />
+                </button>
+              </div>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Swipe up for Mission Control
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${swipeMissionControl ? styles.setToggleOn : ""}`}
+                  onClick={() =>
+                    onSystemChange({ swipeMissionControl: !swipeMissionControl })
+                  }
+                  aria-label="Toggle swipe up for Mission Control"
+                >
+                  <span
+                    className={`${styles.setThumb} ${swipeMissionControl ? styles.setThumbOn : ""}`}
+                  />
+                </button>
+              </div>
+            </div>
+            <p className={styles.settingsSub}>
+              Pinch with two fingers (or ⌃ scroll) to open Launchpad, and swipe
+              up with two fingers over the wallpaper for Mission Control. Both
+              replace the browser&apos;s zoom — the desktop gestures win.
+            </p>
+          </>
+        )}
+
         {pane === "storage" && (
           <>
             <h2>Storage</h2>
@@ -679,12 +1020,12 @@ export default function SettingsApp({
                 <div className={styles.storageBar}>
                   <span
                     className={styles.storageBarSeg}
-                    style={{ width: `${storagePct}%`, background: "#0a84ff" }}
+                    style={{ width: `${storagePct}%`, background: "var(--accent, #0a84ff)" }}
                   />
                 </div>
                 <div className={styles.storageList}>
                   <div className={styles.storageItem}>
-                    <span className={styles.storageDot} style={{ background: "#0a84ff" }} />
+                    <span className={styles.storageDot} style={{ background: "var(--accent, #0a84ff)" }} />
                     <span className={styles.storageName}>Used</span>
                     <span className={styles.storageSize}>
                       {formatBytes(real.storage.usage)}
@@ -732,18 +1073,36 @@ export default function SettingsApp({
                     : "This device's battery status"}
               </p>
             </div>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>
-                Show percentage in menu bar
-              </span>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${showBatteryPct ? styles.setToggleOn : ""}`}
-                onClick={() => onSystemChange({ showBatteryPct: !showBatteryPct })}
-                aria-label="Toggle battery percentage"
-              >
-                <span className={`${styles.setThumb} ${showBatteryPct ? styles.setThumbOn : ""}`} />
-              </button>
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Show percentage in menu bar
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.macCheckbox} ${showBatteryPct ? styles.macCheckboxOn : ""}`}
+                  onClick={() => onSystemChange({ showBatteryPct: !showBatteryPct })}
+                  aria-label="Show battery percentage in menu bar"
+                >
+                  <span className={styles.macCheckboxBox}>
+                    {showBatteryPct && (
+                      <svg
+                        width="10"
+                        height="8"
+                        viewBox="0 0 10 8"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="M1 4.2 3.6 6.8 9 1.4" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+              </div>
             </div>
             <p className={styles.settingsSub}>
               {real.battery == null
@@ -822,33 +1181,98 @@ export default function SettingsApp({
           </>
         )}
 
+        {pane === "control-center" && (
+          <>
+            <h2>Control Center</h2>
+            <p className={styles.settingsSub}>
+              Choose which controls appear in the Control Center and menu bar.
+            </p>
+            <div className={styles.settingsList}>
+              {CONTROL_TILE_IDS.map((tileId) => {
+                const tile = tileId as ControlTileId;
+                const enabled = system.controlTiles.includes(tile);
+                const label = {
+                  wifi: "Wi-Fi",
+                  focus: "Focus",
+                  display: "Display",
+                  sound: "Sound",
+                  music: "Music",
+                  "stage-manager": "Stage Manager",
+                  "mission-control": "Mission Control",
+                  "app-switcher": "App Switcher",
+                }[tile];
+                const hint = {
+                  wifi: "Current network status",
+                  focus: "Do Not Disturb",
+                  display: "Brightness",
+                  sound: "Volume",
+                  music: "Now Playing",
+                  "stage-manager": "Focus one app at a time",
+                  "mission-control": "All open windows",
+                  "app-switcher": "Switch between apps",
+                }[tile];
+                return (
+                  <div key={tile} className={styles.storageItem}>
+                    <div className={styles.storageItemMain}>
+                      <strong>{label}</strong>
+                      <span className={styles.settingsRowHint}>{hint}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className={`${styles.setToggle} ${
+                        enabled ? styles.setToggleOn : ""
+                      }`}
+                      role="switch"
+                      aria-checked={enabled}
+                      aria-label={`Show ${label} in Control Center`}
+                      onClick={() =>
+                        onSystemChange({
+                          controlTiles: enabled
+                            ? system.controlTiles.filter((t) => t !== tile)
+                            : [...system.controlTiles, tile],
+                        })
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <p className={styles.settingsRowHint} style={{ marginTop: 10 }}>
+              Tip: you can also reorder or remove tiles right inside the Control
+              Center — click Edit.
+            </p>
+          </>
+        )}
+
         {pane === "accessibility" && (
           <>
             <h2>Accessibility</h2>
             <p className={styles.settingsSub}>Display</p>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingsRowLabel}>
-                Reduce Transparency
-                <span className={styles.settingsRowHint}>
-                  Replaces Liquid Glass with solid fills
+            <div className={styles.formGroup}>
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsRowLabel}>
+                  Reduce Transparency
+                  <span className={styles.settingsRowHint}>
+                    Replaces Liquid Glass with solid fills
+                  </span>
                 </span>
-              </span>
-              <button
-                type="button"
-                className={`${styles.setToggle} ${
-                  reduceTransparency ? styles.setToggleOn : ""
-                }`}
-                onClick={() =>
-                  onSystemChange({ reduceTransparency: !reduceTransparency })
-                }
-                aria-label="Toggle reduce transparency"
-              >
-                <span
-                  className={`${styles.setThumb} ${
-                    reduceTransparency ? styles.setThumbOn : ""
+                <button
+                  type="button"
+                  className={`${styles.setToggle} ${
+                    reduceTransparency ? styles.setToggleOn : ""
                   }`}
-                />
-              </button>
+                  onClick={() =>
+                    onSystemChange({ reduceTransparency: !reduceTransparency })
+                  }
+                  aria-label="Toggle reduce transparency"
+                >
+                  <span
+                    className={`${styles.setThumb} ${
+                      reduceTransparency ? styles.setThumbOn : ""
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </>
         )}
