@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Play, Table, Database, Upload } from "lucide-react";
+import { Play, Table, Database, Download } from "lucide-react";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 /**
@@ -21,11 +21,7 @@ type SqlJsStatic = {
   Database: new (data?: ArrayLike<number>) => SqlJsDatabase;
 };
 
-declare global {
-  interface Window {
-    initSqlJs?: (config?: Record<string, unknown>) => Promise<SqlJsStatic>;
-  }
-}
+type InitSqlJs = (config?: Record<string, unknown>) => Promise<SqlJsStatic>;
 
 const DEMO_QUERIES = [
   { label: "Create Products", sql: `CREATE TABLE IF NOT EXISTS products (
@@ -67,16 +63,13 @@ export default function SQLStudioApp() {
     let alive = true;
     const load = async () => {
       try {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/sql.js@1.11.0/dist/sql-wasm.js";
-        await new Promise<void>((resolve, reject) => {
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load sql.js"));
-          document.head.appendChild(script);
-        });
-        if (!alive || !window.initSqlJs) return;
+        // @ts-expect-error — URL import resolved at runtime by the browser
+        const sqlPromise = import("https://cdn.jsdelivr.net/npm/sql.js@1.11.0/+esm") as unknown as Promise<{ default: InitSqlJs }>;
+        const sqlModule = await sqlPromise;
+        if (!alive) return;
 
-        sqlJsRef.current = await window.initSqlJs({
+        const initSqlJs = sqlModule.default;
+        sqlJsRef.current = await initSqlJs({
           locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/sql.js@1.11.0/dist/${file}`,
         });
         if (!alive || !sqlJsRef.current) return;
@@ -136,7 +129,7 @@ export default function SQLStudioApp() {
   const downloadDb = () => {
     if (!dbRef.current) return;
     const data = dbRef.current.export();
-    const blob = new Blob([data], { type: "application/x-sqlite3" });
+    const blob = new Blob([new Uint8Array(data)], { type: "application/x-sqlite3" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

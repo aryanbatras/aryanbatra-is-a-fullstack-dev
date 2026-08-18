@@ -11,6 +11,7 @@ import styles from "@/styles/components/desktop/apps.module.css";
  */
 
 type EsbuildInstance = {
+  initialize: (options: Record<string, unknown>) => Promise<void>;
   build: (options: Record<string, unknown>) => Promise<{ outputFiles: Array<{ path: string; text: string }> }>;
   transform: (input: string, options?: Record<string, unknown>) => Promise<{ code: string }>;
 };
@@ -66,18 +67,13 @@ export default function EsbuildApp() {
     let alive = true;
     const load = async () => {
       try {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/esm/browser.js";
-        await new Promise<void>((resolve, reject) => {
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load esbuild"));
-          document.head.appendChild(script);
-        });
-        if (!alive || !window.esbuild) return;
-        await window.esbuild.initialize({
+        // @ts-expect-error — URL import resolved at runtime by the browser
+        const esbuild = await import("https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/+esm") as unknown as EsbuildInstance;
+        if (!alive) return;
+        await esbuild.initialize({
           wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/esm/browser.wasm",
         });
-        esbuildRef.current = window.esbuild;
+        esbuildRef.current = esbuild;
         if (alive) setStatus("esbuild ready — write code and bundle");
       } catch {
         if (alive) setStatus("Failed to load esbuild");
@@ -104,7 +100,7 @@ export default function EsbuildApp() {
           define: { "process.env.NODE_ENV": '"production"' },
           plugins: [{
             name: "virtual-fs",
-            setup(build) {
+            setup(build: any) {
               build.onResolve({ filter: /^\// }, (args: { path: string }) => ({ path: args.path, namespace: "virtual" }));
               build.onLoad({ filter: /.*/, namespace: "virtual" }, (args: { path: string }) => {
                 const content = files[args.path.slice(1)];

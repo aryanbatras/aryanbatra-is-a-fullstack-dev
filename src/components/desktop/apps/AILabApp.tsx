@@ -20,7 +20,15 @@ declare global {
   }
 }
 
-const TASKS = [
+interface TaskDef {
+  id: string;
+  name: string;
+  model: string;
+  placeholder: string;
+  description: string;
+}
+
+const TASKS: TaskDef[] = [
   {
     id: "sentiment",
     name: "Sentiment Analysis",
@@ -42,7 +50,7 @@ const TASKS = [
     placeholder: "Enter text to find entities…",
     description: "Extracts people, organizations, locations from text",
   },
-] as const;
+];
 
 const DEMO_TEXTS: Record<string, string> = {
   sentiment: `Aryan OS is an incredible achievement — a full macOS-style desktop running entirely in the browser with real WASM engines, game emulators, and a complete developer toolchain. The attention to detail is remarkable.`,
@@ -51,7 +59,7 @@ const DEMO_TEXTS: Record<string, string> = {
 };
 
 export default function AILabApp() {
-  const [task, setTask] = useState(TASKS[0]);
+  const [task, setTask] = useState<TaskDef>(TASKS[0]);
   const [input, setInput] = useState(DEMO_TEXTS.sentiment);
   const [output, setOutput] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -131,7 +139,7 @@ export default function AILabApp() {
     }
   }, [input, task]);
 
-  const selectTask = (t: typeof TASKS[number]) => {
+  const selectTask = (t: TaskDef) => {
     setTask(t);
     setInput(DEMO_TEXTS[t.id] ?? "");
     setOutput(null);

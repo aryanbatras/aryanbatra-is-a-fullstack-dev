@@ -15,13 +15,9 @@ type PGLiteInstance = {
   close: () => Promise<void>;
 };
 
-declare global {
-  interface Window {
-    PGlite?: {
-      create: (options?: { dataDir?: string }) => Promise<PGLiteInstance>;
-    };
-  }
-}
+type PGLiteModule = {
+  create: (options?: { dataDir?: string }) => Promise<PGLiteInstance>;
+};
 
 const DEMO_QUERIES = [
   { label: "Create Users", sql: `CREATE TABLE IF NOT EXISTS users (
@@ -65,17 +61,12 @@ export default function PGliteApp() {
     let alive = true;
     const load = async () => {
       try {
-        // Load PGlite from CDN
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.4/dist/pglite.js";
-        await new Promise<void>((resolve, reject) => {
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Failed to load PGlite"));
-          document.head.appendChild(script);
-        });
-        if (!alive || !window.PGLite) return;
+        // Dynamic import from ESM CDN
+        // @ts-expect-error — URL import resolved at runtime by the browser
+        const { PGlite } = await import("https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.4/+esm") as unknown as { PGlite: PGLiteModule };
+        if (!alive) return;
 
-        dbRef.current = await window.PGLite.create({ dataDir: "idb://pglite-demo" });
+        dbRef.current = await PGlite.create({ dataDir: "idb://pglite-demo" });
         if (alive) setStatus("PostgreSQL ready — type SQL or pick a demo query");
       } catch {
         if (alive) setStatus("Failed to load PGlite");
