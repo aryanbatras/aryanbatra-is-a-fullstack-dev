@@ -327,6 +327,7 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "ffmpeg", title: "FFmpeg", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "imagelab", title: "Image Lab", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "modelviewer", title: "3D Viewer", icon: "box", iconUrl: "/aryan/icons/3d.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "musicviz", title: "Music Visualizer", icon: "music", iconUrl: "/aryan/icons/webamp.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */

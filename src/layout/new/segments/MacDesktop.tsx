@@ -104,6 +104,7 @@ const AILabApp = React.lazy(() => import("@/components/desktop/apps/AILabApp"));
 const FFmpegApp = React.lazy(() => import("@/components/desktop/apps/FFmpegApp"));
 const ImageLabApp = React.lazy(() => import("@/components/desktop/apps/ImageLabApp"));
 const ModelViewerApp = React.lazy(() => import("@/components/desktop/apps/ModelViewerApp"));
+const MusicVisualizerApp = React.lazy(() => import("@/components/desktop/apps/MusicVisualizerApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -204,6 +205,7 @@ const APP_VIEWS: Record<string, () => React.JSX.Element> = {
   ffmpeg: () => <div />,
   imagelab: () => <div />,
   modelviewer: () => <div />,
+  musicviz: () => <div />,
   jsdos: () => <div />,
   settings: () => <div />, // replaced with a prop-carrying render below
 };
@@ -2357,6 +2359,8 @@ const MOBILE_BP = 768;
                 <ImageLabApp />
               ) : win.appId === "modelviewer" ? (
                 <ModelViewerApp />
+              ) : win.appId === "musicviz" ? (
+                <MusicVisualizerApp />
               ) : View ? (
                 <View />
               ) : (
