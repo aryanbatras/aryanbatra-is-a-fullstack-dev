@@ -44,9 +44,10 @@ export default function DxBallGame({ onExit, fullWindow }: DxBallGameProps) {
     script.src = "/aryan/apps/dxball/game.js";
     script.onload = () => {
       if (cancelled) return;
-      // Top-10 high scores persisted to localStorage (our Finder equivalent).
+      // DXBall might not call the loaded callback — force hide after 3s
+      const forceShow = setTimeout(() => { if (!cancelled) setLoading(false); }, 3000);
       window.DXBall?.init(
-        () => setLoading(false),
+        () => { clearTimeout(forceShow); setLoading(false); },
         (name, score) => {
           let records = "";
           try {
@@ -111,8 +112,7 @@ export default function DxBallGame({ onExit, fullWindow }: DxBallGameProps) {
       <div className={styles.gameEmuFrame}>
         {loading && (
           <div className={styles.gameEmuLoading}>
-            Booting DX-Ball…
-            <em>Ported from the daedalOS machine</em>
+            Loading DX-Ball…
           </div>
         )}
         <div ref={mountRef} className={styles.dxballMount}>
