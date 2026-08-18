@@ -48,6 +48,8 @@ export default function DevToolsApp() {
 
     const load = (src: string) =>
       new Promise<void>((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) { resolve(); return; }
         const script = document.createElement("script");
         script.src = src;
         script.onload = () => resolve();
