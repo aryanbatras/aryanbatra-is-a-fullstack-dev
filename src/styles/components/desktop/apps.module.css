@@ -7148,3 +7148,17 @@
 .playgroundWarn {
   color: #fbbf24;
 }
+
+/* Terminal Emulator */
+.terminalEmulator {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0d0d1a;
+}
+.terminalEmulatorBody {
+  flex: 1;
+  overflow: hidden;
+  padding: 4px;
+}
+

@@ -329,6 +329,7 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "modelviewer", title: "3D Viewer", icon: "box", iconUrl: "/aryan/icons/3d.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "musicviz", title: "Music Visualizer", icon: "music", iconUrl: "/aryan/icons/webamp.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "playground", title: "Playground", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "terminalemulator", title: "Terminal Emulator", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 860, height: 560, minWidth: 520, minHeight: 340, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */

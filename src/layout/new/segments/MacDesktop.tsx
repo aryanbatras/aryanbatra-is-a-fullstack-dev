@@ -106,6 +106,7 @@ const ImageLabApp = React.lazy(() => import("@/components/desktop/apps/ImageLabA
 const ModelViewerApp = React.lazy(() => import("@/components/desktop/apps/ModelViewerApp"));
 const MusicVisualizerApp = React.lazy(() => import("@/components/desktop/apps/MusicVisualizerApp"));
 const PlaygroundApp = React.lazy(() => import("@/components/desktop/apps/PlaygroundApp"));
+const TerminalEmulatorApp = React.lazy(() => import("@/components/desktop/apps/TerminalEmulatorApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -2365,6 +2366,8 @@ const MOBILE_BP = 768;
                 <MusicVisualizerApp />
               ) : win.appId === "playground" ? (
                 <PlaygroundApp />
+              ) : win.appId === "terminalemulator" ? (
+                <TerminalEmulatorApp />
               ) : View ? (
                 <View />
               ) : (
