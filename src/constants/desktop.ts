@@ -279,6 +279,7 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "monaco", title: "VS Code", icon: "file-text", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: true },
   { id: "textedit", title: "TextEdit", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 720, height: 600, minWidth: 520, minHeight: 440, onDesktop: false, inDock: false },
+  { id: "gamelibrary", title: "Game Library", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 860, height: 620, minWidth: 600, minHeight: 440, onDesktop: false, inDock: false },
   { id: "paint", title: "Paint", icon: "image", iconUrl: "/aryan/icons/paint.png", width: 760, height: 560, minWidth: 560, minHeight: 420, onDesktop: false, inDock: false },
   { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: false },
   // VLC — dark media player for the film library and Finder movies.

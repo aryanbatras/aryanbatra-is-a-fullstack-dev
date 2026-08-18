@@ -105,6 +105,7 @@ const TermuxApp = React.lazy(() => import("@/components/desktop/apps/TermuxApp")
 const TetrisGame = React.lazy(() => import("@/components/desktop/apps/TetrisGame"));
 const MinesweeperGame = React.lazy(() => import("@/components/desktop/apps/MinesweeperGame"));
 const DocsApp = React.lazy(() => import("@/components/desktop/apps/DocsApp"));
+const GameLibraryApp = React.lazy(() => import("@/components/desktop/apps/GameLibraryApp"));
 const SheetsApp = React.lazy(() => import("@/components/desktop/apps/SheetsApp"));
 const SlidesApp = React.lazy(() => import("@/components/desktop/apps/SlidesApp"));
 import RunDialog from "@/components/desktop/RunDialog";
@@ -2311,6 +2312,8 @@ const MOBILE_BP = 768;
                 <SheetsApp />
               ) : win.appId === "slides" ? (
                 <SlidesApp />
+              ) : win.appId === "gamelibrary" ? (
+                <GameLibraryApp />
               ) : View ? (
                 <View />
               ) : (
