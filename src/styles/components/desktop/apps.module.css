@@ -6668,6 +6668,8 @@
   font-size: 12px;
 }
 .pgliteQueryBtn:hover { background: #2a2a4a; }
+.pgliteQueryBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pgliteQueryBtnActive { background: #2a2a4a; border-left: 3px solid #3b82f6; }
 .pgliteHistoryBtn {
   display: block;
   width: 100%;
