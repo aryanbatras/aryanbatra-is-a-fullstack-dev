@@ -374,6 +374,18 @@ export default function Dock({
       const canvas = await toCanvas(el, {
         skipAutoScale: true,
         style: { inset: "0", margin: "0", padding: "0" },
+        // Skip iframes, cross-origin stylesheets, and problematic elements
+        filter: (node: HTMLElement) => {
+          if (node.tagName === "IFRAME") return false;
+          if (node.tagName === "STYLE") return false;
+          // Skip elements with class names from CDN-loaded libs
+          if (node.className && typeof node.className === "string") {
+            if (node.className.includes("codicon")) return false;
+            if (node.className.includes("eruda")) return false;
+            if (node.className.includes("xterm")) return false;
+          }
+          return true;
+        },
       });
       if (isCanvasDrawn(canvas)) dataUrl = canvas.toDataURL();
     } catch {

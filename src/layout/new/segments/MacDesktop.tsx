@@ -80,20 +80,13 @@ const DevToolsApp = React.lazy(() => import("@/components/desktop/apps/DevToolsA
  * them the code only downloads when the user actually opens the app,
  * keeping the initial desktop JS bundle small.
  */
-const DxBallGame = React.lazy(() => import("@/components/desktop/apps/DxBallGame"));
 const ChessGame = React.lazy(() => import("@/components/desktop/apps/ChessGame"));
-
 const WebampApp = React.lazy(() => import("@/components/desktop/apps/WebampApp"));
 const VlcApp = React.lazy(() => import("@/components/desktop/apps/VlcApp"));
-
 const MonacoApp = React.lazy(() => import("@/components/desktop/apps/MonacoApp"));
-
 const Tic80Game = React.lazy(() => import("@/components/desktop/apps/Tic80Game"));
-const ClassiCubeGame = React.lazy(() => import("@/components/desktop/apps/ClassiCubeGame"));
-
 const EmulatorApp = React.lazy(() => import("@/components/desktop/apps/EmulatorApp"));
 const RuffleApp = React.lazy(() => import("@/components/desktop/apps/RuffleApp"));
-
 const PGliteApp = React.lazy(() => import("@/components/desktop/apps/PGliteApp"));
 const SQLStudioApp = React.lazy(() => import("@/components/desktop/apps/SQLStudioApp"));
 const EsbuildApp = React.lazy(() => import("@/components/desktop/apps/EsbuildApp"));
@@ -103,13 +96,17 @@ const ImageLabApp = React.lazy(() => import("@/components/desktop/apps/ImageLabA
 const ModelViewerApp = React.lazy(() => import("@/components/desktop/apps/ModelViewerApp"));
 const MusicVisualizerApp = React.lazy(() => import("@/components/desktop/apps/MusicVisualizerApp"));
 const PlaygroundApp = React.lazy(() => import("@/components/desktop/apps/PlaygroundApp"));
-const TerminalEmulatorApp = React.lazy(() => import("@/components/desktop/apps/TerminalEmulatorApp"));
 const NetworkApp = React.lazy(() => import("@/components/desktop/apps/NetworkApp"));
 const ChartApp = React.lazy(() => import("@/components/desktop/apps/ChartApp"));
 const FractalApp = React.lazy(() => import("@/components/desktop/apps/FractalApp"));
 const CryptoMinerApp = React.lazy(() => import("@/components/desktop/apps/CryptoMinerApp"));
 const ParticleApp = React.lazy(() => import("@/components/desktop/apps/ParticleApp"));
 const TermuxApp = React.lazy(() => import("@/components/desktop/apps/TermuxApp"));
+const TetrisGame = React.lazy(() => import("@/components/desktop/apps/TetrisGame"));
+const MinesweeperGame = React.lazy(() => import("@/components/desktop/apps/MinesweeperGame"));
+const DocsApp = React.lazy(() => import("@/components/desktop/apps/DocsApp"));
+const SheetsApp = React.lazy(() => import("@/components/desktop/apps/SheetsApp"));
+const SlidesApp = React.lazy(() => import("@/components/desktop/apps/SlidesApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -147,7 +144,7 @@ const URL_APP_ALIASES: Record<string, string> = {
   code: "monaco",
   marked: "markdown",
   pdf: "pdf",
-  vim: "vim",
+  vim: "monaco",
   terminal: "terminal",
   devtools: "devtools",
   paint: "paint",
@@ -161,13 +158,11 @@ const URL_EXT_APPS: Record<string, string> = {
   pdf: "pdf",
   md: "markdown", markdown: "markdown",
   txt: "textedit",
-  rtf: "tinymce", wheml: "tinymce",
+  rtf: "textedit",
   mp4: "videos", webm: "videos", mov: "videos", m4v: "videos", mkv: "videos",
   png: "photos", jpg: "photos", jpeg: "photos", gif: "photos", webp: "photos", svg: "photos", heic: "photos", tif: "photos", tiff: "photos",
   mp3: "webamp", wav: "webamp", flac: "webamp", ogg: "webamp",
   tic: "tic80",
-  exe: "boxedwine",
-  img: "v86", dsk: "v86", bin: "v86", vhd: "v86", vfd: "v86",
   pgn: "games",
   ts: "monaco", tsx: "monaco", js: "monaco", jsx: "monaco", json: "monaco", css: "monaco", scss: "monaco", py: "monaco",
   java: "monaco", c: "monaco", cpp: "monaco", go: "monaco", rs: "monaco", yaml: "monaco", yml: "monaco", sh: "monaco",
@@ -190,17 +185,11 @@ const APP_VIEWS: Record<string, React.ComponentType<any>> = {
   // webamp + vlc + vim + the emulators are replaced below with prop-carrying renders
   webamp: () => <div />,
   vlc: () => <div />,
-  vim: () => <div />,
   monaco: () => <div />,
-  tinymce: () => <div />,
   irc: IrcApp,
   tic80: () => <div />,
-  classicube: () => <div />,
-  boxedwine: () => <div />,
-  v86: () => <div />,
   messenger: MessengerApp,
   devtools: () => <div />,
-  opentype: () => <div />,
   emulator: () => <div />,
   ruffle: () => <div />,
   pglite: () => <div />,
@@ -1005,20 +994,7 @@ const MOBILE_BP = 768;
     setVlcDocs((m) => ({ ...m, [id]: { file } }));
     sounds.pop();
   };
-  // Text files can be opened straight in Vim (daedalOS file association).
-  const [vimDocs, setVimDocs] = useState<Record<string, { name?: string; content?: string }>>({});
-  const openVim = (name?: string, content?: string) => {
-    const id = manager.openWindow("vim", { title: name ?? "Vim", multi: true });
-    setVimDocs((m) => ({ ...m, [id]: { name, content } }));
-    sounds.pop();
-  };
-  // Font files open in the OpenType viewer, each with its file name.
-  const [fontDocs, setFontDocs] = useState<Record<string, { file?: string }>>({});
-  const openFont = (file?: string) => {
-    const id = manager.openWindow("opentype", { title: file ?? "OpenType", multi: true });
-    setFontDocs((m) => ({ ...m, [id]: { file } }));
-    sounds.pop();
-  };
+
   // Code files open in the Monaco editor (daedalOS file association).
   const [monacoDocs, setMonacoDocs] = useState<Record<string, { name?: string; content?: string }>>({});
   const openMonaco = (name?: string, content?: string) => {
@@ -1026,32 +1002,11 @@ const MOBILE_BP = 768;
     setMonacoDocs((m) => ({ ...m, [id]: { name, content } }));
     sounds.pop();
   };
-  // Rich-text files open in TinyMCE (daedalOS .rtf/.whtml association).
-  const [tinymceDocs, setTinymceDocs] = useState<Record<string, { name?: string }>>({});
-  const openTinymce = (name?: string) => {
-    const id = manager.openWindow("tinymce", { title: name ?? "TinyMCE", multi: true });
-    setTinymceDocs((m) => ({ ...m, [id]: { name } }));
-    sounds.pop();
-  };
   // TIC-80 fantasy computer — a .tic cart opens straight into it.
   const [tic80Docs, setTic80Docs] = useState<Record<string, { name?: string }>>({});
   const openTic80 = (name?: string) => {
     const id = manager.openWindow("tic80", { title: name ?? "TIC-80", multi: true });
     setTic80Docs((m) => ({ ...m, [id]: { name } }));
-    sounds.pop();
-  };
-  // BoxedWine — .exe / .zip Windows apps boot in the emulator.
-  const [boxedwineDocs, setBoxedwineDocs] = useState<Record<string, { name?: string }>>({});
-  const openBoxedWine = (name?: string) => {
-    const id = manager.openWindow("boxedwine", { title: name ?? "BoxedWine", multi: true });
-    setBoxedwineDocs((m) => ({ ...m, [id]: { name } }));
-    sounds.pop();
-  };
-  // Virtual x86 — .img / .iso disk images boot in the PC emulator.
-  const [v86Docs, setV86Docs] = useState<Record<string, { name?: string }>>({});
-  const openV86 = (name?: string) => {
-    const id = manager.openWindow("v86", { title: name ?? "Virtual x86", multi: true });
-    setV86Docs((m) => ({ ...m, [id]: { name } }));
     sounds.pop();
   };
   // ROMs / Flash / DOS games open in the emulators (daedalOS associations).
@@ -1090,14 +1045,9 @@ const MOBILE_BP = 768;
     else if (appId === "webamp") openWebamp(name ?? "track.mp3");
     // Movies resolve their data URL by file name inside VlcApp.
     else if (appId === "vlc") openVlc(name ?? "Movie");
-    else if (appId === "vim") openVim(name ?? "untitled.txt", content);
     else if (appId === "monaco") openMonaco(name ?? "untitled.ts", content);
-    else if (appId === "tinymce") openTinymce(name ?? "New Rich Text Document.whtml");
     else if (appId === "tic80") openTic80(name ?? "cart.tic");
-    else if (appId === "boxedwine") openBoxedWine(name ?? "program.exe");
-    else if (appId === "v86") openV86(name ?? "disk.img");
-    else if (appId === "opentype") openFont(name ?? "font.otf");
-    else if (appId === "emulator" || appId === "ruffle" || appId === "jsdos")
+    else if (appId === "emulator" || appId === "ruffle")
       openEmulator(appId, name ?? "game");
     else openWindow(appId);
   };
@@ -2293,10 +2243,18 @@ const MOBILE_BP = 768;
                 />
               ) : win.appId === "game-tic80" ? (
                 <Tic80Game fullWindow onExit={() => closeWindowAnimated(win.id)} />
-              ) : win.appId === "game-dxball" ? (
-                <DxBallGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
-              ) : win.appId === "dxball" ? (
-                <DxBallGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
+              ) : win.appId === "game-tetris" ? (
+                <TetrisGame onExit={() => closeWindowAnimated(win.id)} />
+              ) : win.appId === "game-minesweeper" ? (
+                <MinesweeperGame onExit={() => closeWindowAnimated(win.id)} />
+              ) : win.appId.startsWith("game-") && webPlayUrls[win.id] ? (
+                <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,padding:"4px 12px",background:"#1a1a2e",flexShrink:0}}>
+                    <button onClick={() => closeWindowAnimated(win.id)} style={{padding:"3px 10px",border:"1px solid #555",borderRadius:4,background:"transparent",color:"#aaa",fontSize:11,cursor:"pointer"}}>Close</button>
+                    <span style={{color:"#fff",fontSize:12}}>{win.title}</span>
+                  </div>
+                  <iframe src={webPlayUrls[win.id]} title={win.title} style={{flex:1,border:"none"}} allow="autoplay; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
+                </div>
               ) : win.appId === "webamp" ? (
                 <WebampApp file={webampDocs[win.id]?.name} />
               ) : win.appId === "vlc" ? (
@@ -2311,8 +2269,6 @@ const MOBILE_BP = 768;
                   onExit={() => closeWindowAnimated(win.id)}
                   cart={tic80Docs[win.id]?.name}
                 />
-              ) : win.appId === "classicube" ? (
-                <ClassiCubeGame onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "devtools" ? (
                 <DevToolsApp />
               ) : win.appId === "emulator" ? (
@@ -2337,8 +2293,6 @@ const MOBILE_BP = 768;
                 <MusicVisualizerApp />
               ) : win.appId === "playground" ? (
                 <PlaygroundApp />
-              ) : win.appId === "terminalemulator" ? (
-                <TerminalEmulatorApp />
               ) : win.appId === "termux" ? (
                 <TermuxApp onOpenApp={handleOpen} />
               ) : win.appId === "network" ? (
@@ -2351,6 +2305,12 @@ const MOBILE_BP = 768;
                 <CryptoMinerApp />
               ) : win.appId === "particles" ? (
                 <ParticleApp />
+              ) : win.appId === "docs" ? (
+                <DocsApp />
+              ) : win.appId === "sheets" ? (
+                <SheetsApp />
+              ) : win.appId === "slides" ? (
+                <SlidesApp />
               ) : View ? (
                 <View />
               ) : (

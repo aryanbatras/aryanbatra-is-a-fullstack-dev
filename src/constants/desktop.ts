@@ -291,9 +291,6 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "irc", title: "IRC", icon: "message-square", iconUrl: "/aryan/icons/kiwiirc.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // TIC-80 — the fantasy computer (daedalOS). .tic carts open here.
   { id: "tic80", title: "TIC-80", icon: "emulator", iconUrl: "/aryan/icons/tic80.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
-  // ClassiCube — Minecraft Classic client (daedalOS).
-  { id: "classicube", title: "ClassiCube", icon: "gamepad", iconUrl: "/aryan/icons/classicube.png", width: 800, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
-
   // Messenger — encrypted direct messaging over Nostr (NIP-04, daedalOS).
   { id: "messenger", title: "Messenger", icon: "message-square", iconUrl: "/aryan/icons/messenger.png", width: 760, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // Console emulator (EmulatorJS) — drop a ROM and play (daedalOS).
@@ -309,8 +306,6 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "pdf", title: "PDF", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // Hidden helper app: renders a .md file (daedalOS Marked).
   { id: "markdown", title: "Markdown", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  // DX-Ball — the classic block breaker (daedalOS).
-  { id: "dxball", title: "DX-Ball", icon: "pinball", iconUrl: "/aryan/icons/dxball.png", width: 720, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // DevTools — WASM-powered engineering tools
   { id: "pglite", title: "Postgres", icon: "database", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "sqlstudio", title: "SQLite Studio", icon: "database", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
@@ -321,7 +316,9 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "modelviewer", title: "3D Viewer", icon: "box", iconUrl: "/aryan/icons/3d.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "musicviz", title: "Music Visualizer", icon: "music", iconUrl: "/aryan/icons/webamp.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "playground", title: "Playground", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
-  { id: "terminalemulator", title: "Terminal Emulator", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 860, height: 560, minWidth: 520, minHeight: 340, onDesktop: false, inDock: false },
+  { id: "docs", title: "Docs", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "sheets", title: "Sheets", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "slides", title: "Slides", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "termux", title: "Termux", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 960, height: 620, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
   { id: "markdown", title: "Markdown Editor", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 900, height: 600, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
   { id: "charts", title: "Data Visualizer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 580, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },

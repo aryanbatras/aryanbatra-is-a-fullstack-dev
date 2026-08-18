@@ -13,7 +13,9 @@ import { vfs } from "@/utils/vfs";
 
 declare global {
   interface Window {
-    FitAddon?: { FitAddon: new () => any };
+    Terminal?: any;
+    FitAddon?: any;
+    WebglAddon?: any;
   }
 }
 
