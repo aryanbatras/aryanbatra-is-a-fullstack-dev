@@ -19,9 +19,11 @@ declare global {
   }
 }
 
+import CDN from "@/constants/cdn";
+
 let loading: Promise<PyodideRuntime> | null = null;
 
-const PYODIDE_URL = "/aryan/apps/pyodide/pyodide.js";
+const PYODIDE_URL = `${CDN.PYODIDE.indexURL}pyodide.js`;
 
 const loadScript = (src: string): Promise<void> =>
   new Promise((resolve, reject) => {
@@ -48,7 +50,7 @@ export const getPyodide = (): Promise<PyodideRuntime> => {
   loading = (async () => {
     await loadScript(PYODIDE_URL);
     if (!window.loadPyodide) throw new Error("Pyodide failed to load");
-    window.pyodide = await window.loadPyodide({ indexURL: "/aryan/apps/pyodide/" });
+    window.pyodide = await window.loadPyodide({ indexURL: CDN.PYODIDE.indexURL });
     return window.pyodide;
   })();
   return loading;

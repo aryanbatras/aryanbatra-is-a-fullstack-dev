@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Sun, Volume2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLongPress } from "@/hooks/useLongPress";
@@ -59,30 +59,37 @@ import ReadMeApp from "@/components/desktop/apps/ReadMeApp";
 import WebsiteApp from "@/components/desktop/apps/WebsiteApp";
 import TerminalApp from "@/components/desktop/apps/TerminalApp";
 import GamesApp, { WebPlayGame } from "@/components/desktop/apps/GamesApp";
-import DxBallGame from "@/components/desktop/apps/DxBallGame";
-import ChessGame from "@/components/desktop/apps/ChessGame";
-import SpaceCadetGame from "@/components/desktop/apps/SpaceCadetGame";
-import Quake3Game from "@/components/desktop/apps/Quake3Game";
 import PaintApp from "@/components/desktop/apps/PaintApp";
 import PdfViewerApp from "@/components/desktop/apps/PdfViewerApp";
 import TextEditApp from "@/components/desktop/apps/TextEditApp";
 import MarkdownApp from "@/components/desktop/apps/MarkdownApp";
-import WebampApp from "@/components/desktop/apps/WebampApp";
-import VlcApp from "@/components/desktop/apps/VlcApp";
-import VimApp from "@/components/desktop/apps/VimApp";
-import MonacoApp from "@/components/desktop/apps/MonacoApp";
-import TinyMceApp from "@/components/desktop/apps/TinyMceApp";
 import IrcApp from "@/components/desktop/apps/IrcApp";
-import Tic80Game from "@/components/desktop/apps/Tic80Game";
-import ClassiCubeGame from "@/components/desktop/apps/ClassiCubeGame";
-import BoxedWineApp from "@/components/desktop/apps/BoxedWineApp";
-import V86App from "@/components/desktop/apps/V86App";
 import MessengerApp from "@/components/desktop/apps/MessengerApp";
 import DevToolsApp from "@/components/desktop/apps/DevToolsApp";
 import OpenTypeApp from "@/components/desktop/apps/OpenTypeApp";
-import EmulatorApp from "@/components/desktop/apps/EmulatorApp";
-import RuffleApp from "@/components/desktop/apps/RuffleApp";
-import JSDOSApp from "@/components/desktop/apps/JSDOSApp";
+
+/* ─── Lazy-loaded heavy apps ─────────────────────────────────────────
+ * These components pull in WASM binaries, heavy libraries (chess.js,
+ * Monaco, Webamp, vim.js, emulators) or large scripts.  By lazy-loading
+ * them the code only downloads when the user actually opens the app,
+ * keeping the initial desktop JS bundle small.
+ */
+const DxBallGame = React.lazy(() => import("@/components/desktop/apps/DxBallGame"));
+const ChessGame = React.lazy(() => import("@/components/desktop/apps/ChessGame"));
+const SpaceCadetGame = React.lazy(() => import("@/components/desktop/apps/SpaceCadetGame"));
+const Quake3Game = React.lazy(() => import("@/components/desktop/apps/Quake3Game"));
+const WebampApp = React.lazy(() => import("@/components/desktop/apps/WebampApp"));
+const VlcApp = React.lazy(() => import("@/components/desktop/apps/VlcApp"));
+const VimApp = React.lazy(() => import("@/components/desktop/apps/VimApp"));
+const MonacoApp = React.lazy(() => import("@/components/desktop/apps/MonacoApp"));
+const TinyMceApp = React.lazy(() => import("@/components/desktop/apps/TinyMceApp"));
+const Tic80Game = React.lazy(() => import("@/components/desktop/apps/Tic80Game"));
+const ClassiCubeGame = React.lazy(() => import("@/components/desktop/apps/ClassiCubeGame"));
+const BoxedWineApp = React.lazy(() => import("@/components/desktop/apps/BoxedWineApp"));
+const V86App = React.lazy(() => import("@/components/desktop/apps/V86App"));
+const EmulatorApp = React.lazy(() => import("@/components/desktop/apps/EmulatorApp"));
+const RuffleApp = React.lazy(() => import("@/components/desktop/apps/RuffleApp"));
+const JSDOSApp = React.lazy(() => import("@/components/desktop/apps/JSDOSApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -2173,6 +2180,7 @@ const MOBILE_BP = 768;
         </div>
       )}
 
+      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",color:"rgba(255,255,255,0.5)",fontSize:13,gap:6}}><span className={styles.gameSpin} style={{display:"inline-block"}} /> Loading…</div>}>
       {spaceWindows
         .filter((w) => !w.minimized)
         .map((win) => {
@@ -2322,6 +2330,7 @@ const MOBILE_BP = 768;
             </Window>
           );
         })}
+      </Suspense>
 
       {sys.brightness < 100 && (
         <div

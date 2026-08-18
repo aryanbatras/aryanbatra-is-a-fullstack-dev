@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Clapperboard, UploadCloud } from "lucide-react";
 import { readFiles } from "@/utils/finderStorage";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 interface RuffleAppProps {
@@ -31,7 +32,7 @@ export default function RuffleApp({ file }: RuffleAppProps) {
       return;
     }
     const s = document.createElement("script");
-    s.src = "/aryan/games/ruffle/ruffle.js";
+    s.src = CDN.RUFFLE.js;
     s.dataset.ruffle = "1";
     s.onload = () => setLoaded(true);
     s.onerror = () => setError("Could not load the Flash player.");

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { readFiles, saveFileContent } from "@/utils/finderStorage";
 import { getPyodide, runPython } from "@/utils/pyodide";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 /** Extension -> Monaco language id. */
@@ -248,7 +249,7 @@ export default function MonacoApp({ file, content }: MonacoAppProps) {
   // Boot Monaco
   useEffect(() => {
     let alive = true;
-    loader.config({ paths: { vs: "/aryan/apps/monaco/vs" } });
+    loader.config({ paths: { vs: CDN.MONACO.vs } });
     loader.init().then((instance) => {
       if (alive) { setMonaco(instance); setStatus(""); }
     }).catch(() => {

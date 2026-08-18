@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { readFiles } from "@/utils/finderStorage";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 /**
@@ -50,11 +51,11 @@ const BOOT_FD_CD_HD = 0x231;
 
 const CONFIG = {
   autostart: true,
-  bios: { url: "/aryan/apps/v86/bios/seabios.bin" },
+  bios: { url: `${CDN.V86.local}/bios/seabios.bin` },
   log_level: 0,
   network_relay_url: "wss://relay.widgetry.org/",
-  vga_bios: { url: "/aryan/apps/v86/bios/vgabios.bin" },
-  wasm_path: "/aryan/apps/v86/v86.wasm",
+  vga_bios: { url: `${CDN.V86.local}/bios/vgabios.bin` },
+  wasm_path: CDN.V86.wasm,
 };
 
 const SUPPORTED_FLOPPY_SIZES = new Set([
@@ -85,7 +86,7 @@ export default function V86App({ file }: V86AppProps) {
       setStatus("Loading emulator…");
       try {
         const script = document.createElement("script");
-        script.src = "/aryan/apps/v86/libv86.js";
+        script.src = CDN.V86.js;
         await new Promise<void>((resolve, reject) => {
           script.onload = () => resolve();
           script.onerror = () => reject(new Error("Failed to load libv86.js"));

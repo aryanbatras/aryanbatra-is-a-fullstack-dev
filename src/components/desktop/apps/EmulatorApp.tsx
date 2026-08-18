@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Gamepad2, UploadCloud } from "lucide-react";
 import { readFiles } from "@/utils/finderStorage";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 interface EmulatorAppProps {
@@ -91,7 +92,7 @@ export default function EmulatorApp({ file }: EmulatorAppProps) {
     EJS.EJS_core = rom.core;
     EJS.EJS_player = "#emulator";
     EJS.EJS_biosUrl = "";
-    EJS.EJS_pathtodata = "/aryan/games/emulatorjs/";
+    EJS.EJS_pathtodata = CDN.EMULATORJS.local + "/";
     EJS.EJS_startOnLoaded = true;
     EJS.EJS_RESET_VARS = true;
     EJS.EJS_Buttons = {
@@ -112,7 +113,7 @@ export default function EmulatorApp({ file }: EmulatorAppProps) {
       setError("The emulator failed to start — the ROM may be unsupported.");
     };
     const s = doc.createElement("script");
-    s.src = "/aryan/games/emulatorjs/loader.js";
+    s.src = CDN.EMULATORJS.loader;
     doc.body.appendChild(s);
   };
 

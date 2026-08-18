@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { readFiles, saveFileContent } from "@/utils/finderStorage";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 /**
@@ -59,7 +60,7 @@ export default function TinyMceApp({ file }: TinyMceAppProps) {
 
       tinymce
         .init({
-          base_url: "/aryan/apps/tinymce/",
+          base_url: CDN.TINYMCE.local + "/",
           branding: false,
           promotion: false,
           contextmenu: "",

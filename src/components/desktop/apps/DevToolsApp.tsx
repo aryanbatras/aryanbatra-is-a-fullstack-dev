@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 /**
@@ -56,8 +57,8 @@ export default function DevToolsApp() {
 
     void (async () => {
       try {
-        await load("/aryan/apps/eruda/eruda.js");
-        await load("/aryan/apps/eruda/eruda-monitor.js");
+        await load(CDN.ERUDA.js);
+        await load(`${CDN.ERUDA.local}/eruda-monitor.js`);
       } catch {
         return;
       }

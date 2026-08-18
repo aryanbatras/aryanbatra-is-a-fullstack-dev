@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, type Square } from "chess.js";
 import { readFiles } from "@/utils/finderStorage";
+import CDN from "@/constants/cdn";
 import styles from "@/styles/components/desktop/apps.module.css";
 
 interface ChessGameProps {
@@ -23,8 +24,8 @@ type Side = "w" | "b";
  * ships. The worker loader reads the .wasm path from the URL fragment, so the
  * worker URL is built at runtime and webpack leaves it alone.
  */
-const STOCKFISH_JS = "/aryan/games/chess/stockfish-18-lite-single.js";
-const STOCKFISH_WASM = "/aryan/games/chess/stockfish-18-lite-single.wasm";
+const STOCKFISH_JS = CDN.STOCKFISH.js;
+const STOCKFISH_WASM = CDN.STOCKFISH.wasm;
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const RANKS = [8, 7, 6, 5, 4, 3, 2, 1];
