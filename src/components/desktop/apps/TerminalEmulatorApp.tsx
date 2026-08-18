@@ -295,7 +295,8 @@ export default function TerminalEmulatorApp() {
 
           // Fit to container
           try {
-            const fitAddon = new (window as any).FitAddon?.FitAddon();
+            const FitAddonNS = (window as any).FitAddon;
+            const fitAddon = FitAddonNS ? new FitAddonNS.FitAddon() : null;
             if (fitAddon) {
               terminal.loadAddon(fitAddon);
               fitAddon.fit();

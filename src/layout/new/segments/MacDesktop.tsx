@@ -170,7 +170,7 @@ const URL_EXT_APPS: Record<string, string> = {
   java: "monaco", c: "monaco", cpp: "monaco", go: "monaco", rs: "monaco", yaml: "monaco", yml: "monaco", sh: "monaco",
 };
 
-const APP_VIEWS: Record<string, () => React.JSX.Element> = {
+const APP_VIEWS: Record<string, React.ComponentType<any>> = {
   finder: () => <div />, // replaced with a prop-carrying render below
   about: AboutApp,
   resume: ResumeApp,
@@ -2249,14 +2249,7 @@ const MOBILE_BP = 768;
                   initialContent={editDocs[win.id]?.content}
                 />
               ) : win.appId === "markdown" ? (
-                <MarkdownApp
-                  name={mdDocs[win.id]?.name}
-                  content={mdDocs[win.id]?.content}
-                  onEdit={() => {
-                    const doc = mdDocs[win.id];
-                    if (doc) openTextEdit(doc.name, doc.content);
-                  }}
-                />
+                <MarkdownApp />
               ) : win.appId === "terminal" ? (
                 <TerminalApp onOpenApp={handleOpen} />
               ) : win.appId === "settings" ? (

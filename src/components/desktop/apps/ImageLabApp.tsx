@@ -61,7 +61,7 @@ export default function ImageLabApp() {
   const loadImage = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const img = new Image();
+      const img = document.createElement("img");
       img.onload = () => {
         originalImageRef.current = img;
         setImage({
@@ -138,12 +138,12 @@ export default function ImageLabApp() {
     if (!canvas || !img) return;
 
     let newW: number, newH: number;
-    if ("scale" in preset) {
+    if ("scale" in preset && typeof preset.scale === "number") {
       newW = Math.round(img.width * preset.scale);
       newH = Math.round(img.height * preset.scale);
     } else {
-      newW = preset.width;
-      newH = preset.height;
+      newW = (preset as { width: number; height: number }).width;
+      newH = (preset as { width: number; height: number }).height;
     }
 
     canvas.width = newW;

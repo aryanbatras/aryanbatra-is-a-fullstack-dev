@@ -330,6 +330,9 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "musicviz", title: "Music Visualizer", icon: "music", iconUrl: "/aryan/icons/webamp.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "playground", title: "Playground", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "terminalemulator", title: "Terminal Emulator", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 860, height: 560, minWidth: 520, minHeight: 340, onDesktop: false, inDock: false },
+  { id: "markdown", title: "Markdown Editor", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 900, height: 600, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "charts", title: "Data Visualizer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 580, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "network", title: "Network Monitor", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 900, height: 600, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -344,9 +347,6 @@ export interface Wallpaper {
 }
 
 export const WALLPAPERS: Wallpaper[] = [
-  // Windows 11 — the original Bloom wallpaper (by Six N. Five): blue fabric
-  // folded like a rose over a soft blue field. The user's choice.
-  { id: "windows11-bloom", name: "Windows 11 — Bloom", src: "/aryan/wallpapers/windows11-bloom.jpg" },
   // The Tahoe dynamic beach series (the real macOS Tahoe wallpapers).
   { id: "tahoe-beach-dawn", name: "Tahoe Beach — Dawn", src: "/aryan/wallpapers/tahoe-beach-Dawn.jpg" },
   { id: "tahoe-beach-day", name: "Tahoe Beach — Day", src: "/aryan/wallpapers/tahoe-beach-Day.jpg" },

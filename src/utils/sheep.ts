@@ -22,16 +22,11 @@ declare global {
 }
 
 const PETS: Record<string, [string, number]> = {
-  blue_sheep: ["/aryan/apps/esheep/blue_sheep.xml", 12],
   eSheep: ["/aryan/apps/esheep/eSheep.xml", 12],
   fox: ["/aryan/apps/esheep/fox.xml", 4],
-  green_sheep: ["/aryan/apps/esheep/green_sheep.xml", 12],
   mimiko: ["/aryan/apps/esheep/mimiko.xml", 4],
   neko: ["/aryan/apps/esheep/neko.xml", 10],
-  orange_sheep: ["/aryan/apps/esheep/orange_sheep.xml", 12],
   pingus: ["/aryan/apps/esheep/pingus.xml", 10],
-  red_sheep: ["/aryan/apps/esheep/red_sheep.xml", 12],
-  yellow_sheep: ["/aryan/apps/esheep/yellow_sheep.xml", 12],
 };
 
 /** The DOCK_HEIGHT from our MacDesktop — pets rest above it. */

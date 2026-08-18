@@ -104,6 +104,7 @@ export default function ModelViewerApp() {
     let alive = true;
     const load = async () => {
       try {
+        // @ts-expect-error CDN URL import
         const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
         if (!alive) return;
 
@@ -229,6 +230,7 @@ export default function ModelViewerApp() {
       meshRef.current.material?.dispose();
     }
 
+    // @ts-expect-error CDN URL import
     const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
     const model = DEMO_MODELS.find((m) => m.id === modelId);
     if (model) {

@@ -15,7 +15,7 @@ type FFmpegInstance = {
   run: (...args: string[]) => Promise<{ exitCode: number; stderr: string }>;
   writeFile: (name: string, data: Uint8Array) => Promise<void>;
   readFile: (name: string) => Promise<Uint8Array>;
-  on: (event: string, cb: (progress: { progress: number }) => void) => void;
+  on: (event: string, cb: (data: any) => void) => void;
 };
 
 declare global {
@@ -73,8 +73,8 @@ export default function FFmpegApp() {
         progress: (p: { progress: number }) => setProgress(Math.round(p.progress * 100)),
       });
 
-      ffmpeg.on("log", ({ message }: { message: string }) => {
-        console.log("[FFmpeg]", message);
+      ffmpeg.on("log", (event: any) => {
+        console.log("[FFmpeg]", event.message);
       });
 
       await ffmpeg.load();
@@ -135,7 +135,7 @@ export default function FFmpegApp() {
       const outputFileName = args[args.length - 1];
       try {
         const outputData = await ffmpeg.readFile(outputFileName);
-        const blob = new Blob([outputData], { type: "application/octet-stream" });
+        const blob = new Blob([new Uint8Array(outputData as unknown as ArrayBuffer)], { type: "application/octet-stream" });
         setOutputBlob(blob);
         setOutputName(outputFileName);
         setStatus(`${preset.name} complete — ${outputFileName} ready to download`);

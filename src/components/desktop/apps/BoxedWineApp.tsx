@@ -32,10 +32,9 @@ interface BoxedWineAppProps {
 /** Base config — wine root + on-demand overlay, resolved under our local path. */
 const getConfig = (dynamic: Record<string, string>): string =>
   [
-    ["root", "/fullWine1.7.55-v8"],
+    ["root", "/wine1.7.55-v8-min-online"],
     ["ondemand", "root"],
     ["resolution", "640x480"],
-    ["inline-default-ondemand-root-overlay", "/wine1.7.55-v8-min-online"],
     ...Object.entries(dynamic),
   ]
     .map(([k, v]) => `${k}=${v}`)

@@ -14,13 +14,12 @@ interface EmulatorAppProps {
 /** daedalOS emulatorCores — extension → EmulatorJS core id + console name. */
 const ROM_CORES: { core: string; name: string; ext: string[] }[] = [
   { core: "atari2600", name: "Atari 2600", ext: [".a26"] },
-  { core: "atari5200", name: "Atari 5200", ext: [".a52"] },
+
   { core: "atari7800", name: "Atari 7800", ext: [".a78"] },
   { core: "jaguar", name: "Atari Jaguar", ext: [".j64", ".jag"] },
   { core: "lynx", name: "Atari Lynx", ext: [".lnx"] },
   { core: "ngp", name: "Neo Geo Pocket", ext: [".ngc", ".ngp"] },
-  { core: "n64", name: "Nintendo 64", ext: [".n64", ".v64", ".z64"] },
-  { core: "nds", name: "Nintendo DS", ext: [".nds"] },
+
   { core: "nes", name: "Nintendo Entertainment System", ext: [".nes"] },
   { core: "gb", name: "Nintendo Game Boy / Color", ext: [".gb", ".gbc"] },
   { core: "gba", name: "Nintendo Game Boy Advance", ext: [".gba"] },
@@ -30,7 +29,7 @@ const ROM_CORES: { core: string; name: string; ext: string[] }[] = [
   { core: "segaMD", name: "Sega Genesis / Mega Drive", ext: [".gen", ".md", ".smd"] },
   { core: "segaMS", name: "Sega Master System", ext: [".sms"] },
   { core: "snes", name: "Super Nintendo", ext: [".sfc", ".smc"] },
-  { core: "vb", name: "Virtual Boy", ext: [".vb", ".vboy"] },
+
   { core: "ws", name: "WonderSwan", ext: [".ws", ".wsc"] },
 ];
 
@@ -158,7 +157,7 @@ export default function EmulatorApp({ file }: EmulatorAppProps) {
       <input
         id="emu-rom"
         type="file"
-        accept=".nes,.smc,.sfc,.gb,.gbc,.gba,.n64,.z64,.gen,.md,.sms,.gg,.a26,.pce,.nds,.ws,.v64,.j64"
+        accept=".nes,.smc,.sfc,.gb,.gbc,.gba,.gen,.md,.sms,.gg,.a26,.pce,.ws,.v64,.j64"
         hidden
         onChange={(e) => {
           pickFiles(e.target.files);

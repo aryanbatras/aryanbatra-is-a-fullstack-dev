@@ -32,10 +32,7 @@ export const SCRUB_FRAME_RATE = 60;
 
 /** Full original chapter files used by the desktop Videos app. */
 export const ORIGINAL_VIDEOS = [
-  { src: "/aryan/processed_video_001.mp4", poster: "/aryan/poster_001.jpg", title: "Showreel — Part 01" },
-  { src: "/aryan/processed_video_002.mp4", poster: "/aryan/poster_002.jpg", title: "Showreel — Part 02" },
-  { src: "/aryan/new_video_003.mp4", poster: "/aryan/poster_003.jpg", title: "Showreel — Part 03" },
-  { src: "/aryan/new_video_004.mp4", poster: "/aryan/poster_004.jpg", title: "Showreel — Part 04" },
+  { src: "/aryan/showreel_a.mp4", poster: "/aryan/poster_a.jpg", title: "Showreel" },
 ];
 
 /** Frames extracted for the desktop Photos app (8 per film x 4 films). */

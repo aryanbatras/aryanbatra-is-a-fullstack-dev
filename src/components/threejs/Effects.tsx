@@ -1,6 +1,17 @@
 import { EffectComposer, Bloom, DepthOfField, Vignette, ChromaticAberration } from "@react-three/postprocessing";
 import { EffectsProps } from "@/types";
-import { EFFECTS_DEFAULTS } from "@/constants";
+
+const EFFECTS_DEFAULTS = {
+  bloomIntensity: 1.5,
+  bloomLuminanceThreshold: 0.2,
+  bloomRadius: 0.4,
+  depthOfFieldFocusDistance: 0.02,
+  depthOfFieldFocalLength: 0.02,
+  depthOfFieldBokehScale: 2,
+  vignetteOffset: 0.3,
+  vignetteDarkness: 0.5,
+  chromaticAberrationOffset: [0.001, 0.001, 0.001] as [number, number, number],
+};
 
 export default function Effects({
   bloomEnabled = EFFECTS_DEFAULTS.bloomIntensity > 0,
