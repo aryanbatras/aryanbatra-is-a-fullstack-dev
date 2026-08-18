@@ -46,27 +46,34 @@ import Launchpad from "@/components/desktop/Launchpad";
 import EmojiPicker from "@/components/desktop/EmojiPicker";
 import AlertDialog, { type AlertOptions } from "@/components/desktop/AlertDialog";
 import QuickLook, { type QuickLookFile } from "@/components/desktop/QuickLook";
+/* ─── Static imports: lightweight apps always in the shell ────────── */
 import FinderApp, { type FinderFile } from "@/components/desktop/apps/FinderApp";
 import SettingsApp from "@/components/desktop/apps/SettingsApp";
 import AboutApp from "@/components/desktop/apps/AboutApp";
 import ResumeApp from "@/components/desktop/apps/ResumeApp";
 import ProjectsApp from "@/components/desktop/apps/ProjectsApp";
 import NotesApp from "@/components/desktop/apps/NotesApp";
-import PhotosApp from "@/components/desktop/apps/PhotosApp";
-import VideosApp from "@/components/desktop/apps/VideosApp";
-import MapsApp from "@/components/desktop/apps/MapsApp";
-import ReadMeApp from "@/components/desktop/apps/ReadMeApp";
-import WebsiteApp from "@/components/desktop/apps/WebsiteApp";
-import TerminalApp from "@/components/desktop/apps/TerminalApp";
-import GamesApp, { WebPlayGame } from "@/components/desktop/apps/GamesApp";
-import PaintApp from "@/components/desktop/apps/PaintApp";
-import PdfViewerApp from "@/components/desktop/apps/PdfViewerApp";
-import TextEditApp from "@/components/desktop/apps/TextEditApp";
-import MarkdownApp from "@/components/desktop/apps/MarkdownApp";
-import IrcApp from "@/components/desktop/apps/IrcApp";
-import MessengerApp from "@/components/desktop/apps/MessengerApp";
-import DevToolsApp from "@/components/desktop/apps/DevToolsApp";
-import OpenTypeApp from "@/components/desktop/apps/OpenTypeApp";
+
+/* ─── Lazy-loaded medium apps ───────────────────────────────────────
+ * These pull in non-trivial deps (opentype.js, PDF rendering,IRC) or
+ * are simply never needed at boot — lazy-loading keeps the shell lean.
+ */
+const PhotosApp = React.lazy(() => import("@/components/desktop/apps/PhotosApp"));
+const VideosApp = React.lazy(() => import("@/components/desktop/apps/VideosApp"));
+const MapsApp = React.lazy(() => import("@/components/desktop/apps/MapsApp"));
+const ReadMeApp = React.lazy(() => import("@/components/desktop/apps/ReadMeApp"));
+const WebsiteApp = React.lazy(() => import("@/components/desktop/apps/WebsiteApp"));
+const TerminalApp = React.lazy(() => import("@/components/desktop/apps/TerminalApp"));
+const GamesApp = React.lazy(() => import("@/components/desktop/apps/GamesApp"));
+const WebPlayGame = React.lazy(() => import("@/components/desktop/apps/GamesApp").then(m => ({ default: m.WebPlayGame })));
+const PaintApp = React.lazy(() => import("@/components/desktop/apps/PaintApp"));
+const PdfViewerApp = React.lazy(() => import("@/components/desktop/apps/PdfViewerApp"));
+const TextEditApp = React.lazy(() => import("@/components/desktop/apps/TextEditApp"));
+const MarkdownApp = React.lazy(() => import("@/components/desktop/apps/MarkdownApp"));
+const IrcApp = React.lazy(() => import("@/components/desktop/apps/IrcApp"));
+const MessengerApp = React.lazy(() => import("@/components/desktop/apps/MessengerApp"));
+const DevToolsApp = React.lazy(() => import("@/components/desktop/apps/DevToolsApp"));
+const OpenTypeApp = React.lazy(() => import("@/components/desktop/apps/OpenTypeApp"));
 
 /* ─── Lazy-loaded heavy apps ─────────────────────────────────────────
  * These components pull in WASM binaries, heavy libraries (chess.js,
@@ -90,6 +97,10 @@ const V86App = React.lazy(() => import("@/components/desktop/apps/V86App"));
 const EmulatorApp = React.lazy(() => import("@/components/desktop/apps/EmulatorApp"));
 const RuffleApp = React.lazy(() => import("@/components/desktop/apps/RuffleApp"));
 const JSDOSApp = React.lazy(() => import("@/components/desktop/apps/JSDOSApp"));
+const PGliteApp = React.lazy(() => import("@/components/desktop/apps/PGliteApp"));
+const SQLStudioApp = React.lazy(() => import("@/components/desktop/apps/SQLStudioApp"));
+const EsbuildApp = React.lazy(() => import("@/components/desktop/apps/EsbuildApp"));
+const AILabApp = React.lazy(() => import("@/components/desktop/apps/AILabApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -183,6 +194,10 @@ const APP_VIEWS: Record<string, () => React.JSX.Element> = {
   opentype: () => <div />,
   emulator: () => <div />,
   ruffle: () => <div />,
+  pglite: () => <div />,
+  sqlstudio: () => <div />,
+  esbuild: () => <div />,
+  ailab: () => <div />,
   jsdos: () => <div />,
   settings: () => <div />, // replaced with a prop-carrying render below
 };
@@ -2322,6 +2337,14 @@ const MOBILE_BP = 768;
                 <RuffleApp file={emuDocs[win.id]?.name} />
               ) : win.appId === "jsdos" ? (
                 <JSDOSApp file={emuDocs[win.id]?.name} />
+              ) : win.appId === "pglite" ? (
+                <PGliteApp />
+              ) : win.appId === "sqlstudio" ? (
+                <SQLStudioApp />
+              ) : win.appId === "esbuild" ? (
+                <EsbuildApp />
+              ) : win.appId === "ailab" ? (
+                <AILabApp />
               ) : View ? (
                 <View />
               ) : (

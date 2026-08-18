@@ -319,6 +319,11 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "markdown", title: "Markdown", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // DX-Ball — the classic block breaker (daedalOS).
   { id: "dxball", title: "DX-Ball", icon: "pinball", iconUrl: "/aryan/icons/dxball.png", width: 720, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // DevTools — WASM-powered engineering tools
+  { id: "pglite", title: "Postgres", icon: "database", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "sqlstudio", title: "SQLite Studio", icon: "database", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "esbuild", title: "Bundler", icon: "file-code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "ailab", title: "AI Lab", icon: "brain", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */

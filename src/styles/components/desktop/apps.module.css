@@ -6625,3 +6625,376 @@
     display: none;
   }
 }
+
+/* ================= PGlite / SQL Studio ================= */
+.pglite {
+  display: flex;
+  height: 100%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 13px;
+}
+.pgliteSidebar {
+  width: 180px;
+  min-width: 180px;
+  background: #16162a;
+  border-right: 1px solid #2a2a4a;
+  padding: 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pgliteSection {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8888aa;
+  padding: 6px 4px 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pgliteQueryBtn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  color: #c0c0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.pgliteQueryBtn:hover { background: #2a2a4a; }
+.pgliteHistoryBtn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  color: #6a6a8a;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.pgliteHistoryBtn:hover { background: #2a2a4a; color: #c0c0e0; }
+.pgliteMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pgliteEditor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.pgliteToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #1e1e3a;
+  border-bottom: 1px solid #2a2a4a;
+}
+.pgliteRunBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+.pgliteRunBtn:hover { background: #2563eb; }
+.pgliteRunBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.pgliteStatus {
+  font-size: 11px;
+  color: #6a6a8a;
+  margin-left: auto;
+}
+.pgliteSql {
+  flex: 1;
+  width: 100%;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  border: none;
+  padding: 10px;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+.pgliteResults {
+  flex: 1;
+  overflow: auto;
+  border-top: 1px solid #2a2a4a;
+  background: #12122a;
+}
+.pgliteError {
+  color: #ff6b6b;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.pgliteTableWrap {
+  padding: 8px;
+}
+.pgliteTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.pgliteTable th {
+  text-align: left;
+  padding: 6px 10px;
+  background: #1e1e3a;
+  color: #8888aa;
+  font-weight: 600;
+  border-bottom: 1px solid #2a2a4a;
+  position: sticky;
+  top: 0;
+}
+.pgliteTable td {
+  padding: 4px 10px;
+  border-bottom: 1px solid #1a1a2e;
+}
+.pgliteTable tr:hover td { background: #1a1a3a; }
+.pgliteNull { color: #555577; font-style: italic; }
+.pgliteRowCount {
+  font-size: 11px;
+  color: #6a6a8a;
+  padding: 4px 10px;
+}
+.pgliteEmpty {
+  color: #555577;
+  text-align: center;
+  padding: 40px;
+  font-size: 13px;
+}
+
+/* ================= Esbuild ================= */
+.esbuild {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+.esbuildTabs {
+  display: flex;
+  background: #16162a;
+  border-bottom: 1px solid #2a2a4a;
+  padding: 0 8px;
+  gap: 2px;
+  overflow-x: auto;
+}
+.esbuildTab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #8888aa;
+  cursor: pointer;
+  font-size: 12px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.esbuildTab:hover { color: #c0c0e0; }
+.esbuildTabActive {
+  color: #e0e0e0;
+  border-bottom-color: #3b82f6;
+}
+.esbuildBody {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.esbuildEditor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.esbuildMode {
+  background: #2a2a4a;
+  color: #e0e0e0;
+  border: 1px solid #3a3a5a;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.esbuildDownload {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #2a2a4a;
+  color: #c0c0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.esbuildDownload:hover { background: #3a3a5a; }
+.esbuildStatus {
+  font-size: 11px;
+  color: #6a6a8a;
+  margin-left: auto;
+}
+.esbuildCode {
+  flex: 1;
+  width: 100%;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  border: none;
+  padding: 10px;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+}
+.esbuildOutput {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #2a2a4a;
+  min-width: 0;
+}
+.esbuildOutputHeader {
+  padding: 6px 10px;
+  background: #1e1e3a;
+  border-bottom: 1px solid #2a2a4a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8888aa;
+}
+.esbuildOutput pre {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  background: #0d0d1a;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #c0c0e0;
+}
+.esbuildError {
+  color: #ff6b6b !important;
+  white-space: pre-wrap;
+}
+
+/* ================= AI Lab ================= */
+.aiLab {
+  display: flex;
+  height: 100%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 13px;
+}
+.aiLabSidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #16162a;
+  border-right: 1px solid #2a2a4a;
+  padding: 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiLabTaskBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+.aiLabTaskBtn:hover { background: #2a2a4a; }
+.aiLabTaskActive { background: #2a2a4a; border-left: 3px solid #3b82f6; }
+.aiLabTaskName {
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.aiLabTaskDesc {
+  color: #6a6a8a;
+  font-size: 11px;
+}
+.aiLabMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.aiLabHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #1e1e3a;
+  border-bottom: 1px solid #2a2a4a;
+  font-weight: 500;
+}
+.aiLabModel {
+  font-size: 11px;
+  color: #6a6a8a;
+  margin-left: auto;
+  font-family: monospace;
+}
+.aiLabInput {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  border: none;
+  border-bottom: 1px solid #2a2a4a;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+.aiLabActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1e1e3a;
+  border-bottom: 1px solid #2a2a4a;
+}
+.aiLabOutput {
+  flex: 1;
+  overflow: auto;
+  background: #12122a;
+}
+.aiLabResult {
+  margin: 0;
+  padding: 12px;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c0e0c0;
+  white-space: pre-wrap;
+}
