@@ -101,6 +101,7 @@ const PGliteApp = React.lazy(() => import("@/components/desktop/apps/PGliteApp")
 const SQLStudioApp = React.lazy(() => import("@/components/desktop/apps/SQLStudioApp"));
 const EsbuildApp = React.lazy(() => import("@/components/desktop/apps/EsbuildApp"));
 const AILabApp = React.lazy(() => import("@/components/desktop/apps/AILabApp"));
+const FFmpegApp = React.lazy(() => import("@/components/desktop/apps/FFmpegApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -198,6 +199,7 @@ const APP_VIEWS: Record<string, () => React.JSX.Element> = {
   sqlstudio: () => <div />,
   esbuild: () => <div />,
   ailab: () => <div />,
+  ffmpeg: () => <div />,
   jsdos: () => <div />,
   settings: () => <div />, // replaced with a prop-carrying render below
 };
@@ -2345,6 +2347,8 @@ const MOBILE_BP = 768;
                 <EsbuildApp />
               ) : win.appId === "ailab" ? (
                 <AILabApp />
+              ) : win.appId === "ffmpeg" ? (
+                <FFmpegApp />
               ) : View ? (
                 <View />
               ) : (

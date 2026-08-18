@@ -324,6 +324,7 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "sqlstudio", title: "SQLite Studio", icon: "database", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "esbuild", title: "Bundler", icon: "file-code", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "ailab", title: "AI Lab", icon: "brain", iconUrl: "/aryan/icons/terminal.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+  { id: "ffmpeg", title: "FFmpeg", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */
