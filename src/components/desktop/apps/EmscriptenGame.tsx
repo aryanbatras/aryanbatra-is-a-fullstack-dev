@@ -172,8 +172,10 @@ export default function EmscriptenGame({
         canvas.id = "canvas";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
-        canvas.tabIndex = -1;
+        canvas.tabIndex = 0;
         win.document.body.appendChild(canvas);
+        // Auto-focus the canvas so keyboard events work immediately
+        setTimeout(() => canvas.focus(), 100);
         win.__pinballCanvas = canvas;
       }
 
