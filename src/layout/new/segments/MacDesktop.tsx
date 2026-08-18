@@ -73,7 +73,7 @@ const MarkdownApp = React.lazy(() => import("@/components/desktop/apps/MarkdownA
 const IrcApp = React.lazy(() => import("@/components/desktop/apps/IrcApp"));
 const MessengerApp = React.lazy(() => import("@/components/desktop/apps/MessengerApp"));
 const DevToolsApp = React.lazy(() => import("@/components/desktop/apps/DevToolsApp"));
-const OpenTypeApp = React.lazy(() => import("@/components/desktop/apps/OpenTypeApp"));
+
 
 /* ─── Lazy-loaded heavy apps ─────────────────────────────────────────
  * These components pull in WASM binaries, heavy libraries (chess.js,
@@ -83,20 +83,18 @@ const OpenTypeApp = React.lazy(() => import("@/components/desktop/apps/OpenTypeA
  */
 const DxBallGame = React.lazy(() => import("@/components/desktop/apps/DxBallGame"));
 const ChessGame = React.lazy(() => import("@/components/desktop/apps/ChessGame"));
-const SpaceCadetGame = React.lazy(() => import("@/components/desktop/apps/SpaceCadetGame"));
-const Quake3Game = React.lazy(() => import("@/components/desktop/apps/Quake3Game"));
+
 const WebampApp = React.lazy(() => import("@/components/desktop/apps/WebampApp"));
 const VlcApp = React.lazy(() => import("@/components/desktop/apps/VlcApp"));
-const VimApp = React.lazy(() => import("@/components/desktop/apps/VimApp"));
+
 const MonacoApp = React.lazy(() => import("@/components/desktop/apps/MonacoApp"));
-const TinyMceApp = React.lazy(() => import("@/components/desktop/apps/TinyMceApp"));
+
 const Tic80Game = React.lazy(() => import("@/components/desktop/apps/Tic80Game"));
 const ClassiCubeGame = React.lazy(() => import("@/components/desktop/apps/ClassiCubeGame"));
-const BoxedWineApp = React.lazy(() => import("@/components/desktop/apps/BoxedWineApp"));
-const V86App = React.lazy(() => import("@/components/desktop/apps/V86App"));
+
 const EmulatorApp = React.lazy(() => import("@/components/desktop/apps/EmulatorApp"));
 const RuffleApp = React.lazy(() => import("@/components/desktop/apps/RuffleApp"));
-const JSDOSApp = React.lazy(() => import("@/components/desktop/apps/JSDOSApp"));
+
 const PGliteApp = React.lazy(() => import("@/components/desktop/apps/PGliteApp"));
 const SQLStudioApp = React.lazy(() => import("@/components/desktop/apps/SQLStudioApp"));
 const EsbuildApp = React.lazy(() => import("@/components/desktop/apps/EsbuildApp"));
@@ -2296,10 +2294,6 @@ const MOBILE_BP = 768;
                   pgnName={chessDocs[win.id]?.name}
                   pgnContent={chessDocs[win.id]?.content}
                 />
-              ) : win.appId === "game-pinball" ? (
-                <SpaceCadetGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
-              ) : win.appId === "game-quake3" ? (
-                <Quake3Game fullWindow onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "game-classicube" ? (
                 <ClassiCubeGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "game-tic80" ? (
@@ -2314,18 +2308,11 @@ const MOBILE_BP = 768;
                 <WebampApp file={webampDocs[win.id]?.name} />
               ) : win.appId === "vlc" ? (
                 <VlcApp file={vlcDocs[win.id]?.file} />
-              ) : win.appId === "vim" ? (
-                <VimApp
-                  file={vimDocs[win.id]?.name}
-                  content={vimDocs[win.id]?.content}
-                />
               ) : win.appId === "monaco" ? (
                 <MonacoApp
                   file={monacoDocs[win.id]?.name}
                   content={monacoDocs[win.id]?.content}
                 />
-              ) : win.appId === "tinymce" ? (
-                <TinyMceApp file={tinymceDocs[win.id]?.name} />
               ) : win.appId === "tic80" ? (
                 <Tic80Game
                   onExit={() => closeWindowAnimated(win.id)}
@@ -2333,20 +2320,12 @@ const MOBILE_BP = 768;
                 />
               ) : win.appId === "classicube" ? (
                 <ClassiCubeGame onExit={() => closeWindowAnimated(win.id)} />
-              ) : win.appId === "boxedwine" ? (
-                <BoxedWineApp file={boxedwineDocs[win.id]?.name} />
-              ) : win.appId === "v86" ? (
-                <V86App file={v86Docs[win.id]?.name} />
               ) : win.appId === "devtools" ? (
                 <DevToolsApp />
-              ) : win.appId === "opentype" ? (
-                <OpenTypeApp file={fontDocs[win.id]?.file} />
               ) : win.appId === "emulator" ? (
                 <EmulatorApp file={emuDocs[win.id]?.name} />
               ) : win.appId === "ruffle" ? (
                 <RuffleApp file={emuDocs[win.id]?.name} />
-              ) : win.appId === "jsdos" ? (
-                <JSDOSApp file={emuDocs[win.id]?.name} />
               ) : win.appId === "pglite" ? (
                 <PGliteApp />
               ) : win.appId === "sqlstudio" ? (

@@ -283,32 +283,24 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: false },
   // VLC — dark media player for the film library and Finder movies.
   { id: "vlc", title: "VLC", icon: "film", iconUrl: "/aryan/icons/vlc.png", width: 720, height: 520, minWidth: 480, minHeight: 340, onDesktop: false, inDock: false },
-  // Vim — the real vim.js editor (daedalOS).
-  { id: "vim", title: "Vim", icon: "terminal", iconUrl: "/aryan/icons/vim.png", width: 700, height: 480, minWidth: 460, minHeight: 320, onDesktop: false, inDock: false },
+
   // DevTools — eruda (console, elements, network, resources, sources).
   { id: "devtools", title: "DevTools", icon: "terminal", iconUrl: "/aryan/icons/eruda.png", width: 720, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  // OpenType — font viewer for .otf/.ttf/.woff files (daedalOS).
-  { id: "opentype", title: "OpenType", icon: "file-text", iconUrl: "/aryan/icons/opentype.png", width: 640, height: 520, minWidth: 460, minHeight: 380, onDesktop: false, inDock: false },
-  // TinyMCE — rich-text editor for .rtf / .whtml files (daedalOS).
-  { id: "tinymce", title: "TinyMCE", icon: "file-text", iconUrl: "/aryan/icons/tinymce.png", width: 720, height: 540, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
+
   // IRC — KiwiIRC web chat client (daedalOS).
   { id: "irc", title: "IRC", icon: "message-square", iconUrl: "/aryan/icons/kiwiirc.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // TIC-80 — the fantasy computer (daedalOS). .tic carts open here.
   { id: "tic80", title: "TIC-80", icon: "emulator", iconUrl: "/aryan/icons/tic80.png", width: 760, height: 560, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // ClassiCube — Minecraft Classic client (daedalOS).
   { id: "classicube", title: "ClassiCube", icon: "gamepad", iconUrl: "/aryan/icons/classicube.png", width: 800, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
-  // BoxedWine — runs real 16/32-bit Windows programs (.exe / .zip, daedalOS).
-  { id: "boxedwine", title: "BoxedWine", icon: "terminal", iconUrl: "/aryan/icons/boxedwine.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  // Virtual x86 — full x86 PC emulator (.img / .iso, daedalOS).
-  { id: "v86", title: "Virtual x86", icon: "hard-drive", iconUrl: "/aryan/icons/v86.png", width: 800, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+
   // Messenger — encrypted direct messaging over Nostr (NIP-04, daedalOS).
   { id: "messenger", title: "Messenger", icon: "message-square", iconUrl: "/aryan/icons/messenger.png", width: 760, height: 540, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   // Console emulator (EmulatorJS) — drop a ROM and play (daedalOS).
   { id: "emulator", title: "Emulator", icon: "emulator", iconUrl: "/aryan/icons/emulator.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // Flash player (Ruffle) — .swf files play in the browser.
   { id: "ruffle", title: "Ruffle", icon: "ruffle", iconUrl: "/aryan/icons/ruffle.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  // DOSBox (js-dos) — .jsdos/.exe/.zip DOS games.
-  { id: "jsdos", title: "DOS", icon: "jsdos", iconUrl: "/aryan/icons/jsdos.png", width: 760, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
+
   { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: false, inDock: false },
   // Safari — the machine's browser. Opens Google by default (daedalOS-style
   // basic-HTML Google works in an iframe); the portfolio is a bookmark.
