@@ -7082,3 +7082,69 @@
 .modelViewerCanvas canvas {
   display: block;
 }
+
+/* ================= Playground ================= */
+.playground {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+.playgroundEditor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.playgroundCode {
+  flex: 1;
+  width: 100%;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  border: none;
+  padding: 12px;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+}
+.playgroundOutput {
+  height: 200px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #2a2a4a;
+}
+.playgroundOutputHeader {
+  padding: 6px 12px;
+  background: #1e1e3a;
+  border-bottom: 1px solid #2a2a4a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8888aa;
+}
+.playgroundOutputBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  background: #0d0d1a;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.playgroundLine {
+  padding: 1px 0;
+  color: #c0c0e0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.playgroundError {
+  color: #ff6b6b;
+}
+.playgroundWarn {
+  color: #fbbf24;
+}
