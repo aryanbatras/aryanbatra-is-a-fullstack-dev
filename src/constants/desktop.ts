@@ -353,10 +353,10 @@ export interface Wallpaper {
 
 export const WALLPAPERS: Wallpaper[] = [
   // The Tahoe dynamic beach series (the real macOS Tahoe wallpapers).
-  { id: "tahoe-beach-dawn", name: "Tahoe Beach — Dawn", src: "/aryan/wallpapers/tahoe-beach-Dawn.jpg" },
-  { id: "tahoe-beach-day", name: "Tahoe Beach — Day", src: "/aryan/wallpapers/tahoe-beach-Day.jpg" },
-  { id: "tahoe-beach-dusk", name: "Tahoe Beach — Dusk", src: "/aryan/wallpapers/tahoe-beach-Dusk.jpg" },
-  { id: "tahoe-beach-night", name: "Tahoe Beach — Night", src: "/aryan/wallpapers/tahoe-beach-Night.jpg" },
+  { id: "tahoe-beach-dawn", name: "Tahoe Beach — Dawn", src: "/aryan/wallpapers/tahoe-beach-Dawn.webp" },
+  { id: "tahoe-beach-day", name: "Tahoe Beach — Day", src: "/aryan/wallpapers/tahoe-beach-Day.webp" },
+  { id: "tahoe-beach-dusk", name: "Tahoe Beach — Dusk", src: "/aryan/wallpapers/tahoe-beach-Dusk.webp" },
+  { id: "tahoe-beach-night", name: "Tahoe Beach — Night", src: "/aryan/wallpapers/tahoe-beach-Night.webp" },
 ];
 
 /* ------------------------------------------------------------------ */

@@ -23,7 +23,7 @@ export default function QuickLook({ file, onClose }: QuickLookProps) {
     if (file.id === "showreel") {
       return (
         <img
-          src="/aryan/poster_001.jpg"
+          src="/aryan/poster_001.webp"
           alt="showreel poster"
           className={styles.quickLookMedia}
         />

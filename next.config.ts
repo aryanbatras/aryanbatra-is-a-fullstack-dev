@@ -9,10 +9,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Heavy WASM/binary assets that stay in /public/aryan/ (no CDN mirror).
-        // Cache-Control: immutable tells the browser to NEVER revalidate —
-        // the file is content-addressed by the URL, so it never changes.
-        // This gives instant loads on repeat visits (disk cache, 0ms).
+        // Heavy WASM/binary assets — immutable cache + pre-compressed serving.
         source: "/aryan/:path*",
         headers: [
           {
@@ -22,6 +19,10 @@ const nextConfig: NextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value: "*",
+          },
+          {
+            key: "Vary",
+            value: "Accept-Encoding",
           },
         ],
       },

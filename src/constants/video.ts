@@ -23,7 +23,7 @@
 
 /** Act one — the continued sequence (001+002+003+004). */
 export const SCRUB_VIDEO_A = "/aryan/showreel_a.mp4";
-export const SCRUB_POSTER_A = "/aryan/poster_a.jpg";
+export const SCRUB_POSTER_A = "/aryan/poster_a.webp";
 export const ACT1_DURATIONS = [8, 8, 8, 8];
 export const ACT1_DURATION = ACT1_DURATIONS.reduce((a, b) => a + b, 0); // 32s
 
@@ -32,11 +32,11 @@ export const SCRUB_FRAME_RATE = 60;
 
 /** Full original chapter files used by the desktop Videos app. */
 export const ORIGINAL_VIDEOS = [
-  { src: "/aryan/showreel_a.mp4", poster: "/aryan/poster_a.jpg", title: "Showreel" },
+  { src: "/aryan/showreel_a.mp4", poster: "/aryan/poster_a.webp", title: "Showreel" },
 ];
 
 /** Frames extracted for the desktop Photos app (8 per film x 4 films). */
 export const PHOTOS: string[] = Array.from(
   { length: 32 },
-  (_, i) => `/aryan/photos/photo_${String(i + 1).padStart(2, "0")}.jpg`,
+  (_, i) => `/aryan/photos/photo_${String(i + 1).padStart(2, "0")}.webp`,
 );

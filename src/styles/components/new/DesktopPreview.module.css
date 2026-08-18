@@ -9,7 +9,7 @@
   font-family: var(--font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   /* The default wallpaper — set as a CSS background too,
      so the screen is never a black void even before the <img> paints. */
-  background: #05070f url("/aryan/wallpapers/tahoe-beach-Dawn.jpg") center / cover no-repeat;
+  background: #05070f url("/aryan/wallpapers/tahoe-beach-Dawn.webp") center / cover no-repeat;
 }
 
 .wallpaper {

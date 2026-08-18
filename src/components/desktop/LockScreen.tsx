@@ -352,7 +352,7 @@ export default function LockScreen({
           <video
             ref={videoRef}
             src={SCRUB_VIDEO_A}
-            poster="/aryan/poster_a.jpg"
+            poster="/aryan/poster_a.webp"
             className={styles.videoOverlayPlayer}
             autoPlay
             playsInline

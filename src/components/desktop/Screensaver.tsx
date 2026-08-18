@@ -10,9 +10,9 @@ interface ScreensaverProps {
 
 /** "Aerial" style — slow drone-style pans across the Tahoe beach wallpapers. */
 const AERIAL_FRAMES = [
-  "/aryan/wallpapers/tahoe-beach-Day.jpg",
-  "/aryan/wallpapers/tahoe-beach-Dusk.jpg",
-  "/aryan/wallpapers/tahoe-beach-Night.jpg",
+  "/aryan/wallpapers/tahoe-beach-Day.webp",
+  "/aryan/wallpapers/tahoe-beach-Dusk.webp",
+  "/aryan/wallpapers/tahoe-beach-Night.webp",
 ];
 
 /** Flurry: drifting glowing orbs on a dark canvas (macOS classic). */

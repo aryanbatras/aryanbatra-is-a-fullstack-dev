@@ -211,7 +211,7 @@ FILE_SETS["Pictures"] = Array.from({ length: 32 }, (_, i) => ({
   icon: "image",
   size: "—",
   appId: "photos",
-  src: `/aryan/photos/photo_${String(i + 1).padStart(2, "0")}.jpg`,
+  src: `/aryan/photos/photo_${String(i + 1).padStart(2, "0")}.webp`,
 }));
 
 // Honest empty volumes — a real machine with nothing mounted on them yet.
