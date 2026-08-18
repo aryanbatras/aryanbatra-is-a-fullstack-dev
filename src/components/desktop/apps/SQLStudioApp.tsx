@@ -64,7 +64,7 @@ export default function SQLStudioApp() {
     const load = async () => {
       try {
         // @ts-expect-error — URL import resolved at runtime by the browser
-        const sqlPromise = import("https://cdn.jsdelivr.net/npm/sql.js@1.11.0/+esm") as unknown as Promise<{ default: InitSqlJs }>;
+        const sqlPromise = import(/* webpackIgnore: true */ "https://cdn.jsdelivr.net/npm/sql.js@1.11.0/+esm") as unknown as Promise<{ default: InitSqlJs }>;
         const sqlModule = await sqlPromise;
         if (!alive) return;
 

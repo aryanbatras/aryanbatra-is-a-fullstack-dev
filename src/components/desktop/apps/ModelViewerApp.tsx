@@ -105,7 +105,7 @@ export default function ModelViewerApp() {
     const load = async () => {
       try {
         // @ts-expect-error CDN URL import
-        const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
+        const THREE = await import(/* webpackIgnore: true */ "https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
         if (!alive) return;
 
         const container = containerRef.current;
@@ -231,7 +231,7 @@ export default function ModelViewerApp() {
     }
 
     // @ts-expect-error CDN URL import
-    const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
+    const THREE = await import(/* webpackIgnore: true */ "https://cdn.jsdelivr.net/npm/three@0.182.0/+esm") as any;
     const model = DEMO_MODELS.find((m) => m.id === modelId);
     if (model) {
       meshRef.current = model.create(scene, THREE);

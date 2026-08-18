@@ -63,7 +63,7 @@ export default function PGliteApp() {
       try {
         // Dynamic import from ESM CDN
         // @ts-expect-error — URL import resolved at runtime by the browser
-        const { PGlite } = await import("https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.4/+esm") as unknown as { PGlite: PGLiteModule };
+        const { PGlite } = await import(/* webpackIgnore: true */ "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.4/+esm") as unknown as { PGlite: PGLiteModule };
         if (!alive) return;
 
         dbRef.current = await PGlite.create({ dataDir: "idb://pglite-demo" });

@@ -68,7 +68,7 @@ export default function EsbuildApp() {
     const load = async () => {
       try {
         // @ts-expect-error — URL import resolved at runtime by the browser
-        const esbuild = await import("https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/+esm") as unknown as EsbuildInstance;
+        const esbuild = await import(/* webpackIgnore: true */ "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/+esm") as unknown as EsbuildInstance;
         if (!alive) return;
         await esbuild.initialize({
           wasmURL: "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.28.1/esm/browser.wasm",
