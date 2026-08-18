@@ -65,7 +65,6 @@ const ReadMeApp = React.lazy(() => import("@/components/desktop/apps/ReadMeApp")
 const WebsiteApp = React.lazy(() => import("@/components/desktop/apps/WebsiteApp"));
 const TerminalApp = React.lazy(() => import("@/components/desktop/apps/TerminalApp"));
 const GamesApp = React.lazy(() => import("@/components/desktop/apps/GamesApp"));
-const WebPlayGame = React.lazy(() => import("@/components/desktop/apps/GamesApp").then(m => ({ default: m.WebPlayGame })));
 const PaintApp = React.lazy(() => import("@/components/desktop/apps/PaintApp"));
 const PdfViewerApp = React.lazy(() => import("@/components/desktop/apps/PdfViewerApp"));
 const TextEditApp = React.lazy(() => import("@/components/desktop/apps/TextEditApp"));
@@ -2283,8 +2282,6 @@ const MOBILE_BP = 768;
               ) : win.appId === "games" ? (
                 <GamesApp
                   initialGame={chessDocs[win.id] ? "chess" : undefined}
-                  pgnName={chessDocs[win.id]?.name}
-                  pgnContent={chessDocs[win.id]?.content}
                   onLaunchGame={openGame}
                 />
               ) : win.appId === "game-chess" ? (
@@ -2294,14 +2291,10 @@ const MOBILE_BP = 768;
                   pgnName={chessDocs[win.id]?.name}
                   pgnContent={chessDocs[win.id]?.content}
                 />
-              ) : win.appId === "game-classicube" ? (
-                <ClassiCubeGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "game-tic80" ? (
                 <Tic80Game fullWindow onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "game-dxball" ? (
                 <DxBallGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
-              ) : win.appId === "game-piano" ? (
-                <WebPlayGame url={webPlayUrls[win.id]} onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "dxball" ? (
                 <DxBallGame fullWindow onExit={() => closeWindowAnimated(win.id)} />
               ) : win.appId === "webamp" ? (
