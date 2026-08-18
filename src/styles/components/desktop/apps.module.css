@@ -7405,3 +7405,137 @@
 }
 .networkWsField:focus { border-color: #3b82f6; }
 
+/* PDF Viewer */
+.pdfViewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1a1a2e;
+}
+.pdfCanvasArea {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+  background: #2a2a3e;
+  position: relative;
+}
+.pdfCanvas {
+  max-width: 100%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.pdfDropOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.15);
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+  font-size: 18px;
+  color: #3b82f6;
+  z-index: 10;
+}
+
+/* Fractal Explorer */
+.fractalApp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0a0a1a;
+}
+.fractalControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #12122a;
+  border-bottom: 1px solid #2a2a4a;
+  overflow-x: auto;
+}
+.fractalCanvas {
+  flex: 1;
+  width: 100%;
+  cursor: crosshair;
+}
+
+/* Crypto Miner */
+.minerApp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1a1a2e;
+}
+.minerContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.minerStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+}
+.minerStatCard {
+  background: #12122a;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #2a2a4a;
+}
+.minerStatLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8888aa;
+  margin-bottom: 4px;
+}
+.minerStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e0e0e0;
+  font-family: 'SF Mono', monospace;
+}
+.minerControls {
+  display: flex;
+  gap: 16px;
+  padding: 8px 10px;
+  background: #16162e;
+  border-top: 1px solid #2a2a4a;
+  border-bottom: 1px solid #2a2a4a;
+}
+.minerSelect {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #2a2a4a;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  font-size: 12px;
+  outline: none;
+}
+.minerLog {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+  font-family: 'SF Mono', monospace;
+  font-size: 12px;
+  background: #0d0d1a;
+}
+.minerLogLine {
+  padding: 2px 0;
+  color: #c0c0e0;
+  white-space: pre-wrap;
+}
+
+/* Particle System */
+.particleApp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #020208;
+}
+

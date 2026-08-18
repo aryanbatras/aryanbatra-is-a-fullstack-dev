@@ -333,6 +333,10 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "markdown", title: "Markdown Editor", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 900, height: 600, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
   { id: "charts", title: "Data Visualizer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 580, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   { id: "network", title: "Network Monitor", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 900, height: 600, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "pdfviewer", title: "PDF Viewer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 900, height: 640, minWidth: 600, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "fractal", title: "Fractal Explorer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "miner", title: "Crypto Miner", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 580, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "particles", title: "Particle System", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
 ];
 
 /* ------------------------------------------------------------------ */

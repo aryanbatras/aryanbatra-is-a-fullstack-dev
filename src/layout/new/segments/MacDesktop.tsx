@@ -107,6 +107,11 @@ const ModelViewerApp = React.lazy(() => import("@/components/desktop/apps/ModelV
 const MusicVisualizerApp = React.lazy(() => import("@/components/desktop/apps/MusicVisualizerApp"));
 const PlaygroundApp = React.lazy(() => import("@/components/desktop/apps/PlaygroundApp"));
 const TerminalEmulatorApp = React.lazy(() => import("@/components/desktop/apps/TerminalEmulatorApp"));
+const NetworkApp = React.lazy(() => import("@/components/desktop/apps/NetworkApp"));
+const ChartApp = React.lazy(() => import("@/components/desktop/apps/ChartApp"));
+const FractalApp = React.lazy(() => import("@/components/desktop/apps/FractalApp"));
+const CryptoMinerApp = React.lazy(() => import("@/components/desktop/apps/CryptoMinerApp"));
+const ParticleApp = React.lazy(() => import("@/components/desktop/apps/ParticleApp"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -2361,6 +2366,16 @@ const MOBILE_BP = 768;
                 <PlaygroundApp />
               ) : win.appId === "terminalemulator" ? (
                 <TerminalEmulatorApp />
+              ) : win.appId === "network" ? (
+                <NetworkApp />
+              ) : win.appId === "charts" ? (
+                <ChartApp />
+              ) : win.appId === "fractal" ? (
+                <FractalApp />
+              ) : win.appId === "miner" ? (
+                <CryptoMinerApp />
+              ) : win.appId === "particles" ? (
+                <ParticleApp />
               ) : View ? (
                 <View />
               ) : (
