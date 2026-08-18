@@ -1,0 +1,214 @@
+/* iOS-style bottom tab bar dock for mobile */
+
+.mobileDock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  /* iOS 26 Liquid Glass — dark tinted, handles bright wallpapers like Win11 Bloom */
+  background: rgba(18, 18, 24, 0.65);
+  -webkit-backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+  backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px 22px 0 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 -2px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes dockSlideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.mobileDockInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 12px 4px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.mobileDockItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 56px;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Center divider between left/center/right groups */
+.mobileDockDivider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 2px;
+  align-self: center;
+}
+
+/* App drawer button — centered, larger */
+.mobileDockAppDrawer {
+  min-width: 64px;
+}
+
+.mobileDockAppDrawer .mobileDockIconWrap {
+  width: 60px;
+  height: 60px;
+}
+
+.mobileDockItem:active {
+  transform: scale(0.88);
+}
+
+.mobileDockIconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  overflow: visible;
+}
+
+.mobileDockDot {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.mobileDockLabel {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Long-press context menu */
+.mobileDockMenu {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: dockMenuFade 0.15s ease;
+}
+
+@keyframes dockMenuFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobileDockMenuSheet {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(44, 44, 46, 0.96);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 14px;
+  margin: 0 8px 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  animation: dockMenuSlide 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes dockMenuSlide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.mobileDockMenuHandle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  margin: 8px auto 4px;
+}
+
+.mobileDockMenuTitle {
+  padding: 8px 16px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.mobileDockMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 12px);
+  margin: 0 6px;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 17px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  cursor: pointer;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobileDockMenuItem:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobileDockMenuItemDestructive {
+  color: #ff453a;
+}
+
+.mobileDockMenuCancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 12px);
+  margin: 6px 6px 0;
+  padding: 14px 16px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  cursor: pointer;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobileDockMenuCancel:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .mobileDock {
+    display: none;
+  }
+}

@@ -1,0 +1,124 @@
+/* iOS-style collapsible large title navigation bar */
+
+.navBar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* Liquid Glass: translucent blur */
+  background: rgba(28, 28, 30, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  /* Safe area for notch/dynamic island */
+  padding-top: env(safe-area-inset-top, 0);
+  transition: background 0.2s ease;
+}
+
+.navBarInner {
+  display: flex;
+  align-items: flex-end;
+  min-height: 96px;
+  padding: 0 16px 8px;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  min-width: 70px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: none;
+  border: none;
+  color: rgba(var(--accent-rgb, 10, 132, 255), 1);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 17px;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  margin-left: -4px;
+}
+
+.backButton:active {
+  opacity: 0.6;
+}
+
+.backLabel {
+  font-size: 17px;
+  margin-left: -2px;
+}
+
+.navCenter {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  position: relative;
+}
+
+.largeTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+}
+
+.largeTitleHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.smallTitle {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  bottom: 6px;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.smallTitleVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 70px;
+  justify-content: flex-end;
+}
+
+/* Collapsed state — smaller nav bar */
+.navBarCollapsed .navBarInner {
+  min-height: 44px;
+  padding-bottom: 0;
+}
+
+.navBarCollapsed .largeTitle {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.navBarCollapsed .smallTitle {
+  opacity: 1;
+  transform: translateY(0);
+}

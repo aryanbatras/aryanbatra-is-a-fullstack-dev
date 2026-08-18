@@ -414,6 +414,65 @@ export default function TerminalApp({ onOpenApp }: TerminalAppProps) {
         .catch(() => push({ text: "eSheep failed to load.", error: true }));
       return;
     }
+    // pip install — install Python packages via micropip.
+    if (name === "pip") {
+      setLines(next);
+      const args = headCmd.split(/\s+/).slice(1);
+      const sub = args[0];
+      if (sub === "install" && args[1]) {
+        const pkg = args[1];
+        push({ text: `pip: installing ${pkg} via micropip…` });
+        (async () => {
+          try {
+            const py = await getPyodide();
+            await py.loadPackage("micropip", { checkIntegrity: false });
+            await py.runPythonAsync(`import micropip\nawait micropip.install('${pkg}')`);
+            push({ text: `pip: ${pkg} installed successfully.` });
+          } catch (e) {
+            push({ text: `pip: failed to install ${pkg} — ${(e as Error).message}`, error: true });
+          }
+        })();
+        return;
+      }
+      push({ text: "usage: pip install <package> — e.g. pip install numpy" });
+      return;
+    }
+    // fetch — fetch a URL and print the response.
+    if (name === "fetch") {
+      setLines(next);
+      const url = headCmd.split(/\s+/)[1];
+      if (!url) {
+        push({ text: "usage: fetch <url> — e.g. fetch https://api.github.com/users/aryanbatras", error: true });
+        return;
+      }
+      push({ text: `fetch: ${url}…` });
+      fetch(url)
+        .then((r) => r.text())
+        .then((t) => {
+          // Truncate very long responses.
+          const truncated = t.length > 3000 ? t.slice(0, 3000) + "\n… (truncated)" : t;
+          push({ text: truncated });
+        })
+        .catch((e) => push({ text: `fetch: ${(e as Error).message}`, error: true }));
+      return;
+    }
+    // node / js — run JavaScript in the browser.
+    if (name === "node" || name === "js") {
+      setLines(next);
+      const code = headCmd.split(/\s+/).slice(1).join(" ");
+      if (!code) {
+        push({ text: "usage: node <javascript> — e.g. node 2+2, node JSON.stringify({a:1})", error: true });
+        return;
+      }
+      try {
+        // eslint-disable-next-line no-eval
+        const result = eval(code);
+        push({ text: result === undefined ? "undefined" : String(result) });
+      } catch (e) {
+        push({ text: `node: ${(e as Error).message}`, error: true });
+      }
+      return;
+    }
     // Python 3 (Pyodide) — a real interpreter, ported from daedalOS.
     if (name === "python" || name === "python3" || name === "py") {
       setLines(next);

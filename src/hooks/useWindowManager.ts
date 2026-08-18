@@ -120,20 +120,24 @@ export function useWindowManager() {
       openCount.current += 1;
       idSeq.current += 1;
       const id = `${appId}-${Date.now()}-${idSeq.current}`;
-      // Restore the app's saved geometry when it fits the screen.
-      const saved = geometry.current[appId];
+      // On mobile: always full-screen — ignore saved geometry.
+      const isMobileViewport = vw < 768;
+      const wantMaximized = (opts?.maximized ?? false) || isMobileViewport;
       let x = narrow ? Math.max(8, (vw - w) / 2) : Math.max(24, 64 + count * 34);
       let y = narrow ? Math.max(46, (vh - h) / 2) : Math.max(24, 48 + count * 30);
       let fw = w;
       let fh = h;
-      // Games (and similar full-window apps) open maximized on demand.
-      let maximized = opts?.maximized ?? false;
-      if (saved && !narrow && !opts?.maximized && saved.w >= minW && saved.h >= minH && saved.x < vw - 60 && saved.y < vh - 60) {
-        x = Math.max(8, saved.x);
-        y = Math.max(40, saved.y);
-        fw = Math.min(saved.w, vw - 16);
-        fh = Math.min(saved.h, vh - 120);
-        maximized = saved.maximized ?? false;
+      let maximized = wantMaximized;
+      // Only restore saved geometry on desktop (not mobile).
+      if (!isMobileViewport && !wantMaximized) {
+        const saved = geometry.current[appId];
+        if (saved && !narrow && saved.w >= minW && saved.h >= minH && saved.x < vw - 60 && saved.y < vh - 60) {
+          x = Math.max(8, saved.x);
+          y = Math.max(40, saved.y);
+          fw = Math.min(saved.w, vw - 16);
+          fh = Math.min(saved.h, vh - 120);
+          maximized = saved.maximized ?? false;
+        }
       }
       zCounter.current += 1;
       setWindows((ws) => [

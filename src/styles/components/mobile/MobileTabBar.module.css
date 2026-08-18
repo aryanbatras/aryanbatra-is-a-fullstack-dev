@@ -1,0 +1,92 @@
+/* iOS-style bottom tab bar — always visible, Liquid Glass background */
+
+.tabBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  /* Liquid Glass: translucent blur over content */
+  background: rgba(28, 28, 30, 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  /* Safe area for notched phones */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tabBarInner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  height: 50px;
+  padding: 0 4px;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.55);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease;
+  /* Minimum 44pt touch target */
+  min-height: 44px;
+  position: relative;
+}
+
+.tab:active {
+  opacity: 0.7;
+}
+
+.tabActive {
+  color: rgba(var(--accent-rgb, 10, 132, 255), 1);
+}
+
+.tabIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.tabIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tabLabel {
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tabBadge {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ff3b30;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

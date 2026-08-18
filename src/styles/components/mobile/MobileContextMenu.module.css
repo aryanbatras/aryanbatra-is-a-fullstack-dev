@@ -1,0 +1,125 @@
+/* iOS-style bottom sheet context menu */
+
+.mobileContextMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobileContextMenuSheet {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(44, 44, 46, 0.96);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 14px;
+  margin: 0 8px 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  animation: slideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.mobileContextMenuHandle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  margin: 8px auto 4px;
+}
+
+.mobileContextMenuTitle {
+  padding: 8px 16px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.mobileContextMenuItems {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 0;
+}
+
+.mobileContextMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 17px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  cursor: pointer;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+
+.mobileContextMenuItem:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobileContextMenuItemDestructive {
+  color: #ff453a;
+}
+
+.mobileContextMenuItemDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mobileContextMenuCancel {
+  padding: 6px;
+}
+
+.mobileContextMenuCancelBtn {
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  cursor: pointer;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobileContextMenuCancelBtn:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .mobileContextMenuBackdrop {
+    display: none;
+  }
+}

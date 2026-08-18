@@ -2010,6 +2010,27 @@ export default function FinderApp({
           </>
         )}
       </div>
+
+      {/* Mobile bottom tab bar — iOS-style navigation. Hidden on desktop. */}
+      <div className={styles.finderMobileTabs}>
+        {["Recents", "Desktop", "Documents", "Downloads", "Projects"].map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            className={`${styles.finderMobileTab} ${
+              current === tab ? styles.finderMobileTabActive : ""
+            }`}
+            onClick={() => openSidebar(tab)}
+          >
+            <span className={styles.finderMobileTabIcon}>
+              {SIDEBAR_ICONS[tab]}
+            </span>
+            <span className={styles.finderMobileTabLabel}>
+              {tab === "Recents" ? "Recent" : tab === "Downloads" ? "Downloads" : tab === "Documents" ? "Docs" : tab}
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

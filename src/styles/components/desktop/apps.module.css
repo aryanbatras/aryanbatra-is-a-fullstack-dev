@@ -166,7 +166,6 @@
 }
 
 .resumeHeader {
-  border-bottom: 2px solid #1d1d1f;
   padding-bottom: 18px;
   margin-bottom: 26px;
 }
@@ -5509,6 +5508,228 @@
   position: relative;
 }
 
+/* ---- VS Code-like layout ---- */
+
+.monacoVscode {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #cccccc;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+
+.monacoSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 48px;
+  background: #252526;
+  border-right: 1px solid #333;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+.monacoSidebarIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: #858585;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.monacoSidebarIcon:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.monacoSidebarIconActive {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.monacoExplorer {
+  width: 220px;
+  min-width: 180px;
+  background: #252526;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.monacoExplorerHeader {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #bbbbbb;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.monacoTree {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.monacoTreeItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 3px 8px;
+  border: none;
+  background: none;
+  color: #cccccc;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.monacoTreeItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.monacoTreeItemActive {
+  background: rgba(0, 122, 204, 0.3);
+  color: #fff;
+}
+
+.monacoMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.monacoTabBar {
+  display: flex;
+  align-items: stretch;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  min-height: 36px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.monacoTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: none;
+  background: #2d2d2d;
+  color: #969696;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  border-right: 1px solid #333;
+  transition: background 0.1s, color 0.1s;
+}
+
+.monacoTab:hover {
+  background: #353535;
+}
+
+.monacoTabActive {
+  background: #1e1e1e;
+  color: #fff;
+  border-bottom: 1px solid #007acc;
+}
+
+.monacoTabClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  color: #969696;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.monacoTabClose:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.monacoTabNew {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  border: none;
+  background: none;
+  color: #858585;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+
+.monacoTabNew:hover {
+  color: #fff;
+}
+
+.monacoTerminal {
+  border-top: 1px solid #333;
+  background: #1e1e1e;
+  height: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.monacoTerminalBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.monacoTermLine {
+  color: #d4d4d4;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.monacoTermInput {
+  display: flex;
+  align-items: center;
+}
+
+.monacoTermPrompt {
+  color: #4ec9b0;
+  white-space: pre;
+}
+
+.monacoTermInputField {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #d4d4d4;
+  font-family: inherit;
+  font-size: 13px;
+  caret-color: #d4d4d4;
+}
+
 .monacoStatusbar {
   display: flex;
   align-items: center;
@@ -6069,4 +6290,338 @@
   font-weight: 400;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.45);
+}
+
+/* ================================================================ */
+/* Mobile Finder — iOS-style: sidebar becomes a bottom tab bar,      */
+/* icons are bigger for touch, toolbar simplifies, vertical scroll.  */
+/* ================================================================ */
+@media (max-width: 767px) {
+  .finder {
+    position: relative;
+  }
+
+  /* Toolbar: hide New Folder / New Document / Trash buttons on mobile. */
+  .finderToolbar {
+    height: 40px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .finderToolbarRight {
+    display: none;
+  }
+
+  .finderTitle {
+    font-size: 13px;
+  }
+
+  .finderNavBtn {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Sidebar: hidden on mobile — replaced by a bottom tab bar. */
+  .finderSidebar {
+    display: none;
+  }
+
+  /* Bottom tab bar — iOS-style navigation at the bottom of the Finder. */
+  .finderBody {
+    flex-direction: column;
+    position: relative;
+  }
+
+  .finderBody::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(18, 18, 24, 0.65);
+    backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+    -webkit-backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+    z-index: 5;
+  }
+
+  /* Files grid: bigger icons, fewer columns, more padding for touch. */
+  .finderFiles {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 16px 8px;
+    padding: 14px 12px 70px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .finderFile {
+    padding: 12px 6px;
+    border-radius: 12px;
+  }
+
+  .finderFileIcon {
+    width: 52px;
+    height: 48px;
+  }
+
+  .finderFileName {
+    font-size: 11.5px;
+    max-width: 85px;
+  }
+
+  .finderFileMeta {
+    font-size: 10px;
+  }
+
+  /* List view: bigger rows for touch. */
+  .finderFilesList {
+    padding-bottom: 64px;
+  }
+
+  .finderListRow {
+    min-height: 48px;
+    padding: 8px 12px;
+  }
+
+  .finderListName {
+    font-size: 14px;
+  }
+
+  .finderListCell {
+    font-size: 12px;
+  }
+
+  /* Search: full width on mobile. */
+  .finderSearch {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* View toggle: bigger touch targets. */
+  .finderViewBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Bottom tab bar — iOS-style Liquid Glass navigation. */
+  .finderMobileTabs {
+    display: flex;
+    position: absolute;
+    bottom: 48px;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(18, 18, 24, 0.65);
+    backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+    -webkit-backdrop-filter: blur(56px) saturate(200%) brightness(0.95);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+    z-index: 9999;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .finderMobileTab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: rgba(245, 245, 247, 0.45);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    padding: 8px 10px 6px;
+    border-radius: 10px;
+    min-width: 56px;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .finderMobileTab:active {
+    transform: scale(0.9);
+  }
+
+  /* Active tab: icon gets a background pill + sliding indicator below */
+  .finderMobileTabActive {
+    color: rgba(var(--accent-rgb, 10, 132, 255), 1);
+  }
+
+  .finderMobileTabActive .finderMobileTabIcon {
+    background: rgba(var(--accent-rgb, 10, 132, 255), 0.15);
+    border-radius: 10px;
+    width: 40px;
+    height: 24px;
+  }
+
+  /* Animated sliding pill indicator */
+  .finderMobileTabActive::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(var(--accent-rgb, 10, 132, 255), 1);
+    animation: tabIndicatorIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes tabIndicatorIn {
+    from {
+      width: 0;
+      opacity: 0;
+    }
+    to {
+      width: 20px;
+      opacity: 1;
+    }
+  }
+
+  .finderMobileTabIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    border-radius: 10px;
+    transition: background 0.2s ease, width 0.2s ease;
+  }
+
+  .finderMobileTabLabel {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Path bar: hidden on mobile — not enough room. */
+  .finderPathbar {
+    display: none;
+  }
+
+  /* Status bar: simplified on mobile. */
+  .finderStatusbar {
+    padding: 4px 12px;
+    font-size: 11px;
+  }
+
+  /* ── Settings: mobile — clear vertical tabs with full labels ── */
+  .settingsSidebar {
+    width: 130px;
+    padding: 4px 3px;
+    gap: 0;
+    background: rgba(18, 18, 24, 0.55);
+    border-right: 0.5px solid rgba(255, 255, 255, 0.08);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .settingsGroup {
+    margin-bottom: 3px;
+  }
+
+  .settingsGroupLabel {
+    font-size: 9px;
+    padding: 4px 8px 2px;
+    opacity: 0.45;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .settingsItem {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 5px;
+    border-radius: 6px;
+    min-height: 30px;
+  }
+
+  .settingsItemActive {
+    background: rgba(10, 132, 255, 0.35);
+  }
+
+  .settingsSearchWrap {
+    margin: 0 2px 4px;
+    padding: 0 6px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+  }
+
+  .settingsSearch {
+    font-size: 11px;
+  }
+
+  .settingsContent {
+    padding: 12px 10px;
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+  }
+
+  .settingsContent h2 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  /* Settings toggles: bigger for touch. */
+  .setToggle {
+    width: 42px;
+    height: 22px;
+  }
+
+  .setThumb {
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+  }
+
+  .setThumbOn {
+    transform: translateX(20px);
+  }
+
+  /* Settings sliders: wider for touch. */
+  .settingsSlider {
+    width: 120px;
+    height: 28px;
+  }
+
+  .settingsRow {
+    padding: 8px 0;
+  }
+
+  .settingsRowLabel {
+    font-size: 12px;
+  }
+
+  /* Terminal: bigger font on mobile for readability */
+  .terminal {
+    font-size: 14px;
+  }
+
+  .terminalBody {
+    padding: 12px;
+  }
+
+  .termLine {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .termInput {
+    font-size: 14px;
+  }
+}
+
+/* Desktop: hide the mobile tab bar. */
+@media (min-width: 768px) {
+  .finderMobileTabs {
+    display: none;
+  }
 }

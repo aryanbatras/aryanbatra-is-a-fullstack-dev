@@ -268,28 +268,27 @@ export interface DesktopAppConfig {
 export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "finder", title: "Finder", icon: "folder", iconUrl: "/aryan/icons/finder.png", width: 720, height: 500, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
   { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: false, inDock: false },
-  { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: true, inDock: true },
-  { id: "projects", title: "Projects", icon: "folder", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "projects", title: "Projects", icon: "folder", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: false },
   { id: "notes", title: "Notes", icon: "sticky-note", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: false, inDock: false },
   { id: "photos", title: "Photos", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  { id: "videos", title: "Videos", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: true },
+  { id: "videos", title: "Videos", icon: "film", iconUrl: "/aryan/icons/quicktime.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   { id: "maps", title: "Maps", icon: "map", iconUrl: "/aryan/icons/maps.png", width: 720, height: 520, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   { id: "readme", title: "Read Me", icon: "book-open", iconUrl: "/aryan/icons/textedit.png", width: 600, height: 460, minWidth: 440, minHeight: 340, onDesktop: false, inDock: false },
   { id: "terminal", title: "Terminal", icon: "terminal", iconUrl: "/aryan/icons/terminal.png", width: 620, height: 400, minWidth: 440, minHeight: 280, onDesktop: false, inDock: true },
+  { id: "monaco", title: "VS Code", icon: "file-text", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: true },
   { id: "textedit", title: "TextEdit", icon: "file-text", iconUrl: "/aryan/icons/textedit.png", width: 680, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 720, height: 600, minWidth: 520, minHeight: 440, onDesktop: true, inDock: true },
+  { id: "games", title: "Games", icon: "gamepad", iconUrl: "/aryan/icons/games.svg", width: 720, height: 600, minWidth: 520, minHeight: 440, onDesktop: false, inDock: false },
   { id: "paint", title: "Paint", icon: "image", iconUrl: "/aryan/icons/paint.png", width: 760, height: 560, minWidth: 560, minHeight: 420, onDesktop: false, inDock: false },
   { id: "webamp", title: "Winamp", icon: "webamp", iconUrl: "/aryan/icons/webamp.png", width: 480, height: 420, minWidth: 380, minHeight: 300, onDesktop: false, inDock: false },
   // VLC — dark media player for the film library and Finder movies.
-  { id: "vlc", title: "VLC", icon: "film", iconUrl: "/aryan/icons/vlc.png", width: 720, height: 520, minWidth: 480, minHeight: 340, onDesktop: false, inDock: true },
+  { id: "vlc", title: "VLC", icon: "film", iconUrl: "/aryan/icons/vlc.png", width: 720, height: 520, minWidth: 480, minHeight: 340, onDesktop: false, inDock: false },
   // Vim — the real vim.js editor (daedalOS).
   { id: "vim", title: "Vim", icon: "terminal", iconUrl: "/aryan/icons/vim.png", width: 700, height: 480, minWidth: 460, minHeight: 320, onDesktop: false, inDock: false },
   // DevTools — eruda (console, elements, network, resources, sources).
   { id: "devtools", title: "DevTools", icon: "terminal", iconUrl: "/aryan/icons/eruda.png", width: 720, height: 520, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // OpenType — font viewer for .otf/.ttf/.woff files (daedalOS).
   { id: "opentype", title: "OpenType", icon: "file-text", iconUrl: "/aryan/icons/opentype.png", width: 640, height: 520, minWidth: 460, minHeight: 380, onDesktop: false, inDock: false },
-  // Monaco — the real VS Code editor (daedalOS). Code files open here.
-  { id: "monaco", title: "Monaco", icon: "file-text", iconUrl: "/aryan/icons/monaco.png", width: 760, height: 560, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   // TinyMCE — rich-text editor for .rtf / .whtml files (daedalOS).
   { id: "tinymce", title: "TinyMCE", icon: "file-text", iconUrl: "/aryan/icons/tinymce.png", width: 720, height: 540, minWidth: 520, minHeight: 380, onDesktop: false, inDock: false },
   // IRC — KiwiIRC web chat client (daedalOS).
@@ -310,7 +309,7 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "ruffle", title: "Ruffle", icon: "ruffle", iconUrl: "/aryan/icons/ruffle.png", width: 720, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
   // DOSBox (js-dos) — .jsdos/.exe/.zip DOS games.
   { id: "jsdos", title: "DOS", icon: "jsdos", iconUrl: "/aryan/icons/jsdos.png", width: 760, height: 560, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
-  { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: true, inDock: true },
+  { id: "settings", title: "System Settings", icon: "settings", iconUrl: "/aryan/icons/settings.png", width: 760, height: 520, minWidth: 600, minHeight: 420, onDesktop: false, inDock: false },
   // Safari — the machine's browser. Opens Google by default (daedalOS-style
   // basic-HTML Google works in an iframe); the portfolio is a bookmark.
   { id: "website", title: "Safari", icon: "globe", iconUrl: "/aryan/icons/safari.png", width: 960, height: 640, minWidth: 640, minHeight: 460, onDesktop: true, inDock: true },
@@ -1157,6 +1156,193 @@ export const TERMINAL_COMMANDS: TerminalCommand[] = [
     name: "pipe",
     help: "Chain commands with | — e.g. ls | grep txt",
     run: () => "pipes: try `projects | grep AI` or `help | head -5`",
+  },
+  /* ---- Node.js / JavaScript ---- */
+  {
+    name: "node",
+    help: "Run JavaScript — e.g. node 2+2, node console.log('hi')",
+    run: (raw: string) => {
+      const code = raw.split(/\s+/).slice(1).join(" ");
+      if (!code) return "usage: node <javascript code>";
+      try {
+        const result = new Function(`return (${code})`)();
+        return result === undefined ? "undefined" : String(result);
+      } catch (e) {
+        return `node: ${(e as Error).message}`;
+      }
+    },
+  },
+  {
+    name: "js",
+    help: "Alias for node — run JavaScript code",
+    run: (raw: string) => {
+      const code = raw.split(/\s+/).slice(1).join(" ");
+      if (!code) return "usage: js <javascript code>";
+      try {
+        const result = new Function(`return (${code})`)();
+        return result === undefined ? "undefined" : String(result);
+      } catch (e) {
+        return `js: ${(e as Error).message}`;
+      }
+    },
+  },
+  /* ---- Package managers ---- */
+  {
+    name: "pip",
+    help: "Install Python packages via micropip — e.g. pip install numpy",
+    run: () => "pip: handled by the shell (use pip install <package>)",
+  },
+  {
+    name: "npm",
+    help: "Stub — npm packages run in the browser via CDN, not installable here",
+    run: () => "npm: browser-based JS uses CDN imports (import('https://...')), not npm install",
+  },
+  /* ---- File system ---- */
+  {
+    name: "mkdir",
+    help: "Create a directory — e.g. mkdir projects",
+    run: () => "mkdir: created (virtual filesystem — files persist in browser storage)",
+  },
+  {
+    name: "touch",
+    help: "Create a file — e.g. touch notes.md",
+    run: () => "touch: created (use 'edit' to open in TextEdit)",
+  },
+  {
+    name: "rm",
+    help: "Remove a file — e.g. rm old-notes.txt",
+    run: () => "rm: removed (use Finder for full file management)",
+  },
+  {
+    name: "mv",
+    help: "Move/rename a file — e.g. mv old.txt new.txt",
+    run: () => "mv: use Finder to drag-and-drop or right-click rename",
+  },
+  {
+    name: "cp",
+    help: "Copy a file — e.g. cp file.txt backup.txt",
+    run: () => "cp: use Finder to drag-and-drop or ⌘C / ⌘V",
+  },
+  {
+    name: "cd",
+    help: "Change directory (visual) — e.g. cd Projects",
+    run: (raw: string) => {
+      const dir = raw.split(/\s+/)[1];
+      if (!dir || dir === "~") return "/Users/aryan";
+      return `/Users/aryan/${dir}`;
+    },
+  },
+  /* ---- Git (stubs) ---- */
+  {
+    name: "git",
+    help: "Git commands (stubs) — e.g. git status, git log",
+    run: (raw: string) => {
+      const sub = raw.split(/\s+/)[1];
+      if (sub === "status") return "On branch main. Working tree clean.";
+      if (sub === "log") return "a1b2c3d Latest commit — Aryan Batra";
+      if (sub === "branch") return "* main";
+      if (sub === "clone") return "git clone: requires a real git server (use GitHub links in Finder)";
+      return "git: status, log, branch, clone (stubs — this is a browser, not a real git)";
+    },
+  },
+  {
+    name: "curl",
+    help: "Fetch a URL — e.g. curl https://api.github.com/users/aryanbatras",
+    run: (raw: string) => "curl: handled by the shell (async) — use 'fetch <url>' instead",
+  },
+  {
+    name: "fetch",
+    help: "Fetch a URL and print the response — e.g. fetch https://api.github.com/users/aryanbatras",
+    run: () => "fetch: handled by the shell (async)",
+  },
+  {
+    name: "history",
+    help: "Show command history",
+    run: () => "history: type ↑ and ↓ to navigate command history",
+  },
+  {
+    name: "export",
+    help: "Set an environment variable — e.g. export EDITOR=monaco",
+    run: () => "export: environment variables are session-only (browser limitation)",
+  },
+  {
+    name: "which",
+    help: "Locate a command — e.g. which python",
+    run: (raw: string) => {
+      const cmd = raw.split(/\s+/)[1];
+      if (!cmd) return "usage: which <command>";
+      const found = TERMINAL_COMMANDS.find((c) => c.name === cmd);
+      return found ? `/usr/bin/${cmd}` : `which: no ${cmd} in (/usr/bin /bin /usr/local/bin)`;
+    },
+  },
+  {
+    name: "man",
+    help: "Manual page — e.g. man python",
+    run: (raw: string) => {
+      const cmd = raw.split(/\s+/)[1];
+      if (!cmd) return "usage: man <command>";
+      const found = TERMINAL_COMMANDS.find((c) => c.name === cmd);
+      if (!found) return `No manual entry for ${cmd}`;
+      return `${cmd.toUpperCase().slice(0,1)}${cmd.slice(1)}(1)\n\nNAME\n    ${cmd} — ${found.help}\n\nSYNOPSIS\n    ${cmd} [options]\n\nDESCRIPTION\n    ${found.help}`;
+    },
+  },
+  {
+    name: "env",
+    help: "Print environment variables",
+    run: () => [
+      "SHELL=/bin/zsh",
+      "EDITOR=monaco",
+      "TERM=xterm-256color",
+      "LANG=en_US.UTF-8",
+      "ARYAN_OS=2027",
+      `PWD=/Users/aryan`,
+    ].join("\n"),
+  },
+  {
+    name: "top",
+    help: "Show running processes",
+    run: () => [
+      "PID   CPU%  MEM%  COMMAND",
+      "1     0.0   0.1   AryanOS Kernel",
+      "42    12.3  45.2  TerminalApp",
+      "69    8.7   22.1  MonacoEditor",
+      "100   3.1   11.4  FinderApp",
+      "128   0.5   2.3   LiquidGlass",
+    ].join("\n"),
+  },
+  {
+    name: "df",
+    help: "Show disk usage",
+    run: () => [
+      "Filesystem     Size    Used   Avail  Use%  Mounted on",
+      "/dev/vda1      256GB   4.2GB  252GB   2%   /",
+      "tmpfs           16GB   128MB   16GB   1%   /tmp",
+    ].join("\n"),
+  },
+  {
+    name: "uptime",
+    help: "Show system uptime",
+    run: () => {
+      const up = Math.floor((Date.now() - performance.timeOrigin) / 1000);
+      const h = Math.floor(up / 3600);
+      const m = Math.floor((up % 3600) / 60);
+      return ` ${new Date().toLocaleTimeString()}  up ${h}:${String(m).padStart(2, "0")},  1 user,  load averages: 1.23 0.89 0.45`;
+    },
+  },
+  {
+    name: "wc",
+    help: "Word count — e.g. echo hello | wc",
+    run: () => "wc: pipe it — e.g. echo 'hello world' | wc",
+  },
+  {
+    name: "head",
+    help: "First N lines — e.g. head -5 of output",
+    run: () => "head: pipe it — e.g. projects | head -5",
+  },
+  {
+    name: "tail",
+    help: "Last N lines — e.g. tail -5 of output",
+    run: () => "tail: pipe it — e.g. projects | tail -5",
   },
 ];
 

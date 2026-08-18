@@ -1,0 +1,127 @@
+/* iOS-style home screen app grid */
+
+.mobileAppGrid {
+  padding: 54px 16px 120px; /* below status bar, above dock + system nav */
+}
+
+/* Search bar — iOS Liquid Glass */
+.mobileSearchWrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.mobileSearchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.mobileSearchInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 36px;
+  border: none;
+  border-radius: 10px;
+  /* Transparent Liquid Glass — wallpaper shows through */
+  background: rgba(18, 18, 24, 0.35);
+  -webkit-backdrop-filter: blur(30px) saturate(160%) brightness(0.98);
+  backdrop-filter: blur(30px) saturate(160%) brightness(0.98);
+  color: #fff;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+/* Hide native clear/search buttons on Safari */
+.mobileSearchInput::-webkit-search-cancel-button,
+.mobileSearchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.mobileSearchInput::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.mobileSearchInput:focus {
+  background: rgba(18, 18, 24, 0.35);
+  outline: none;
+}
+
+/* Pull-to-refresh indicator */
+.pullRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.pullRefreshSpinner {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.pullRefreshSpinning {
+  animation: pullSpin 0.6s linear infinite;
+}
+
+@keyframes pullSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* App grid - 4 columns */
+.mobileAppGridInner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px 4px;
+}
+
+.mobileAppGridItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 2px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mobileAppGridItem:active {
+  transform: scale(0.85);
+}
+
+.mobileAppGridIcon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileAppGridLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .mobileAppGrid {
+    display: none;
+  }
+}

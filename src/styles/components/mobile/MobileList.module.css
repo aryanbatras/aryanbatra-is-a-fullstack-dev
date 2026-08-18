@@ -1,0 +1,111 @@
+/* iOS-style grouped list — Settings / Files / List pattern */
+
+.listContainer {
+  padding: 0 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 245, 247, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 8px 16px 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+.sectionBody {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sectionFooter {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.4);
+  padding: 8px 16px 0;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s ease;
+}
+
+.row:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rowBorder {
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.rowDestructive {
+  color: #ff3b30;
+}
+
+.rowDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.rowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.rowContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rowLabel {
+  font-size: 17px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowSubtitle {
+  font-size: 13px;
+  color: rgba(245, 245, 247, 0.45);
+  line-height: 1.2;
+}
+
+.rowValue {
+  font-size: 17px;
+  color: rgba(245, 245, 247, 0.4);
+  flex-shrink: 0;
+}
+
+.rowChevron {
+  flex-shrink: 0;
+  color: rgba(245, 245, 247, 0.25);
+}

@@ -1033,7 +1033,6 @@
     rgba(255, 255, 255, 0.05) 70%
   );
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
     0 8px 28px rgba(0, 0, 0, 0.35);
 }
@@ -1464,7 +1463,7 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
   color: #f5f5f7;
   animation: popIn 0.2s ease-out both;
-  z-index: 3600;
+  z-index: 9900;
 }
 
 .wallpaperSheetHeader {
@@ -1716,7 +1715,7 @@
 .spotlightBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 3700;
+  z-index: 9950;
   background: rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -2782,7 +2781,7 @@
 .launchpad {
   position: fixed;
   inset: 28px 0 0 0;
-  z-index: 3850;
+  z-index: 9999;
   background: rgba(10, 10, 16, 0.42);
   backdrop-filter: blur(46px) saturate(160%);
   -webkit-backdrop-filter: blur(46px) saturate(160%);
@@ -2791,6 +2790,38 @@
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
+}
+
+/* Close button (X) — top-right corner */
+/* macOS traffic lights for Launchpad — big for mobile touch */
+.launchpadTrafficLights {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  padding: 6px;
+}
+
+.launchpadTrafficLight {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, opacity 0.15s;
+}
+
+.launchpadTrafficLight:active {
+  transform: scale(0.85);
+  opacity: 0.8;
+}
+
+/* Old close button hidden */
+.launchpadClose {
+  display: none;
 }
 
 .launchpadSearch {
@@ -2803,6 +2834,13 @@
   padding: 8px 14px;
   color: rgba(245, 245, 247, 0.8);
   width: min(320px, 80vw);
+}
+
+/* Desktop: hide the search bar in Launchpad — not needed */
+@media (min-width: 768px) {
+  .launchpadSearch {
+    display: none;
+  }
 }
 
 .launchpadSearch input {
@@ -3244,15 +3282,63 @@
   height: 54px;
   z-index: 3;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 0 22px;
 }
 
-.lockTopBtn {
-  width: 34px;
-  height: 34px;
+.lockWatchVideoWrap {
+  position: relative;
+}
+
+/* Full-screen showreel video overlay (lock screen Watch Video button). */
+.videoOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.videoOverlayPlayer {
+  width: 100%;
+  height: 100%;
+  height: 100dvh; /* dynamic viewport height — correct on mobile (URL bar) */
+  object-fit: contain;
+}
+
+.videoOverlayClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.videoOverlayClose:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lockTopBtn {
+  height: 34px;
+  min-width: 34px;
+  border-radius: 17px;
+  padding: 0 12px;
   border: 0.5px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(14px) saturate(170%);
@@ -3436,6 +3522,42 @@
 
 .lockLoginBtn:active {
   transform: scale(0.97);
+}
+
+/* Mobile: swipe up to unlock indicator */
+.lockSwipeHint {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  opacity: 0.5;
+}
+
+.lockSwipeLine {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  animation: swipeHintPulse 2s ease-in-out infinite;
+}
+
+@keyframes swipeHintPulse {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 0.8; transform: translateY(-4px); }
+}
+
+.lockSwipeText {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 767px) {
+  .lockSwipeHint {
+    display: flex;
+  }
 }
 
 /* Password field — the field itself is the glass, no extra pill wrapper. */
@@ -4908,8 +5030,12 @@
 /* ================= Mobile (touch-first) ================= */
 
 @media (max-width: 767px) {
-  /* Menu bar: keep the Apple menu + status icons, drop the text menus (they
-     don't have room on a phone — Control Center covers the essentials). */
+  /* Menu bar: always visible on mobile (no hover to reveal). */
+  .menuBarHidden {
+    transform: none;
+    pointer-events: auto;
+  }
+
   .menuBar {
     padding: 0 6px 0 4px;
   }
@@ -4943,15 +5069,29 @@
     right: 4px;
   }
 
-  /* Dock: tighter shelf, comfortable tap targets. */
+  /* Dock: bigger touch targets, no magnification on touch. */
   .dock {
     bottom: 4px;
   }
 
   .dockInner {
-    padding: 7px 9px 6px;
-    gap: 6px;
-    border-radius: 20px;
+    padding: 8px 12px 7px;
+    gap: 8px;
+    border-radius: 22px;
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100vw - 12px);
+  }
+
+  .dockItem {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .dockItem img {
+    width: 48px !important;
+    height: 48px !important;
   }
 
   /* Phones: the dock always lives at the bottom, whatever the setting. */
@@ -5002,26 +5142,7 @@
     height: 16px;
   }
 
-  /* Phone dock: shrink the icons (overrides the inline Settings size) and
-     wrap into rows so all apps stay reachable on a narrow screen. */
-  .dock {
-    --dock-size: 44px !important;
-  }
 
-  /* No mouse on a phone — icons never magnify, so the row can wrap into
-     multiple rows and the shelf (absolute, top/bottom 0) hugs the wrap. */
-  .dockInner {
-    height: auto;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: calc(100vw - 12px);
-    gap: 5px;
-  }
-
-  .dockItem:not([data-dock-icon^="min-"]) img {
-    width: 44px !important;
-    height: 44px !important;
-  }
 
   /* Now Playing chip + popover: keep inside the phone's viewport. */
   .npChip {
@@ -5109,6 +5230,239 @@
 
   .widgetCalDay {
     font-size: 32px;
+  }
+
+  /* Liquid Glass on mobile: simplify the blur for GPU performance. */
+  .dockShelf {
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+  }
+
+  .dock {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Lock screen: bigger avatar, bigger login button for touch. */
+  .lockAvatar {
+    width: 88px;
+    height: 88px;
+  }
+
+  .lockAvatarImg {
+    width: 72px;
+    height: 72px;
+  }
+
+  .lockName {
+    font-size: 20px;
+  }
+
+  .lockLoginBtn {
+    width: 200px;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  /* Window titlebar: bigger traffic lights for touch. */
+  .light {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Spotlight: full-width on phones. */
+  .spotlight {
+    width: calc(100vw - 24px);
+    left: 12px;
+  }
+
+  /* Launchpad (App Drawer): full-screen on mobile, no dock/navbar behind it. */
+  .launchpad {
+    inset: 0;
+    padding-top: 16px;
+    z-index: 9999;
+  }
+
+  .launchpadTrafficLights {
+    top: 10px;
+    left: 12px;
+    padding: 8px;
+    gap: 12px;
+  }
+
+  .launchpadTrafficLight {
+    width: 18px;
+    height: 18px;
+  }
+
+  .launchpadSearch {
+    margin-top: 44px;
+    width: calc(100vw - 32px);
+  }
+
+  .appLibraryScroll {
+    padding: 16px 12px 60px;
+    gap: 20px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .appLibrarySection {
+    gap: 14px;
+  }
+
+  .appLibraryHeading {
+    font-size: 14px;
+    padding: 8px 12px 4px;
+  }
+
+  .launchpadItem {
+    gap: 4px;
+  }
+
+  .launchpadIconWrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .launchpadLabel {
+    font-size: 11px;
+  }
+
+  .appLibraryGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px 8px;
+  }
+
+  .launchpadHint {
+    display: none;
+  }
+
+  /* Notification Center: full-width slide from bottom on mobile (iOS style). */
+  .ncPanel {
+    top: 44px;
+    right: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    border-left: none;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+    animation: ncSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    border-radius: 16px 16px 0 0;
+  }
+
+  @keyframes ncSlideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Context menu: bottom sheet on mobile. */
+  .contextMenu {
+    position: fixed;
+    left: 8px !important;
+    right: 8px !important;
+    top: auto !important;
+    bottom: 8px !important;
+    width: auto !important;
+    min-width: 0;
+    max-width: none;
+    border-radius: 14px;
+    animation: ccSlideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 9990;
+  }
+
+  .contextBackdrop {
+    z-index: 9989;
+  }
+
+  /* Notification Center content: bigger text on mobile. */
+  .ncScroll {
+    padding: 16px 14px;
+  }
+
+  .ncDate h3 {
+    font-size: 20px;
+  }
+
+  /* Calendar grid: bigger touch targets for mobile. */
+  .ncDay {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .ncWeekDay {
+    font-size: 11px;
+    padding: 6px 0;
+  }
+
+  .ncCard {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .ncWeather strong {
+    font-size: 24px;
+  }
+
+  /* Notification cards: bigger touch targets, dismiss always visible. */
+  .ncNotif {
+    padding: 14px 12px;
+    border-radius: 12px;
+    gap: 12px;
+  }
+
+  .ncNotifIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .ncNotifText strong {
+    font-size: 14px;
+  }
+
+  .ncNotifText p {
+    font-size: 13px;
+  }
+
+  .ncDismiss {
+    opacity: 0.5;
+    padding: 8px;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ncNotif:hover .ncDismiss {
+    opacity: 0.6;
+  }
+
+  .ncClear {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  /* Wallpaper picker: bottom sheet on mobile, fully centered. */
+  .wallpaperSheet {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 18px 18px 0 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0));
+    animation: ccSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 9980;
   }
 }
 

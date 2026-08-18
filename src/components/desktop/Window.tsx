@@ -1,7 +1,8 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { MinimizeEffect } from "@/constants/desktop";
 import type { DesktopWindow, TilePlacement } from "@/hooks/useWindowManager";
+import { hapticMedium } from "@/utils/touch";
 import styles from "@/styles/components/desktop/Window.module.css";
 
 interface WindowProps {
@@ -132,6 +133,60 @@ export default function Window({
         "--ty": `${win.y}px`,
       } as React.CSSProperties);
 
+  // Mobile detection for close button
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Swipe-right-to-go-back on the full window (iOS navigation gesture)
+  const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const frameRef2 = useRef<HTMLDivElement>(null);
+
+  const handleSwipeStart = useCallback((e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+    swipeStartY.current = e.touches[0].clientY;
+    setSwipeOffset(0);
+  }, []);
+
+  const handleSwipeMove = useCallback((e: React.TouchEvent) => {
+    if (swipeStartX.current === null) return;
+    const dx = e.touches[0].clientX - swipeStartX.current;
+    const dy = Math.abs(e.touches[0].clientY - (swipeStartY.current ?? 0));
+    // Only track horizontal swipes (not vertical scroll)
+    if (dy < 40 && dx > 0) {
+      setSwipeOffset(Math.min(dx, window.innerWidth));
+    }
+  }, []);
+
+  const handleSwipeEnd = useCallback((e: React.TouchEvent) => {
+    if (swipeStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - swipeStartX.current;
+    const dy = Math.abs(e.changedTouches[0].clientY - (swipeStartY.current ?? 0));
+    swipeStartX.current = null;
+    swipeStartY.current = null;
+    // Horizontal swipe right > 80px AND mostly horizontal (not vertical)
+    if (dx > 80 && dy < 60) {
+      hapticMedium();
+      setSwipeOffset(window.innerWidth);
+      // Clear swipe offset before closing so CSS closing animation isn't blocked
+      setTimeout(() => { setSwipeOffset(0); onClose(win.id); }, 50);
+    } else {
+      setSwipeOffset(0);
+    }
+  }, [onClose, win.id]);
+
+  // Clear swipe offset when closing starts so CSS animation can play cleanly
+  useEffect(() => {
+    if (closing) setSwipeOffset(0);
+  }, [closing]);
+
   return (
     <>
       <div
@@ -145,9 +200,16 @@ export default function Window({
             : styles.minimizing
           : ""
       }`}
-      style={style}
+      style={{
+        ...style,
+        ...(isMobile && swipeOffset > 0 ? { transform: `translateX(${swipeOffset}px)`, opacity: 1 - swipeOffset / (window.innerWidth * 1.5) } : {}),
+        transition: swipeOffset > 0 ? 'none' : undefined,
+      }}
       onPointerDown={() => onFocus(win.id)}
       onContextMenu={(e) => e.stopPropagation()}
+      onTouchStart={isMobile ? handleSwipeStart : undefined}
+      onTouchMove={isMobile ? handleSwipeMove : undefined}
+      onTouchEnd={isMobile ? handleSwipeEnd : undefined}
       role="dialog"
       data-window-app={win.appId}
       aria-label={win.title}
@@ -156,6 +218,7 @@ export default function Window({
         className={styles.titlebar}
         onPointerDown={startDrag}
         onDoubleClick={() => onMaximize(win.id)}
+
       >
         <div className={styles.trafficLights}>
           <button
@@ -190,6 +253,7 @@ export default function Window({
         </div>
         <span className={styles.title}>{win.title}</span>
         <span className={styles.titleSpacer} />
+
       </div>
       <div className={styles.content}>{children}</div>
       {!win.maximized && (

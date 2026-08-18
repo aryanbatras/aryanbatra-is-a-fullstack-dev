@@ -204,6 +204,18 @@ export default function LiquidGlass({
 }: LiquidGlassProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
+  );
+  /* On mobile the canvas displacement maps + SVG filters are too heavy for
+     the GPU — fall back to a simple CSS blur which looks close enough and
+     keeps the frame rate above 60. */
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -289,7 +301,11 @@ export default function LiquidGlass({
         className={className}
         style={{
           ...style,
-          backdropFilter: maps ? `url(#${id}) blur(2px) saturate(1.35)` : undefined,
+          backdropFilter: isMobile
+            ? "blur(12px) saturate(1.3)"
+            : maps
+              ? `url(#${id}) blur(2px) saturate(1.35)`
+              : undefined,
         }}
         aria-hidden="true"
       />

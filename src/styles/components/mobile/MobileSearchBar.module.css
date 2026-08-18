@@ -1,0 +1,85 @@
+/* iOS-style prominent search bar */
+
+.searchContainer {
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: rgba(245, 245, 247, 0.35);
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 17px;
+  padding: 0;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: rgba(245, 245, 247, 0.35);
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(245, 245, 247, 0.25);
+  border: none;
+  color: rgba(28, 28, 30, 0.8);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.scopeBar {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scopeBar::-webkit-scrollbar {
+  display: none;
+}
+
+.scopeBtn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 245, 247, 0.7);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.scopeBtnActive {
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.3);
+  color: rgba(var(--accent-rgb, 10, 132, 255), 1);
+}

@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Sun, Volume2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLongPress } from "@/hooks/useLongPress";
+import MobileDock from "@/components/mobile/MobileDock";
+import MobileAppGrid from "@/components/mobile/MobileAppGrid";
+import MobileStatusBar from "@/components/mobile/MobileStatusBar";
+import MobileContextMenu, { type ContextMenuItem } from "@/components/mobile/MobileContextMenu";
+import MobileSystemNavBar from "@/components/mobile/MobileSystemNavBar";
+import MobileControlCenter from "@/components/mobile/MobileControlCenter";
 import {
   ACCENT_COLORS,
   CONTROL_TILE_IDS,
@@ -318,6 +326,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   const [missionControl, setMissionControl] = useState(false);
   const [launchpadOpen, setLaunchpadOpen] = useState(false);
   const [notifCenter, setNotifCenter] = useState(false);
+  const [controlCenter, setControlCenter] = useState(false);
   const [switcher, setSwitcher] = useState<{ apps: string[]; index: number } | null>(null);
   const [iconMenu, setIconMenu] = useState<{
     id: string;
@@ -329,6 +338,11 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   // Tahoe folder customization — color submenu + emoji badge picker.
   const [iconMenuSub, setIconMenuSub] = useState<"color" | "emoji" | null>(null);
   const [folderEmojiFor, setFolderEmojiFor] = useState<string | null>(null);
+  // Mobile context menu (bottom sheet) — replaces right-click on touch.
+  const [mobileCtx, setMobileCtx] = useState<{
+    items: ContextMenuItem[];
+    title?: string;
+  } | null>(null);
   // Inline rename of a wallpaper folder (macOS: name is pre-selected).
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -370,6 +384,9 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   // bumping the key discards stale saved indices/positions that could render
   // a black wallpaper or a broken layout.
   const SETTINGS_KEY = "aryan-os-settings-v2";
+
+/** Mobile breakpoint — same as useIsMobile. */
+const MOBILE_BP = 768;
 
   const loadSettings = (): SystemState => {
     const defaults: SystemState = {
@@ -450,6 +467,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sys]);
 
+  const isMobile = useIsMobile();
   const manager = useWindowManager();
   const windowsRef = useRef(manager.windows);
   windowsRef.current = manager.windows;
@@ -711,6 +729,20 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   /* ----- drag & drop external files onto the desktop (daedalOS File Explorer) ----- */
   const [dragOver, setDragOver] = useState(false);
   const dragDepth = useRef(0);
+
+  // Swipe gestures on the desktop for notification center (swipe down)
+  // and control center (swipe up) — standard iOS patterns.
+  const desktopTouchStartY = useRef<number | null>(null);
+  const desktopTouchStartX = useRef<number | null>(null);
+
+  // Long-press on wallpaper → context menu (mobile alternative to right-click)
+  const wallpaperLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wallpaperLongPressClear = () => {
+    if (wallpaperLongPressTimer.current) {
+      clearTimeout(wallpaperLongPressTimer.current);
+      wallpaperLongPressTimer.current = null;
+    }
+  };
   const handleDropFiles = async (e: React.DragEvent) => {
     e.preventDefault();
     dragDepth.current = 0;
@@ -807,7 +839,16 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
       openFinderAt("Projects");
       return;
     }
-    manager.openWindow(appId);
+    // LinkedIn and GitHub open in the Browser (web shortcuts on desktop).
+    if (appId === "linkedin") {
+      openWebUrl("https://linkedin.com/in/aryanbatra", "LinkedIn");
+      return;
+    }
+    if (appId === "github") {
+      openWebUrl("https://github.com/aryanbatras", "GitHub");
+      return;
+    }
+    manager.openWindow(appId, { maximized: isMobile });
     sounds.pop();
   };
   openWindowRef.current = openWindow;
@@ -1156,6 +1197,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
           /* let the Launchpad exit edit mode */
         } else if (launchpadOpen) setLaunchpadOpen(false);
         else if (missionControl) setMissionControl(false);
+        else if (controlCenter) setControlCenter(false);
         else if (notifCenter) setNotifCenter(false);
         else if (emojiOpen) setEmojiOpen(false);
         else if (focusedWindow?.maximized) manager.toggleMaximize(focusedWindow.id);
@@ -1298,7 +1340,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, locked, sys, missionControl, launchpadOpen, notifCenter, switcher, emojiOpen, infoFor, alert, quickLook, iconMenu, wallpaperPicker, contextMenu, spotlightOpen, aboutOpen, focusedWindow, onClose]);
+  }, [open, locked, sys, missionControl, launchpadOpen, notifCenter, controlCenter, switcher, emojiOpen, infoFor, alert, quickLook, iconMenu, wallpaperPicker, contextMenu, spotlightOpen, aboutOpen, focusedWindow, onClose]);
 
   /* ----- desktop icon drag ----- */
   const dragState = useRef<{
@@ -1808,8 +1850,36 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
         if (dragDepth.current === 0) setDragOver(false);
       }}
       onDrop={handleDropFiles}
+      onTouchStart={(e) => {
+        desktopTouchStartY.current = e.touches[0].clientY;
+        desktopTouchStartX.current = e.touches[0].clientX;
+      }}
+      onTouchEnd={(e) => {
+        if (desktopTouchStartY.current === null) return;
+        const dy = e.changedTouches[0].clientY - desktopTouchStartY.current;
+        const dx = Math.abs(e.changedTouches[0].clientX - (desktopTouchStartX.current ?? 0));
+        desktopTouchStartY.current = null;
+        desktopTouchStartX.current = null;
+        // Must be mostly vertical (not horizontal swipe)
+        if (dx > 60) return;
+        // Swipe down > 100px → notification center
+        if (dy > 100 && !locked && !booting && !launchpadOpen && manager.windows.length === 0) {
+          setNotifCenter(true);
+        }
+        // Swipe up > 100px → Control Center
+        if (dy < -100 && !locked && !booting && !launchpadOpen && manager.windows.length === 0) {
+          setControlCenter(true);
+        }
+      }}
     >
-      {!anyMaximized && (
+      {/* Status bar: iOS-style on mobile (home screen only, not when Launchpad is open), macOS menu bar on desktop */}
+      {isMobile && manager.windows.length === 0 && !launchpadOpen && (
+        <MobileStatusBar
+          onSettings={() => setControlCenter(true)}
+          onNotifications={() => setNotifCenter(true)}
+        />
+      )}
+      {!anyMaximized && !isMobile && (
         <MenuBar
           focusedAppTitle={
             focusedWindow
@@ -1874,18 +1944,32 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
             sys.wallpaperFit === "tile" ? "repeat" : "no-repeat",
           backgroundPosition: "center",
         }}
-        onPointerDown={() => {
+        onPointerDown={(e) => {
           // first click after Sleep wakes the display
           if (sys.brightness === 0) {
             patchSys({ brightness: 100 });
             sounds.pop();
           }
           setSelectedIcon(null);
-          // macOS default: clicking the wallpaper reveals the desktop
-          toggleShowDesktop();
+          // Long-press on mobile → show context menu (alternative to right-click)
+          if (isMobile) {
+            wallpaperLongPressClear();
+            wallpaperLongPressTimer.current = setTimeout(() => {
+              const x = Math.min(e.clientX, window.innerWidth - 230);
+              const y = Math.min(e.clientY, window.innerHeight - 330);
+              setContextMenu({ x, y });
+            }, 500);
+          }
         }}
+        onPointerUp={() => wallpaperLongPressClear()}
+        onPointerLeave={() => wallpaperLongPressClear()}
       >
-        {desktopItems.map((it) => {
+        {/* Mobile: iOS-style app grid replaces desktop icons */}
+        {!locked && !booting && isMobile && (
+          <MobileAppGrid onLaunch={openWindow} />
+        )}
+        {/* Desktop: macOS-style desktop icon grid */}
+        {!isMobile && desktopItems.map((it) => {
           const pos = iconPosFor(it.id);
           const preview = draggingId === it.id && dragPreview ? dragPreview : null;
           const finalPos = preview ?? pos;
@@ -1904,7 +1988,15 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
                   draggingId === it.id ? " scale(1.08)" : ""
                 }`,
               } as React.CSSProperties}
-              onClick={() => setSelectedIcon(it.id)}
+              onClick={() => {
+                // On mobile, a tap opens the app (no double-click available)
+                if (typeof window !== "undefined" && window.matchMedia("(hover: none)").matches) {
+                  if (it.kind === "folder") openDesktopFolder(it.id, it.title);
+                  else if (app) openWindow(app.id);
+                } else {
+                  setSelectedIcon(it.id);
+                }
+              }}
               onDoubleClick={() =>
                 it.kind === "folder"
                   ? openDesktopFolder(it.id, it.title)
@@ -1916,13 +2008,30 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
               onContextMenu={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setIconMenu({
-                  id: it.id,
-                  kind: it.kind,
-                  x: Math.min(e.clientX, window.innerWidth - 220),
-                  y: Math.min(e.clientY, window.innerHeight - 200),
-                  title: it.title,
-                });
+                // On mobile, show the iOS bottom sheet context menu
+                if (isMobile) {
+                  const items: ContextMenuItem[] = [
+                    { label: "Open", onClick: () => {
+                      if (it.kind === "folder") openDesktopFolder(it.id, it.title);
+                      else if (app) openWindow(app.id);
+                    }},
+                    { label: "Get Info", onClick: () => setInfoFor(it.id) },
+                  ];
+                  if (it.kind === "folder") {
+                    items.push({ label: "Rename", onClick: () => {
+                      setRenamingId(it.id);
+                    }});
+                  }
+                  setMobileCtx({ items, title: it.title });
+                } else {
+                  setIconMenu({
+                    id: it.id,
+                    kind: it.kind,
+                    x: Math.min(e.clientX, window.innerWidth - 220),
+                    y: Math.min(e.clientY, window.innerHeight - 200),
+                    title: it.title,
+                  });
+                }
               }}
               aria-label={`Open ${it.title}`}
             >
@@ -2221,7 +2330,17 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
         />
       )}
 
-      {!anyMaximized && (
+      {/* Dock: iOS-style on mobile, macOS-style on desktop — only on home screen, not when Launchpad is open */}
+      {isMobile && (
+        <MobileDock
+          runningApps={manager.runningApps}
+          visible={manager.windows.length === 0 && !launchpadOpen}
+          onLaunch={openWindow}
+          onQuit={quitApp}
+          onAppDrawer={() => setLaunchpadOpen(true)}
+        />
+      )}
+      {!anyMaximized && !isMobile && (
         <Dock
           runningApps={manager.runningApps}
           minimizedWindows={spaceWindows
@@ -2743,6 +2862,20 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
         />
       )}
 
+      {/* Control Center — iOS-style panel on mobile */}
+      {controlCenter && (
+        <MobileControlCenter
+          brightness={sys.brightness}
+          volume={sys.volume}
+          dndOn={dndOn}
+          onBrightnessChange={(v) => patchSys({ brightness: v })}
+          onVolumeChange={(v) => patchSys({ volume: v })}
+          onToggleDnd={() => setDndOn((v) => !v)}
+          onOpenSettings={() => openWindow("settings")}
+          onClose={() => setControlCenter(false)}
+        />
+      )}
+
       {notifCenter && (
         <NotificationCenter
           notifications={notifications}
@@ -2850,6 +2983,29 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
           onShutDown={onClose}
           brightness={sys.brightness}
           onWake={() => patchSys({ brightness: 100 })}
+        />
+      )}
+
+      {/* Mobile context menu — iOS bottom sheet triggered by long-press */}
+      <MobileContextMenu
+        open={!!mobileCtx}
+        title={mobileCtx?.title}
+        items={mobileCtx?.items ?? []}
+        onClose={() => setMobileCtx(null)}
+      />
+
+      {/* Android-style system nav bar — visible when any app is open on mobile */}
+      {isMobile && manager.windows.length > 0 && (
+        <MobileSystemNavBar
+          onBack={() => {
+            const focused = manager.focusedId;
+            if (focused) closeWindowAnimated(focused);
+          }}
+          onHome={() => {
+            // Close all windows, return to home screen
+            manager.windows.forEach((w) => manager.closeWindow(w.id));
+          }}
+          onRecent={() => setMissionControl(true)}
         />
       )}
     </div>

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import LiquidGlass from "@/components/desktop/LiquidGlass";
 import WidgetStack from "@/components/desktop/WidgetStack";
 import { sounds } from "@/utils/sounds";
+import { SCRUB_VIDEO_A } from "@/constants/video";
 import type { ClockStyle, WidgetStyle } from "@/constants/desktop";
 import type { WallpaperTint } from "@/hooks/useWallpaperTint";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
@@ -104,35 +104,54 @@ export default function LockScreen({
   onWake,
 }: LockScreenProps) {
   const [now, setNow] = useState(new Date());
-  const [pw, setPw] = useState("");
-  const [shake, setShake] = useState(false);
   const [showWidgets, setShowWidgets] = useState(false);
-  const [showPw, setShowPw] = useState(false);
   const [powerOpen, setPowerOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [showVideo, setShowVideo] = useState(false);
+  const [swipeY, setSwipeY] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  // Swipe-up gesture for mobile unlock
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const dy = touchStartY.current - e.touches[0].clientY;
+    if (dy > 0) setSwipeY(Math.min(dy, 200));
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (swipeY > 100) {
+      loginAsGuest();
+    }
+    setSwipeY(0);
+    touchStartY.current = null;
+  }, [swipeY]);
 
   useEffect(() => {
-    inputRef.current?.focus();
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const submit = () => {
-    if (pw.trim().toLowerCase() === "aryan") {
-      sounds.unlock();
-      onUnlock();
-    } else {
-      sounds.error();
-      setShake(true);
-      window.setTimeout(() => setShake(false), 420);
-      setPw("");
-    }
-  };
-
-  // One-click Log In — enters the desktop directly (password optional).
+  // One-click Log In — enters the desktop directly (no password required).
   const loginAsGuest = () => {
     sounds.unlock();
     onUnlock();
+  };
+
+  // Watch the showreel at 1.5x speed, then return to lock screen.
+  const openWatchVideo = () => {
+    setShowVideo(true);
+  };
+
+  const closeWatchVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+    setShowVideo(false);
   };
 
   const time = now.toLocaleTimeString(undefined, {
@@ -147,6 +166,10 @@ export default function LockScreen({
     day: "numeric",
   });
 
+  // Swipe-up offset for the user area
+  const swipeOffset = Math.max(0, swipeY * 0.5);
+  const swipeOpacity = Math.max(0, 1 - swipeY / 150);
+
   return (
     <div
       className={styles.lockScreen}
@@ -155,6 +178,9 @@ export default function LockScreen({
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onClick={() => {
         // First click after Sleep wakes the display (like a real Mac).
         if (brightness === 0) {
@@ -168,8 +194,22 @@ export default function LockScreen({
           wallpaper — macOS never frosts the lock-screen wallpaper itself. */}
       <div className={styles.lockScrim} aria-hidden />
 
-      {/* Top bar — power menu on the right, like the real lock screen. */}
+      {/* Top bar — Watch Original Video on the left, power menu on the right. */}
       <div className={styles.lockTopBar}>
+        {/* Top-left: Watch Original Video button. */}
+        <div className={styles.lockWatchVideoWrap} onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className={styles.lockTopBtn}
+            onClick={openWatchVideo}
+            aria-label="Watch Original Video"
+          >
+            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polygon points="5,3 13,8 5,13" fill="currentColor" stroke="none" />
+            </svg>
+            <span style={{ marginLeft: 5, fontSize: 11, fontWeight: 500 }}>Watch Video</span>
+          </button>
+        </div>
         {/* Top-right: power menu (Sleep / Restart / Shut Down). */}
         <div className={styles.lockPowerWrap} onClick={(e) => e.stopPropagation()}>
           <button
@@ -253,11 +293,10 @@ export default function LockScreen({
         </button>
       </div>
 
-      {/* User block — avatar ring, name, password. macOS lock screen shows
-          the owner here; guest is a button below, not a second user you
-          switch to by clicking the avatar. */}
+      {/* User block — avatar ring, name, one-click login. macOS lock screen
+          shows the owner here; no password required for this portfolio. */}
       <div
-        className={`${styles.lockUserArea} ${shake ? styles.lockShake : ""}`}
+        className={styles.lockUserArea}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.lockAvatar} aria-hidden>
@@ -282,36 +321,7 @@ export default function LockScreen({
         </div>
         <span className={styles.lockName}>{OWNER.name}</span>
 
-        <div className={styles.lockPwWrap}>
-          <input
-            ref={inputRef}
-            className={styles.lockInput}
-            type={showPw ? "text" : "password"}
-            value={pw}
-            placeholder="Enter Password"
-            onChange={(e) => setPw(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") submit();
-            }}
-            autoComplete="off"
-            spellCheck={false}
-            aria-label="Password"
-          />
-          <button
-            type="button"
-            className={styles.lockPwToggle}
-            onClick={() => setShowPw((v) => !v)}
-            aria-label={showPw ? "Hide password" : "Show password"}
-          >
-            {/* Hidden → an eye that reveals; visible → an eye-off that hides
-                (lucide renders crisply at every size — the old hand-drawn
-                SVGs looked broken). */}
-            {showPw ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
-          </button>
-        </div>
-
-        {/* Log In — one click and you're in (no password required). The
-            password field stays for realism, but this is the primary path. */}
+        {/* Log In — one click and you're in. No password field. */}
         <button
           type="button"
           className={styles.lockLoginBtn}
@@ -319,11 +329,49 @@ export default function LockScreen({
         >
           Log In
         </button>
+
+        {/* Mobile: swipe up indicator */}
+        <div className={styles.lockSwipeHint}>
+          <div className={styles.lockSwipeLine} />
+          <span className={styles.lockSwipeText}>Swipe up to unlock</span>
+        </div>
       </div>
 
       {showWidgets && (
         <div className={styles.lockWidgets} onClick={(e) => e.stopPropagation()}>
           <WidgetStack widgetStyle={widgetStyle} tint={tint} />
+        </div>
+      )}
+
+      {/* Full-screen showreel video overlay — plays at 3× then returns. */}
+      {showVideo && (
+        <div
+          className={styles.videoOverlay}
+          onClick={closeWatchVideo}
+        >
+          <video
+            ref={videoRef}
+            src={SCRUB_VIDEO_A}
+            poster="/aryan/poster_a.jpg"
+            className={styles.videoOverlayPlayer}
+            autoPlay
+            playsInline
+            onLoadedData={() => {
+              if (videoRef.current) videoRef.current.playbackRate = 3;
+            }}
+            onEnded={closeWatchVideo}
+          />
+          <button
+            type="button"
+            className={styles.videoOverlayClose}
+            onClick={closeWatchVideo}
+            aria-label="Close video"
+          >
+            <svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="4" y1="4" x2="12" y2="12" />
+              <line x1="12" y1="4" x2="4" y2="12" />
+            </svg>
+          </button>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { DESKTOP_APPS, type LaunchpadFolder, type LaunchpadItem } from "@/constants/desktop";
+import { hapticMedium } from "@/utils/touch";
 import AppIcon from "@/components/desktop/AppIcon";
 import styles from "@/styles/components/desktop/MacDesktop.module.css";
 
@@ -115,6 +116,30 @@ export default function Launchpad({
 
   return (
     <div className={styles.launchpad} data-app-library onClick={onClose}>
+      {/* macOS traffic lights — top-left */}
+      <div className={styles.launchpadTrafficLights}>
+        <button
+          type="button"
+          className={styles.launchpadTrafficLight}
+          style={{ background: '#ff5c60' }}
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          aria-label="Close"
+        />
+        <button
+          type="button"
+          className={styles.launchpadTrafficLight}
+          style={{ background: '#fac800' }}
+          onClick={(e) => { e.stopPropagation(); }}
+          aria-label="Minimize"
+        />
+        <button
+          type="button"
+          className={styles.launchpadTrafficLight}
+          style={{ background: '#35c759' }}
+          onClick={(e) => { e.stopPropagation(); }}
+          aria-label="Zoom"
+        />
+      </div>
       <div className={styles.launchpadSearch} onClick={(e) => e.stopPropagation()}>
         <Search size={16} strokeWidth={2} />
         <input
@@ -142,7 +167,7 @@ export default function Launchpad({
                     key={id}
                     type="button"
                     className={styles.launchpadItem}
-                    onClick={() => onLaunch(id)}
+                    onClick={() => { hapticMedium(); onLaunch(id); }}
                     aria-label={app.title}
                   >
                     <span className={styles.launchpadIconWrap}>
@@ -168,7 +193,7 @@ export default function Launchpad({
                     key={id}
                     type="button"
                     className={styles.launchpadItem}
-                    onClick={() => onLaunch(id)}
+                    onClick={() => { hapticMedium(); onLaunch(id); }}
                     aria-label={app.title}
                   >
                     <span className={styles.launchpadIconWrap}>
@@ -184,7 +209,9 @@ export default function Launchpad({
       </div>
 
       <div className={styles.launchpadHint}>
-        Click an app to open it — press Esc to close
+        {typeof window !== "undefined" && window.matchMedia("(hover: none)").matches
+          ? "Tap an app to open — tap outside to close"
+          : "Click an app to open it — press Esc to close"}
       </div>
     </div>
   );
