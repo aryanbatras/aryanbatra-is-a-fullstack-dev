@@ -12,7 +12,12 @@ export default function AboutApp() {
   return (
     <div className={styles.about}>
       <div className={styles.aboutHero}>
-        <div className={styles.avatar}>AB</div>
+        <img
+          src="/aryan/aryan_avatar.jpg"
+          alt="Aryan Batra"
+          className={styles.aboutAvatarImg}
+          draggable={false}
+        />
         <h3>{RESUME.name}</h3>
         <p className={styles.aboutTitle}>{RESUME.title}</p>
       </div>
@@ -30,7 +35,7 @@ export default function AboutApp() {
         </div>
         <div className={styles.specRow}>
           <span>Education</span>
-          <span>BTech Computer Science · MBS College of Engg. &amp; Technology (2023–2027)</span>
+          <span>BTech CS · MBS College (2023–2027)</span>
         </div>
         <div className={styles.specRow}>
           <span>Email</span>
@@ -51,7 +56,7 @@ export default function AboutApp() {
             rel="noreferrer"
             className={styles.aboutLink}
           >
-            {l.label} →
+            {l.label}
           </a>
         ))}
       </div>

@@ -1,14 +1,15 @@
-/* iOS-style collapsible large title navigation bar */
+/* iOS-style collapsible large title navigation bar — pure glass, no borders */
 
 .navBar {
   position: sticky;
   top: 0;
   z-index: 100;
-  /* Liquid Glass: translucent blur */
-  background: rgba(28, 28, 30, 0.82);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  /* iOS 26 Liquid Glass — pure blur, NO borders, NO separator lines */
+  background: rgba(18, 18, 24, 0.48);
+  -webkit-backdrop-filter: saturate(220%) blur(60px) brightness(0.92);
+  backdrop-filter: saturate(220%) blur(60px) brightness(0.92);
+  border-bottom: none;
+  box-shadow: none;
   /* Safe area for notch/dynamic island */
   padding-top: env(safe-area-inset-top, 0);
   transition: background 0.2s ease;

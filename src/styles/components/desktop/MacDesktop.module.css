@@ -1019,6 +1019,13 @@
   gap: 6px;
   padding: 8px 10px 6px;
   border-radius: 12px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Subtle glow on hover — like macOS Tahoe icon hover */
+.desktopIcon:hover .desktopIconBox {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.06);
 }
 
 /* The featured Resume icon — pinned to the top-left of the wallpaper, set
@@ -2364,6 +2371,11 @@
   background: #ff453a;
   color: #fff;
   font-weight: 600;
+  /* padding: 1px 2px; */
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ncWeather {

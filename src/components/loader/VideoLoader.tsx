@@ -6,6 +6,8 @@ import styles from "@/styles/components/loader/VideoLoader.module.css";
 interface VideoLoaderProps {
   /** True once the film + smoother are ready to scrub. */
   ready: boolean;
+  /** Called once the loader has finished revealing and is about to unmount. */
+  onRevealed?: () => void;
 }
 
 /** The loader is compulsory for at least MIN_S and never holds longer than
@@ -17,13 +19,15 @@ const MAX_S = 5; // film not ready yet -> reveal here regardless
     behind the black counter sheet and only appear during the exit. */
 const LAYER_COLORS = ["#B497CF", "#5227FF"];
 
-export default function VideoLoader({ ready }: VideoLoaderProps) {
+export default function VideoLoader({ ready, onRevealed }: VideoLoaderProps) {
   const mountedAtRef = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
   const [gone, setGone] = useState(false);
+  const onRevealedRef = useRef(onRevealed);
+  onRevealedRef.current = onRevealed;
 
   /* Reveal when BOTH the minimum wait has passed AND the film is loaded —
      or, if the film never loads, at the hard cap so the loader can never
@@ -51,7 +55,7 @@ export default function VideoLoader({ ready }: VideoLoaderProps) {
         `[data-loader-layer]`,
       ),
     );
-    const tl = gsap.timeline({ onComplete: () => setGone(true) });
+    const tl = gsap.timeline({ onComplete: () => { setGone(true); onRevealedRef.current?.(); } });
     tl.to(
       counterRef.current,
       { yPercent: -120, opacity: 0, ease: "power2.inOut", duration: 1.3 },

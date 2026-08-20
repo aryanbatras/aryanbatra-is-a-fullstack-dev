@@ -122,7 +122,7 @@ const WEB_FILES: FinderFile[] = WEB_SHORTCUTS.map((s) => ({
 }));
 
 const HOME_FILES: FinderFile[] = [
-  { id: "resume", name: "Resume.pdf", kind: "PDF Document", icon: "file-text", size: "2.1 MB", appId: "resume" },
+  { id: "resume", name: "Resume.pdf", kind: "PDF Document", icon: "file-text", size: "2.1 MB", appId: "resume", src: "/aryan/aryan_resume.pdf" },
   { id: "showreel", name: "showreel.mp4", kind: "MPEG-4 Movie", icon: "film", size: "35 MB", appId: "videos" },
   { id: "readme", name: "README.txt", kind: "Plain Text", icon: "book-open", size: "2 KB", appId: "textedit" },
   { id: "about", name: "About Me.txt", kind: "Plain Text", icon: "user", size: "4 KB", appId: "textedit" },
@@ -173,7 +173,7 @@ const FILE_SETS: Record<string, FinderFile[]> = {
 };
 
 const FAVOURITES = ["Recents", "Applications", "Desktop", "Documents", "Downloads", "Projects"];
-const LOCATIONS = ["Pictures", "Aryan SSD", "Aryan Cloud"];
+const LOCATIONS = ["Pictures", "Desktop SSD", "Desktop Cloud"];
 
 /** Sidebar icons — the real Finder draws each location with a system icon. */
 const SIDEBAR_ICONS: Record<string, React.ReactNode> = {
@@ -184,8 +184,8 @@ const SIDEBAR_ICONS: Record<string, React.ReactNode> = {
   Downloads: <Download size={13} />,
   Projects: <Folder size={13} />,
   Pictures: <ImageIcon size={13} />,
-  "Aryan SSD": <HardDrive size={13} />,
-  "Aryan Cloud": <Cloud size={13} />,
+  "Desktop SSD": <HardDrive size={13} />,
+  "Desktop Cloud": <Cloud size={13} />,
 };
 
 // Projects is a real folder in the Finder: each project is an Internet
@@ -215,8 +215,8 @@ FILE_SETS["Pictures"] = Array.from({ length: 32 }, (_, i) => ({
 }));
 
 // Honest empty volumes — a real machine with nothing mounted on them yet.
-FILE_SETS["Aryan SSD"] = [];
-FILE_SETS["Aryan Cloud"] = [];
+FILE_SETS["Desktop SSD"] = [];
+FILE_SETS["Desktop Cloud"] = [];
 
 type SortMode = "name" | "kind" | "size" | "date";
 
@@ -2030,6 +2030,20 @@ export default function FinderApp({
             </span>
           </button>
         ))}
+        {/* Grid / List view toggle */}
+        <button
+          type="button"
+          className={`${styles.finderMobileTab} ${styles.finderViewToggle}`}
+          onClick={() => setView((v) => (v === "grid" ? "list" : "grid"))}
+          aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+        >
+          <span className={styles.finderMobileTabIcon}>
+            {view === "grid" ? <List size={14} /> : <LayoutGrid size={14} />}
+          </span>
+          <span className={styles.finderMobileTabLabel}>
+            {view === "grid" ? "List" : "Grid"}
+          </span>
+        </button>
       </div>
     </div>
   );

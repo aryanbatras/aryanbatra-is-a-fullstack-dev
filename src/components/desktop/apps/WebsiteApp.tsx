@@ -14,7 +14,7 @@ const GOOGLE_SEARCH = "https://www.google.com/search?igu=1&q=";
 const HOME = GOOGLE_HOME;
 
 /** daedalOS proxy modes — re-serve pages so sites that block iframes work. */
-type ProxyMode = "direct" | "allorigins" | "wayback" | `oldnet_${number}`;
+type ProxyMode = "direct" | "ourproxy" | "corsproxy" | "allorigins" | "wayback" | `oldnet_${number}`;
 
 const OLD_NET_YEARS = [
   1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
@@ -27,7 +27,7 @@ const OLD_NET_PROXY =
 
 /** Proxy menu is grouped — general proxies, then the Old Net time machine. */
 const PROXY_GROUPS: { label: string; modes: ProxyMode[] }[] = [
-  { label: "Proxy", modes: ["direct", "allorigins", "wayback"] },
+  { label: "Proxy", modes: ["direct", "ourproxy", "corsproxy", "allorigins", "wayback"] },
   {
     label: "Old Net",
     modes: OLD_NET_YEARS.map((y) => `oldnet_${y}` as ProxyMode),
@@ -36,6 +36,8 @@ const PROXY_GROUPS: { label: string; modes: ProxyMode[] }[] = [
 
 const PROXY_LABEL: Record<ProxyMode, string> = {
   direct: "Direct",
+  ourproxy: "Aryan Proxy",
+  corsproxy: "CORS Proxy",
   allorigins: "AllOrigins",
   wayback: "Wayback Machine",
   ...Object.fromEntries(
@@ -46,6 +48,12 @@ const PROXY_LABEL: Record<ProxyMode, string> = {
 /** Wrap a URL in the selected proxy (daedalOS's PROXIES table). */
 const proxify = async (url: string, mode: ProxyMode): Promise<string> => {
   if (mode === "direct") return url;
+  if (mode === "ourproxy") {
+    return `/api/proxy?url=${encodeURIComponent(url)}`;
+  }
+  if (mode === "corsproxy") {
+    return `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+  }
   if (mode === "allorigins") {
     return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
   }
@@ -111,6 +119,38 @@ function Favicon({
 
 /** daedalOS's IFRAME_CONFIG — sandbox lets pages run scripts/forms while
  *  keeping them out of the host, and no-referrer keeps the machine private. */
+/** Known iframe-blocking domains — auto-route through our proxy. */
+const BLOCKED_DOMAINS = [
+  "github.com", "www.github.com",
+  "linkedin.com", "www.linkedin.com",
+  "twitter.com", "www.twitter.com", "x.com", "www.x.com",
+  "instagram.com", "www.instagram.com",
+  "facebook.com", "www.facebook.com",
+  "reddit.com", "www.reddit.com",
+  "medium.com", "www.medium.com",
+  "stackoverflow.com", "www.stackoverflow.com",
+  "youtube.com", "www.youtube.com",
+  "tiktok.com", "www.tiktok.com",
+  "threads.net", "www.threads.net",
+  "open.spotify.com",
+  "figma.com", "www.figma.com",
+  "notion.so", "www.notion.so",
+  "whatsapp.com", "web.whatsapp.com",
+  "twitch.tv", "www.twitch.tv",
+  "pinterest.com", "www.pinterest.com",
+  "quora.com", "www.quora.com",
+];
+
+/** Check if a URL belongs to a known iframe-blocking domain. */
+const isBlockedDomain = (url: string): boolean => {
+  try {
+    const host = new URL(url).hostname;
+    return BLOCKED_DOMAINS.some((d) => host === d || host.endsWith("." + d));
+  } catch {
+    return false;
+  }
+};
+
 const IFRAME_SANDBOX =
   "allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts";
 
@@ -155,6 +195,7 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
   const [addrFocused, setAddrFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const [proxyMode, setProxyMode] = useState<ProxyMode>("direct");
+  const [blocked, setBlocked] = useState(false);
   const [proxyOpen, setProxyOpen] = useState(false);
   const [historyMenu, setHistoryMenu] = useState<"back" | "fwd" | null>(null);
   // Safari-style right-click menu for the page area.
@@ -183,10 +224,12 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
 
   const load = async (raw: string, intoHistory = true) => {
     const u = normalize(raw);
+    // Auto-route known iframe-blocking domains through our server proxy
+    const effectiveMode = (proxyRef.current === "direct" && isBlockedDomain(u))
+      ? "ourproxy"
+      : proxyRef.current;
     if (u === url) {
-      // Same page (reload): re-fetch through the proxy; the iframe `key`
-      // (which includes reloadKey) forces a clean remount.
-      setFrameSrc(await proxify(u, proxyRef.current));
+      setFrameSrc(await proxify(u, effectiveMode));
       return;
     }
     clearLoadWatch();
@@ -199,7 +242,7 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
     setHistory(next);
     setUrl(u);
     setInput("");
-    const proxied = await proxify(u, proxyRef.current);
+    const proxied = await proxify(u, effectiveMode);
     if (next[next.length - 1] === u) setFrameSrc(proxied);
     // Safety: if a page never fires a load event, stop the spinner (the
     // "refused to embed" banner from before was a false positive — for
@@ -232,9 +275,24 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
   const onLoaded = () => {
     clearLoadWatch();
     setLoading(false);
+    setBlocked(false);
     setCanGoBack(hIndex > 0);
     setCanGoFwd(hIndex < history.length - 1);
     attachBridge();
+    // If direct mode and a cross-origin page loaded, check if iframe content
+    // is accessible (blocked sites will have an empty body).
+    if (proxyRef.current === "direct") {
+      window.setTimeout(() => {
+        try {
+          const doc = frameRef.current?.contentDocument;
+          if (doc && doc.body && doc.body.children.length === 0) {
+            setBlocked(true);
+          }
+        } catch {
+          // Cross-origin — can't tell if blocked, assume OK.
+        }
+      }, 1500);
+    }
   };
 
   // Same-origin pages (/legacy, /3d) don't bubble events to the parent
@@ -284,12 +342,11 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
   const switchProxy = (m: ProxyMode) => {
     setProxyMode(m);
     setProxyOpen(false);
-    if (m !== "direct") {
-      // Re-serve the current page through the new proxy immediately.
-      clearLoadWatch();
-      setLoading(true);
-      proxify(url, m).then(setFrameSrc);
-    }
+    setBlocked(false);
+    // Re-serve the current page through the new proxy immediately.
+    clearLoadWatch();
+    setLoading(true);
+    proxify(url, m).then(setFrameSrc);
   };
 
   useEffect(() => {
@@ -580,6 +637,25 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
         ))}
       </div>
 
+      {blocked && proxyMode === "direct" && (
+        <div className={styles.websiteBlockedBanner}>
+          <div className={styles.websiteBlockedIcon}>
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1.5 13 3.5v3.2c0 3.4-2.2 6-5 7.3-2.8-1.3-5-3.9-5-7.3V3.5L8 1.5Z" /><line x1="8" y1="6" x2="8" y2="9" /><circle cx="8" cy="11" r="0.5" fill="currentColor" /></svg>
+          </div>
+          <div className={styles.websiteBlockedText}>
+            <span className={styles.websiteBlockedTitle}>This site blocks iframe embedding</span>
+            <span className={styles.websiteBlockedHint}>Use the proxy to view it here, or open in a new tab.</span>
+          </div>
+          <div className={styles.websiteBlockedActions}>
+            <button className={styles.websiteBlockedBtn} onClick={() => { switchProxy("ourproxy"); setBlocked(false); }}>
+              Load via Proxy
+            </button>
+            <button className={styles.websiteBlockedBtnSecondary} onClick={() => window.open(url, "_blank")}>
+              Open in Tab
+            </button>
+          </div>
+        </div>
+      )}
       <div className={styles.websiteFrameWrap} onContextMenu={onFrameContext}>
         <iframe
           key={`${frameSrc}|${reloadKey}`}
@@ -591,8 +667,16 @@ export default function WebsiteApp({ initialUrl, onClose, onNewTab }: WebsiteApp
           referrerPolicy="no-referrer"
           // @ts-expect-error credentialless is a Chromium-only iframe attr
           credentialless="credentialless"
+
           {...(isLocal ? {} : { sandbox: IFRAME_SANDBOX })}
         />
+
+        {/* Loading progress bar — Safari-style thin line at the top */}
+        {loading && (
+          <div className={styles.websiteProgress}>
+            <div className={styles.websiteProgressBar} />
+          </div>
+        )}
 
         {/* Safari-style right-click menu (Back/Forward/Reload/Open in new tab). */}
         {ctxMenu && (

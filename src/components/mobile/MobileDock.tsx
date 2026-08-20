@@ -31,8 +31,8 @@ const MobileDock = memo(function MobileDock({
   onQuit,
   onAppDrawer,
 }: MobileDockProps) {
-  // Left group: Terminal, VS Code
-  const leftApps = ["terminal", "monaco"];
+  // Left group: Terminal only
+  const leftApps = ["terminal"];
   // Right group: Safari, Settings
   const rightApps = ["website", "settings"];
   // Center: Finder (always), App Drawer (special button)

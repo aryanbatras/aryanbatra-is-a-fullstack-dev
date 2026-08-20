@@ -25,9 +25,9 @@ interface LockScreenProps {
 }
 
 const OWNER = {
-  id: "aryan",
+  id: "desktop",
   name: "Aryan Batra",
-  avatar: "/images/aryan.jpeg",
+  avatar: "/aryan/aryan_avatar.jpg",
 };
 
 /** Analog clock face with live hour/minute/second hands. */

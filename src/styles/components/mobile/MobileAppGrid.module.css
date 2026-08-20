@@ -4,52 +4,129 @@
   padding: 54px 16px 120px; /* below status bar, above dock + system nav */
 }
 
-/* Search bar — iOS Liquid Glass */
-.mobileSearchWrap {
-  position: relative;
-  margin-bottom: 16px;
+/* Welcome header — avatar + name + title */
+.welcomeHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 4px 24px;
 }
 
-.mobileSearchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.45);
-  pointer-events: none;
+.welcomeAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
 }
 
-.mobileSearchInput {
-  width: 100%;
-  height: 36px;
-  padding: 0 12px 0 36px;
-  border: none;
-  border-radius: 10px;
-  /* Transparent Liquid Glass — wallpaper shows through */
-  background: rgba(18, 18, 24, 0.35);
-  -webkit-backdrop-filter: blur(30px) saturate(160%) brightness(0.98);
-  backdrop-filter: blur(30px) saturate(160%) brightness(0.98);
+.welcomeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.welcomeName {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
   color: #fff;
-  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.welcomeTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+}
+
+/* Search bar — iOS Spotlight style */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px 16px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.searchBarFocused {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.searchIcon {
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
   outline: none;
-  -webkit-appearance: none;
+  color: #fff;
+  font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  min-width: 0;
 }
 
-/* Hide native clear/search buttons on Safari */
-.mobileSearchInput::-webkit-search-cancel-button,
-.mobileSearchInput::-webkit-search-decoration {
-  -webkit-appearance: none;
-  display: none;
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
-.mobileSearchInput::placeholder {
-  color: rgba(255, 255, 255, 0.45);
+.searchClear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.mobileSearchInput:focus {
-  background: rgba(18, 18, 24, 0.35);
-  outline: none;
+.searchEmpty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px 16px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+/* Page dots — iOS style */
+.pageDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 0 4px;
+}
+
+.pageDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pageDotActive {
+  background: rgba(255, 255, 255, 0.85);
+  transform: scale(1.15);
 }
 
 /* Pull-to-refresh indicator */
@@ -117,6 +194,102 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ── All Projects — vertical 1-column scrollable list ── */
+
+.projectsSection {
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.projectsTitle {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.projectsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 24px;
+}
+
+.projectCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+  transition: transform 0.15s ease, background 0.15s ease;
+  font-family: inherit;
+}
+
+.projectCard:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.projectCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.projectCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.projectCardTagline {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.projectCardTech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.projectCardChip {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.07);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.projectCardArrow {
+  flex-shrink: 0;
 }
 
 /* Hide on desktop */

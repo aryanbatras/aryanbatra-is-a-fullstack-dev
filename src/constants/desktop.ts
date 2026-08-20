@@ -51,7 +51,7 @@ export interface SpaceConfig {
 export const DEFAULT_SPACES: SpaceConfig[] = [
   { id: 1, name: "Desktop 1", wallpaperIndex: 0 },
   { id: 2, name: "Desktop 2", wallpaperIndex: 1 },
-  { id: 3, name: "Desktop 3", wallpaperIndex: 5 },
+  { id: 3, name: "Desktop 3", wallpaperIndex: 2 },
 ];
 
 /** Hot Corner actions (Desktop & Dock → Hot Corners…). */
@@ -267,8 +267,8 @@ export interface DesktopAppConfig {
 
 export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "finder", title: "Finder", icon: "folder", iconUrl: "/aryan/icons/finder.png", width: 720, height: 500, minWidth: 520, minHeight: 380, onDesktop: true, inDock: true },
-  { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: false, inDock: false },
-  { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: false, inDock: false },
+  { id: "about", title: "About Me", icon: "user", iconUrl: "/aryan/icons/contacts.png", width: 560, height: 420, minWidth: 420, minHeight: 320, onDesktop: true, inDock: true },
+  { id: "resume", title: "Resume", icon: "file-text", iconUrl: "/aryan/icons/preview.png", width: 680, height: 560, minWidth: 480, minHeight: 400, onDesktop: true, inDock: true },
   { id: "projects", title: "Projects", icon: "folder", iconUrl: "/aryan/icons/folder.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: true, inDock: false },
   { id: "notes", title: "Notes", icon: "sticky-note", iconUrl: "/aryan/icons/notes.png", width: 620, height: 460, minWidth: 440, minHeight: 340, onDesktop: false, inDock: false },
   { id: "photos", title: "Photos", icon: "image", iconUrl: "/aryan/icons/photos.png", width: 640, height: 480, minWidth: 480, minHeight: 360, onDesktop: false, inDock: false },
@@ -328,6 +328,8 @@ export const DESKTOP_APPS: DesktopAppConfig[] = [
   { id: "fractal", title: "Fractal Explorer", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   { id: "miner", title: "Crypto Miner", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 580, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
   { id: "particles", title: "Particle System", icon: "code", iconUrl: "/aryan/icons/monaco.png", width: 860, height: 600, minWidth: 560, minHeight: 400, onDesktop: false, inDock: false },
+  // Mobile Simulator — desktop users can experience the mobile shell as a nested app.
+  { id: "mobilesim", title: "Mobile", icon: "phone", iconUrl: "/aryan/icons/contacts.png", width: 380, height: 700, minWidth: 320, minHeight: 500, onDesktop: true, inDock: true },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -342,6 +344,8 @@ export interface Wallpaper {
 }
 
 export const WALLPAPERS: Wallpaper[] = [
+  // Windows 11 Bloom — the signature desktop wallpaper.
+  { id: "win11-bloom", name: "Windows 11 Bloom", src: "/aryan/wallpapers/win11-bloom.jpg" },
   // The Tahoe dynamic beach series (the real macOS Tahoe wallpapers).
   { id: "tahoe-beach-dawn", name: "Tahoe Beach — Dawn", src: "/aryan/wallpapers/tahoe-beach-Dawn.webp" },
   { id: "tahoe-beach-day", name: "Tahoe Beach — Day", src: "/aryan/wallpapers/tahoe-beach-Day.webp" },

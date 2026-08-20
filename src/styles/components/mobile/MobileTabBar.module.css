@@ -1,4 +1,4 @@
-/* iOS-style bottom tab bar — always visible, Liquid Glass background */
+/* iOS-style bottom tab bar — pure Liquid Glass, NO borders */
 
 .tabBar {
   position: fixed;
@@ -6,11 +6,12 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  /* Liquid Glass: translucent blur over content */
-  background: rgba(28, 28, 30, 0.78);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  /* iOS 26 Liquid Glass — pure blur, no borders, no separators */
+  background: rgba(18, 18, 24, 0.52);
+  -webkit-backdrop-filter: saturate(220%) blur(60px) brightness(0.92);
+  backdrop-filter: saturate(220%) blur(60px) brightness(0.92);
+  border-top: none;
+  box-shadow: none;
   /* Safe area for notched phones */
   padding-bottom: env(safe-area-inset-bottom, 0);
 }

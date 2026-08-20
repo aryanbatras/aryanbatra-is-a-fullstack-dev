@@ -14,9 +14,8 @@ interface MobileStatusBarProps {
 
 /**
  * iOS-style status bar for mobile.
- * Shows clock, wifi, battery, and a settings button.
- * Swipe down anywhere on the bar to open Notification Center.
- * Replaces the macOS menu bar on touch devices.
+ * Fully transparent — no background, no blur, no borders.
+ * Large icons and text for native feel.
  */
 const MobileStatusBar = memo(function MobileStatusBar({
   onSettings,
@@ -55,8 +54,8 @@ const MobileStatusBar = memo(function MobileStatusBar({
     >
       <span className={styles.mobileStatusTime}>{clockStr}</span>
       <div className={styles.mobileStatusRight}>
-        <Wifi size={14} strokeWidth={2} />
-        <Battery size={16} strokeWidth={2} />
+        <Wifi size={18} strokeWidth={2.2} />
+        <Battery size={22} strokeWidth={2} />
         {onNotifications && (
           <button
             type="button"
@@ -64,7 +63,7 @@ const MobileStatusBar = memo(function MobileStatusBar({
             onClick={onNotifications}
             aria-label="Notifications"
           >
-            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 6a4 4 0 0 0-8 0c0 4-2 5-2 5h12s-2-1-2-5" />
               <path d="M9.15 13a2 2 0 0 1-3.3 0" />
             </svg>
@@ -77,7 +76,7 @@ const MobileStatusBar = memo(function MobileStatusBar({
             onClick={onSettings}
             aria-label="Settings"
           >
-            <Settings size={14} strokeWidth={2} />
+            <Settings size={20} strokeWidth={2} />
           </button>
         )}
       </div>

@@ -4,6 +4,15 @@
 /daedalOS-reference
 /daedalOS-reference/**
 
+# secondary / cloned reference repositories (untracked, not committed)
+/reference-repos
+/reference-repos/**
+/external-projects
+/external-projects/**
+/third-party
+/third-party/**
+
+
 # dependencies
 /node_modules
 /.pnp

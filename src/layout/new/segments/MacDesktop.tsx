@@ -46,6 +46,7 @@ import Launchpad from "@/components/desktop/Launchpad";
 import EmojiPicker from "@/components/desktop/EmojiPicker";
 import AlertDialog, { type AlertOptions } from "@/components/desktop/AlertDialog";
 import QuickLook, { type QuickLookFile } from "@/components/desktop/QuickLook";
+import VideoLoader from "@/components/loader/VideoLoader";
 /* ─── Static imports: lightweight apps always in the shell ────────── */
 import FinderApp, { type FinderFile } from "@/components/desktop/apps/FinderApp";
 import SettingsApp from "@/components/desktop/apps/SettingsApp";
@@ -108,6 +109,7 @@ const DocsApp = React.lazy(() => import("@/components/desktop/apps/DocsApp"));
 const GameLibraryApp = React.lazy(() => import("@/components/desktop/apps/GameLibraryApp"));
 const SheetsApp = React.lazy(() => import("@/components/desktop/apps/SheetsApp"));
 const SlidesApp = React.lazy(() => import("@/components/desktop/apps/SlidesApp"));
+const MobileSimulator = React.lazy(() => import("@/components/desktop/apps/MobileSimulator"));
 import RunDialog from "@/components/desktop/RunDialog";
 import { soundEnabled, setSoundEnabled, sounds } from "@/utils/sounds";
 import {
@@ -203,6 +205,7 @@ const APP_VIEWS: Record<string, React.ComponentType<any>> = {
   musicviz: () => <div />,
   playground: () => <div />,
   jsdos: () => <div />,
+  mobilesim: () => <div />,
   settings: () => <div />, // replaced with a prop-carrying render below
 };
 
@@ -345,7 +348,7 @@ const layoutIcons = (
 };
 
 export default function MacDesktop({ open, onClose }: MacDesktopProps) {
-  const [booting, setBooting] = useState(false);
+  const [booting, setBooting] = useState(true);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -409,7 +412,7 @@ export default function MacDesktop({ open, onClose }: MacDesktopProps) {
   // v2: the wallpaper list was rebuilt (no more fake/Windows wallpapers) —
   // bumping the key discards stale saved indices/positions that could render
   // a black wallpaper or a broken layout.
-  const SETTINGS_KEY = "aryan-os-settings-v2";
+  const SETTINGS_KEY = "aryan-os-settings-v3";
 
 /** Mobile breakpoint — same as useIsMobile. */
 const MOBILE_BP = 768;
@@ -503,13 +506,36 @@ const MOBILE_BP = 768;
   const idleTimer = useRef<number | null>(null);
   const osdTimer = useRef<number | null>(null);
 
-  /* ----- open: boot straight into the lock screen (no Apple boot loader) ----- */
+  /* ----- open: boot with hydration counter, then lock screen -----
+     ?embed=1 (e.g. inside MobileSimulator iframe) skips both. */
+  const [videoReady, setVideoReady] = useState(false);
+  const [loaderRevealed, setLoaderRevealed] = useState(false);
+
   useEffect(() => {
     if (!open) return;
-    setBooting(false);
-    setLocked(true);
-    sounds.bootChime();
+    const isEmbed = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("embed") === "1";
+    if (isEmbed) {
+      setBooting(false);
+      setLocked(false);
+      return;
+    }
+    // Mark video as ready after a short delay (simulating asset load)
+    const readyTimer = window.setTimeout(() => setVideoReady(true), 1500);
+    return () => window.clearTimeout(readyTimer);
   }, [open]);
+
+  // When the loader finishes revealing (5s minimum), transition to lock screen
+  useEffect(() => {
+    if (!loaderRevealed || !open) return;
+    const isEmbed = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("embed") === "1";
+    if (isEmbed) return;
+    const timer = window.setTimeout(() => {
+      setBooting(false);
+      setLocked(true);
+      sounds.bootChime();
+    }, 800); // small delay for the reveal animation to finish
+    return () => window.clearTimeout(timer);
+  }, [loaderRevealed, open]);
 
   /* ----- fullscreen is OPT-IN only -----
      The desktop never hijacks the browser's full screen on its own — the
@@ -1061,6 +1087,12 @@ const MOBILE_BP = 768;
     // Real macOS never fires a "Welcome" notification on unlock — the
     // machine simply appears. Just drop the lock screen.
     setLocked(false);
+    // Fun eSheep auto-spawn on first unlock — surprise visitor!
+    const firstVisit = !window.localStorage.getItem("aryan-os-seen-sheep");
+    if (firstVisit) {
+      window.localStorage.setItem("aryan-os-seen-sheep", "1");
+      window.setTimeout(() => spawnSheep(true), 1200);
+    }
   };
 
   const quitApp = (appId: string) => {
@@ -1860,13 +1892,13 @@ const MOBILE_BP = 768;
       }}
     >
       {/* Status bar: iOS-style on mobile (home screen only, not when Launchpad is open), macOS menu bar on desktop */}
-      {isMobile && manager.windows.length === 0 && !launchpadOpen && (
+      {isMobile && manager.windows.length === 0 && !launchpadOpen && !booting && (
         <MobileStatusBar
           onSettings={() => setControlCenter(true)}
           onNotifications={() => setNotifCenter(true)}
         />
       )}
-      {!anyMaximized && !isMobile && (
+      {!anyMaximized && !isMobile && !booting && (
         <MenuBar
           focusedAppTitle={
             focusedWindow
@@ -1953,10 +1985,10 @@ const MOBILE_BP = 768;
       >
         {/* Mobile: iOS-style app grid replaces desktop icons */}
         {!locked && !booting && isMobile && (
-          <MobileAppGrid onLaunch={openWindow} />
+          <MobileAppGrid onLaunch={openWindow} onOpenUrl={openWebUrl} />
         )}
         {/* Desktop: macOS-style desktop icon grid */}
-        {!isMobile && desktopItems.map((it) => {
+        {!isMobile && !booting && desktopItems.map((it) => {
           const pos = iconPosFor(it.id);
           const preview = draggingId === it.id && dragPreview ? dragPreview : null;
           const finalPos = preview ?? pos;
@@ -2076,9 +2108,8 @@ const MOBILE_BP = 768;
       )}
 
       {/* macOS Tahoe desktop widgets — top-right, below any windows.
-          Edit mode (context menu → Edit Widgets…) shows remove buttons, a
-          drag handle on each card, and a picker to add hidden widgets. */}
-      {!locked && !booting && sys.showWidgets && (
+          Hidden on mobile to prevent overlap with app icons. */}
+      {!locked && !booting && sys.showWidgets && !isMobile && (
         <div
           ref={widgetsRef}
           className={`${styles.widgets} ${
@@ -2231,10 +2262,7 @@ const MOBILE_BP = 768;
                   onAbout={() => setAboutOpen(true)}
                 />
               ) : win.appId === "games" ? (
-                <GamesApp
-                  initialGame={chessDocs[win.id] ? "chess" : undefined}
-                  onLaunchGame={openGame}
-                />
+                <GamesApp />
               ) : win.appId === "game-chess" ? (
                 <ChessGame
                   fullWindow
@@ -2314,6 +2342,8 @@ const MOBILE_BP = 768;
                 <SlidesApp />
               ) : win.appId === "gamelibrary" ? (
                 <GameLibraryApp />
+              ) : win.appId === "mobilesim" ? (
+                <MobileSimulator />
               ) : View ? (
                 <View />
               ) : (
@@ -2332,7 +2362,7 @@ const MOBILE_BP = 768;
       )}
 
       {/* Dock: iOS-style on mobile, macOS-style on desktop — only on home screen, not when Launchpad is open */}
-      {isMobile && (
+      {isMobile && !booting && (
         <MobileDock
           runningApps={manager.runningApps}
           visible={manager.windows.length === 0 && !launchpadOpen}
@@ -2341,7 +2371,7 @@ const MOBILE_BP = 768;
           onAppDrawer={() => setLaunchpadOpen(true)}
         />
       )}
-      {!anyMaximized && !isMobile && (
+      {!anyMaximized && !isMobile && !booting && (
         <Dock
           runningApps={manager.runningApps}
           minimizedWindows={spaceWindows
@@ -2959,17 +2989,11 @@ const MOBILE_BP = 768;
         </div>
       )}
 
-      {booting && (
-        <div className={styles.boot}>
-          <div className={styles.bootLogo}>
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-            </svg>
-            <div className={styles.bootProgress}>
-              <div className={styles.bootProgressFill} />
-            </div>
-          </div>
-        </div>
+      {booting && !loaderRevealed && (
+        <VideoLoader
+          ready={videoReady}
+          onRevealed={() => setLoaderRevealed(true)}
+        />
       )}
 
       {locked && (
