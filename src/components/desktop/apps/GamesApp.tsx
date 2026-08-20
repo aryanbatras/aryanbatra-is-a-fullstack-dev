@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, X, ArrowLeft, Maximize2, Minimize2, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { ONLINE_GAMES, CATEGORY_COUNTS, type OnlineGame } from "@/data/onlineGames";
 
@@ -52,6 +52,7 @@ export default function GamesApp() {
   const [category, setCategory] = useState("all");
   const [page, setPage] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     let list = ONLINE_GAMES;
@@ -73,6 +74,20 @@ export default function GamesApp() {
 
   // Reset page on filter change
   useEffect(() => { setPage(1); }, [search, category]);
+
+  // Scroll to top on page change
+  useEffect(() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }, [page]);
+
+  // Keyboard navigation: left/right arrows for pages, Escape to go back
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (selected) return; // Don't intercept when playing
+      if (e.key === "ArrowRight" && page < totalPages) { setPage(p => p + 1); }
+      if (e.key === "ArrowLeft" && page > 1) { setPage(p => p - 1); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [page, totalPages, selected]);
 
   // ─── FULLSCREEN GAME PLAYER ───
   if (selected) {
@@ -187,7 +202,7 @@ export default function GamesApp() {
       </div>
 
       {/* Game grid — 2 columns, 6 per page */}
-      <div style={{
+      <div ref={scrollRef} style={{
         flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch",
         padding: "8px 12px",
         display: "grid",
